@@ -1,4 +1,5 @@
-# dynamic_simulation_library, requires the math library 
+# dynamic_simulation_library
+needs to be compiled to math_library and require math_library for multiplier and int18 types
 VHDL library for synthesizable real-time simulation tools of dynamic systems.
 
 Library is based on state-variable type that has integration method for simulating differential equations in real time on FPGA. Different applications include LCR filters and power electronics converters
