@@ -51,8 +51,9 @@ architecture vunit_simulation of tb_permanent_magnet_synchronous_machine_model i
     signal iq_current : state_variable_record    := init_state_variable_gain(500);
     signal angular_speed : state_variable_record := init_state_variable_gain(500);
 
-    signal vd_input_voltage        : int18 := 0;
-    signal vq_input_voltage        : int18 := 0;
+    signal vd_input_voltage        : int18 := 500;
+    signal vq_input_voltage        : int18 := -500;
+
     constant permanent_magnet_flux : int18 := 5000;
     constant number_of_pole_pairs  : int18 := 2;
     signal load_torque             : int18 := 1000;
@@ -152,7 +153,7 @@ begin
                     increment(motor_model_multiplier_counter);
                 WHEN 11 =>
                     if multiplier_is_ready(multiplier(id)) then
-                        iq_state_equation <= iq_state_equation - get_multiplier_result(multiplier(id), 15) + vd_input_voltage;
+                        iq_state_equation <= iq_state_equation - get_multiplier_result(multiplier(id), 15) + vq_input_voltage;
                         increment(motor_model_multiplier_counter);
                     end if;
                 WHEN others => -- hang here
