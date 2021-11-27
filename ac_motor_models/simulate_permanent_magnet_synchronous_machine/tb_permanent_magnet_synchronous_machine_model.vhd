@@ -62,6 +62,7 @@ architecture vunit_simulation of tb_permanent_magnet_synchronous_machine_model i
     signal motor_model_process_counter : natural range 0 to 15 := 15;
 
     signal id_state_equation : int18 := 0;
+    signal iq_state_equation : int18 := 0;
     signal Ld : int18 := 500;
     signal Lq : int18 := 500;
 
@@ -128,7 +129,6 @@ begin
                         id_state_equation <= id_state_equation + get_multiplier_result(multiplier(id),15) + vd_input_voltage;
                         increment(motor_model_multiplier_counter);
                     end if;
-                    increment(motor_model_multiplier_counter);
                 -- calculate iq state equation
                 WHEN 5 =>
                     multiply(multiplier(id), rotor_resistance, iq_current.state);
@@ -141,12 +141,26 @@ begin
                     increment(motor_model_multiplier_counter);
                 WHEN 8 =>
                     if multiplier_is_ready(multiplier(id)) then
-                        -- multiply(multiplier(id), Ld, get_multiplier_result();
+                        iq_state_equation <= - get_multiplier_result(multiplier(id), 15);
                         increment(motor_model_multiplier_counter);
                     end if;
-
+                WHEN 9 =>
+                    iq_state_equation <= iq_state_equation - get_multiplier_result(multiplier(id), 15);
+                    increment(motor_model_multiplier_counter);
+                WHEN 10 =>
+                    multiply(multiplier(id), Ld, get_multiplier_result(multiplier(id), 15));
+                    increment(motor_model_multiplier_counter);
+                WHEN 11 =>
+                    if multiplier_is_ready(multiplier(id)) then
+                        iq_state_equation <= iq_state_equation - get_multiplier_result(multiplier(id), 15) + vd_input_voltage;
+                        increment(motor_model_multiplier_counter);
+                    end if;
                 WHEN others => -- hang here
             end CASE;
+        --------------------------------------------------
+            if simulation_counter = 10 then
+                motor_model_multiplier_counter <= 0;
+            end if;
 
         end if; -- rising_edge
     end process stimulus;	
