@@ -45,9 +45,20 @@ architecture vunit_simulation of tb_permanent_magnet_synchronous_machine_model i
     signal ab_to_dq_transform : ab_to_dq_record := init_ab_to_dq_transform;
 
     --------------------------------------------------
+    -- motor simulation signals --
+
     signal id_current : state_variable_record    := init_state_variable_gain(500);
     signal iq_current : state_variable_record    := init_state_variable_gain(500);
     signal angular_speed : state_variable_record := init_state_variable_gain(500);
+
+    signal vd_input_voltage : int18 := 0;
+    signal vq_input_voltage : int18 := 0;
+    constant permanent_magnet_flux : int18 := 5000;
+    constant number_of_pole_pairs : int18 := 2;
+    signal load_torque : int18 := 1000;
+    signal rotor_resistance : int18 := 100;
+
+    signal motor_model_process_counter : natural range 0 to 15 := 15;
 
 begin
 
@@ -76,27 +87,10 @@ begin
 ------------------------------------------------------------------------
 
     stimulus : process(simulator_clock)
-        variable input_d : integer := 50;
-        variable input_q : integer := 50;
-
     begin
         if rising_edge(simulator_clock) then
             --------------------------------------------------
             simulation_counter <= simulation_counter + 1;
-
-            --------------------------------------------------
-            create_multiplier(multiplier(phase_a));
-            create_multiplier(multiplier(phase_b));
-            create_multiplier(multiplier(phase_c));
-
-            --------------------------------------------------
-            create_sincos(multiplier(phase_a) , sincos(phase_a));
-            create_sincos(multiplier(phase_b) , sincos(phase_b));
-            create_sincos(multiplier(phase_c) , sincos(phase_c));
-
-            --------------------------------------------------
-            create_dq_to_ab_transform(multiplier(phase_b), dq_to_ab_transform);
-            create_ab_to_dq_transform(multiplier(phase_c), ab_to_dq_transform);
 
             --------------------------------------------------
             create_multiplier(multiplier(id));
@@ -108,6 +102,20 @@ begin
             create_state_variable(angular_speed , multiplier(w)  , 5);
 
             --------------------------------------------------
+            CASE motor_model_process_counter is
+                WHEN 0 =>
+                    increment(motor_model_process_counter);
+                WHEN 1 =>
+                    increment(motor_model_process_counter);
+                WHEN 2 =>
+                    increment(motor_model_process_counter);
+                WHEN 3 =>
+                    increment(motor_model_process_counter);
+                WHEN 4 =>
+                    increment(motor_model_process_counter);
+                WHEN others => -- hang here
+            end CASE;
+
         end if; -- rising_edge
     end process stimulus;	
 ------------------------------------------------------------------------
