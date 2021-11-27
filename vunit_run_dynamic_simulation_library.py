@@ -19,6 +19,10 @@ mathlib.add_source_files(ROOT / "../math_library/coordinate_transforms/ab_to_dq_
 mathlib.add_source_files(ROOT / "../math_library/multiplier/simulation/tb_multiplier.vhd") 
 mathlib.add_source_files(ROOT / "../math_library/coordinate_transforms/abc_to_ab_transform/abc_to_ab_transform_simulation/tb_abc_to_ab_transform.vhd") 
 mathlib.add_source_files(ROOT / "../math_library/coordinate_transforms/ab_to_dq_transform/ab_to_dq_simulation/tb_ab_to_dq_transforms.vhd")
+
+mathlib.add_source_files(ROOT / "state_variable/state_variable_pkg.vhd")
+
+mathlib.add_source_files(ROOT / "../math_library/coordinate_transforms/ab_to_dq_transform/ab_to_dq_transform_pkg.vhd") 
 mathlib.add_source_files(ROOT / "ac_motor_models/simulate_permanent_magnet_synchronous_machine/tb_permanent_magnet_synchronous_machine_model.vhd")
 
 VU.main()
