@@ -51,12 +51,12 @@ architecture vunit_simulation of tb_permanent_magnet_synchronous_machine_model i
     signal iq_current : state_variable_record    := init_state_variable_gain(500);
     signal angular_speed : state_variable_record := init_state_variable_gain(500);
 
-    signal vd_input_voltage : int18 := 0;
-    signal vq_input_voltage : int18 := 0;
+    signal vd_input_voltage        : int18 := 0;
+    signal vq_input_voltage        : int18 := 0;
     constant permanent_magnet_flux : int18 := 5000;
-    constant number_of_pole_pairs : int18 := 2;
-    signal load_torque : int18 := 1000;
-    signal rotor_resistance : int18 := 100;
+    constant number_of_pole_pairs  : int18 := 2;
+    signal load_torque             : int18 := 1000;
+    signal rotor_resistance        : int18 := 100;
 
     signal motor_model_process_counter : natural range 0 to 15 := 15;
 
