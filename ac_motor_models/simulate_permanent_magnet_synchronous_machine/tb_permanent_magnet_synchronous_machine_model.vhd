@@ -16,6 +16,7 @@ library math_library;
     use math_library.state_variable_pkg.all;
     use math_library.pmsm_electrical_model_pkg.all;
     use math_library.pmsm_mechanical_model_pkg.all;
+    use math_library.permanent_magnet_motor_model_pkg.all;
 
 entity tb_permanent_magnet_synchronous_machine_model is
   generic (runner_cfg : string);
@@ -51,8 +52,11 @@ architecture vunit_simulation of tb_permanent_magnet_synchronous_machine_model i
     signal vd_input_voltage : int18 := 500;
     signal vq_input_voltage : int18 := 500;
 
-    signal id_current_model : id_current_model_record := init_id_current_model;
-    signal iq_current_model : id_current_model_record := init_id_current_model;
+    signal pmsm_model : permanent_magnet_motor_model_record := init_permanent_magnet_motor_model;
+
+    alias id_current_model    is pmsm_model.id_current_model ;
+    alias iq_current_model    is pmsm_model.iq_current_model ;
+    alias angular_speed_model is pmsm_model.angular_speed_model ;
 
     alias id_multiplier is multiplier(id);
     alias iq_multiplier is multiplier(iq);
@@ -61,23 +65,12 @@ architecture vunit_simulation of tb_permanent_magnet_synchronous_machine_model i
     --------------------------------------------------
     -- mechanical model
     constant permanent_magnet_flux : int18 := 5000;
-    constant number_of_pole_pairs  : int18 := 2;
 
     signal Ld : int18 := 5000  ;
     signal Lq : int18 := 15000 ;
 
-    signal angular_speed_model : angular_speed_record := init_angular_speed_model;
-
-    alias id_current is id_current_model.id_current.state;
-    alias iq_current is iq_current_model.id_current.state;
-
     alias angular_speed                     is angular_speed_model.angular_speed                    ;
     alias angular_speed_calculation_counter is angular_speed_model.angular_speed_calculation_counter;
-    alias load_torque                       is angular_speed_model.load_torque                      ;
-    alias w_state_equation                  is angular_speed_model.w_state_equation                 ;
-    alias permanent_magnet_torque           is angular_speed_model.permanent_magnet_torque          ;
-    alias reluctance_torque                 is angular_speed_model.reluctance_torque                ;
-    alias friction                          is angular_speed_model.friction                         ;
 
 begin
 
@@ -117,23 +110,17 @@ begin
             create_multiplier(multiplier(w));
 
             --------------------------------------------------
-            create_pmsm_electrical_model(
-                id_current_model    ,
-                iq_current_model    ,
-                multiplier(id)      ,
-                multiplier(iq)      ,
-                angular_speed.state ,
-                vd_input_voltage    ,
-                vq_input_voltage    ,
-                permanent_magnet_flux);
-            --------------------------------------------------
-            create_angular_speed_model(
-                angular_speed_model ,
-                w_multiplier        ,
-                Ld                  ,
-                Lq                  ,
-                id_current          ,
-                iq_current);
+            create_pmsm_model(
+                pmsm_model            ,
+                multiplier(id)        ,
+                multiplier(iq)        ,
+                multiplier(w)         ,
+                vd_input_voltage      ,
+                vq_input_voltage      ,
+                permanent_magnet_flux ,
+                Ld                    ,
+                Lq                    );
+
             --------------------------------------------------
             if simulation_counter = 10 or id_calculation_is_ready(iq_current_model)  then
                 request_iq_calculation(id_current_model);
