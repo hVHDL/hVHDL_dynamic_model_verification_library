@@ -56,13 +56,6 @@ architecture vunit_simulation of tb_permanent_magnet_synchronous_machine_model i
     signal load_torque             : int18 := 1000;
     signal w_state_equation : int18 := 0;
 
-    type iq_current_model_record is record
-        iq_calculation_counter : natural range 0 to 15;
-        iq_state_equation      : int18                ;
-        Lq                     : int18                ;
-        iq_current             : state_variable_record;
-    end record;
-
     signal angular_speed : state_variable_record := init_state_variable_gain(5000);
 
     signal id_current_model : id_current_model_record    := init_id_current_model;
@@ -108,7 +101,7 @@ begin
             create_multiplier(multiplier(iq));
             create_multiplier(multiplier(w));
 
-            -- create_state_variable(angular_speed , multiplier(w)  , w_state_equation);
+            create_state_variable(angular_speed , multiplier(w)  , w_state_equation);
 
             --------------------------------------------------
             create_pmsm_electrical_model(
