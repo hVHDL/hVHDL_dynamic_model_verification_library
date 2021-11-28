@@ -15,10 +15,14 @@ package pmsm_electrical_model_pkg is
         Ld                : int18;
         id_state_equation : int18;
         rotor_resistance  : int18;
+        calculation_is_ready : boolean;
     end record;
 
-    constant init_id_current_model : id_current_model_record := (15, init_state_variable_gain(5000), 5000, 0, 1000);
+    constant init_id_current_model : id_current_model_record := (15, init_state_variable_gain(5000), 5000, 0, 1000, false);
 
+------------------------------------------------------------------------
+    function id_calculation_is_ready ( signal id_current_object : id_current_model_record)
+        return boolean;
 ------------------------------------------------------------------------
     procedure request_iq_calculation (
         signal id_current_object : out id_current_model_record);
@@ -38,6 +42,21 @@ end package pmsm_electrical_model_pkg;
 
 package body pmsm_electrical_model_pkg is
 
+------------------------------------------------------------------------
+    function id_calculation_is_ready
+    (
+        signal id_current_object : id_current_model_record
+    )
+    return boolean
+    is
+    begin
+        if state_variable_calculation_is_ready(id_current_object.id_current) then
+            return true;
+        else 
+            return false;
+        end if;
+    end id_calculation_is_ready;
+------------------------------------------------------------------------
     procedure request_iq_calculation
     (
         signal id_current_object : out id_current_model_record
