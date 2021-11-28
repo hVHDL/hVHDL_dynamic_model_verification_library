@@ -14,6 +14,7 @@ library math_library;
     use math_library.dq_to_ab_transform_pkg.all;
     use math_library.ab_to_dq_transform_pkg.all;
     use math_library.state_variable_pkg.all;
+    use math_library.pmsm_electrical_model_pkg.all;
 
 
 entity tb_permanent_magnet_synchronous_machine_model is
@@ -68,16 +69,6 @@ architecture vunit_simulation of tb_permanent_magnet_synchronous_machine_model i
 
     signal iq_current             : state_variable_record := init_state_variable_gain(Lq);
     signal angular_speed : state_variable_record := init_state_variable_gain(5000);
-
-    type id_current_model_record is record
-        id_calculation_counter : natural range 0 to 15;
-        id_current        : state_variable_record;
-        Ld                : int18;
-        id_state_equation : int18;
-        rotor_resistance  : int18;
-    end record;
-
-    constant init_id_current_model : id_current_model_record := (15, init_state_variable_gain(5000), 5000, 0, 1000);
 
     signal id_current_model : id_current_model_record    := init_id_current_model;
 
