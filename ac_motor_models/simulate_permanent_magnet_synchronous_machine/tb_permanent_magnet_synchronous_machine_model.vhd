@@ -48,8 +48,8 @@ architecture vunit_simulation of tb_permanent_magnet_synchronous_machine_model i
     --------------------------------------------------
     -- motor electrical simulation signals --
 
-    signal vd_input_voltage        : int18 := 500;
-    signal vq_input_voltage        : int18 := -500;
+    signal vd_input_voltage        : int18 := -500;
+    signal vq_input_voltage        : int18 := 500;
 
     signal id_current_model : id_current_model_record := init_id_current_model;
     signal iq_current_model : id_current_model_record := init_id_current_model;
@@ -120,7 +120,7 @@ begin
                 iq_current_model    ,
                 multiplier(id)      ,
                 multiplier(iq)      ,
-                -5000 ,
+                angular_speed.state ,
                 vd_input_voltage    ,
                 vq_input_voltage    ,
                 permanent_magnet_flux);
