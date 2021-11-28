@@ -59,8 +59,8 @@ architecture vunit_simulation of tb_permanent_magnet_synchronous_machine_model i
     signal load_torque             : int18 := 1000;
     signal rotor_resistance        : int18 := 1000;
 
-    signal motor_model_multiplier_counter : natural range 0 to 15 := 15;
-    signal motor_model_process_counter : natural range 0 to 15 := 15;
+    signal id_calculation_counter : natural range 0 to 15 := 15;
+    signal iq_calculation_counter : natural range 0 to 15 := 15;
 
     signal id_state_equation : int18 := 0;
     signal iq_state_equation : int18 := 0;
@@ -110,67 +110,73 @@ begin
             create_state_variable(angular_speed , multiplier(w)  , w_state_equation);
 
             --------------------------------------------------
-            CASE motor_model_multiplier_counter is
+            if simulation_counter = 10 then
+                id_calculation_counter <= 0;
+                iq_calculation_counter <= 0;
+            end if;
+            --------------------------------------------------
+
+            CASE id_calculation_counter is
                 -- calculate id state equation
                 WHEN 0 =>
                     multiply(multiplier(id), rotor_resistance, id_current.state);
-                    increment(motor_model_multiplier_counter);
+                    increment(id_calculation_counter);
                 WHEN 1 =>
                     multiply(multiplier(id), angular_speed.state, iq_current.state);
-                    increment(motor_model_multiplier_counter);
+                    increment(id_calculation_counter);
                 WHEN 2 =>
                     if multiplier_is_ready(multiplier(id)) then
                         id_state_equation <= -get_multiplier_result(multiplier(id),15);
-                        increment(motor_model_multiplier_counter);
+                        increment(id_calculation_counter);
                     end if;
                 WHEN 3 =>
                     multiply(multiplier(id), Lq, get_multiplier_result(multiplier(id),15));
-                    increment(motor_model_multiplier_counter);
+                    increment(id_calculation_counter);
                 WHEN 4 =>
                     if multiplier_is_ready(multiplier(id)) then
                         id_state_equation <= id_state_equation + get_multiplier_result(multiplier(id),15) + vd_input_voltage;
-                        increment(motor_model_multiplier_counter);
-                    end if;
-                -- calculate iq state equation
-                WHEN 5 =>
-                    multiply(multiplier(id), rotor_resistance, iq_current.state);
-                    increment(motor_model_multiplier_counter);
-                WHEN 6 =>
-                    multiply(multiplier(id), permanent_magnet_flux, angular_speed.state);
-                    increment(motor_model_multiplier_counter);
-                WHEN 7 =>
-                    multiply(multiplier(id), id_current.state, angular_speed.state);
-                    increment(motor_model_multiplier_counter);
-                WHEN 8 =>
-                    if multiplier_is_ready(multiplier(id)) then
-                        iq_state_equation <= - get_multiplier_result(multiplier(id), 15);
-                        increment(motor_model_multiplier_counter);
-                    end if;
-                WHEN 9 =>
-                    iq_state_equation <= iq_state_equation - get_multiplier_result(multiplier(id), 15);
-                    increment(motor_model_multiplier_counter);
-                WHEN 10 =>
-                    multiply(multiplier(id), Ld, get_multiplier_result(multiplier(id), 15));
-                    increment(motor_model_multiplier_counter);
-                WHEN 11 =>
-                    if multiplier_is_ready(multiplier(id)) then
-                        iq_state_equation <= iq_state_equation - get_multiplier_result(multiplier(id), 15) + vq_input_voltage;
-                        increment(motor_model_multiplier_counter);
+                        increment(id_calculation_counter);
                         request_state_variable_calculation(id_current);
+                    end if;
+                WHEN others => -- hang here
+            end CASE;
+
+            CASE iq_calculation_counter is
+                -- calculate iq state equation
+                WHEN 0 =>
+                    multiply(multiplier(iq), rotor_resistance, iq_current.state);
+                    increment(iq_calculation_counter);
+                WHEN 1 =>
+                    multiply(multiplier(iq), permanent_magnet_flux, angular_speed.state);
+                    increment(iq_calculation_counter);
+                WHEN 2 =>
+                    multiply(multiplier(iq), id_current.state, angular_speed.state);
+                    increment(iq_calculation_counter);
+                WHEN 3 =>
+                    if multiplier_is_ready(multiplier(iq)) then
+                        iq_state_equation <= - get_multiplier_result(multiplier(iq), 15);
+                        increment(iq_calculation_counter);
+                    end if;
+                WHEN 4 =>
+                    iq_state_equation <= iq_state_equation - get_multiplier_result(multiplier(iq), 15);
+                    increment(iq_calculation_counter);
+                WHEN 5 =>
+                    multiply(multiplier(iq), Ld, get_multiplier_result(multiplier(iq), 15));
+                    increment(iq_calculation_counter);
+                WHEN 6 =>
+                    if multiplier_is_ready(multiplier(iq)) then
+                        iq_state_equation <= iq_state_equation - get_multiplier_result(multiplier(iq), 15) + vq_input_voltage;
+                        increment(iq_calculation_counter);
                         request_state_variable_calculation(iq_current);
                     end if;
-                WHEN 12 =>
-                    if state_variable_calculation_is_ready(id_current) then
-                        motor_model_multiplier_counter <= 0;
+                WHEN 7 =>
+                    if state_variable_calculation_is_ready(iq_current) then
+                        id_calculation_counter <= 0;
+                        iq_calculation_counter <= 0;
                     end if;
 
                 WHEN others => -- hang here
             end CASE;
-        --------------------------------------------------
-            if simulation_counter = 10 then
-                motor_model_multiplier_counter <= 0;
-            end if;
-
         end if; -- rising_edge
     end process stimulus;	
 ------------------------------------------------------------------------
