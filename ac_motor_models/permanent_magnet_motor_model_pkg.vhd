@@ -23,11 +23,20 @@ package permanent_magnet_motor_model_pkg is
          init_id_current_model ,
          init_angular_speed_model);
 ------------------------------------------------------------------------
+    function angular_speed_calculation_is_ready ( pmsm_model_object : permanent_magnet_motor_model_record)
+        return boolean;
+------------------------------------------------------------------------
     procedure request_id_calculation (
         signal pmsm_model_object : out permanent_magnet_motor_model_record);
 ------------------------------------------------------------------------
     procedure request_iq_calculation (
         signal pmsm_model_object : out permanent_magnet_motor_model_record);
+------------------------------------------------------------------------
+    procedure request_angular_speed_calculation (
+        signal pmsm_model_object : out permanent_magnet_motor_model_record);
+------------------------------------------------------------------------
+    function id_calculation_is_ready ( pmsm_model_object : permanent_magnet_motor_model_record)
+        return boolean;
 ------------------------------------------------------------------------
     procedure create_pmsm_model (
         signal pmsm_model_object : inout permanent_magnet_motor_model_record ;
@@ -43,12 +52,32 @@ end package permanent_magnet_motor_model_pkg;
 package body permanent_magnet_motor_model_pkg is
 
 ------------------------------------------------------------------------
+    function angular_speed_calculation_is_ready
+    (
+        pmsm_model_object : permanent_magnet_motor_model_record
+    )
+    return boolean
+    is
+    begin
+        return angular_speed_calculation_is_ready(pmsm_model_object.angular_speed_model);
+    end angular_speed_calculation_is_ready;
+------------------------------------------------------------------------
+    function id_calculation_is_ready
+    (
+        pmsm_model_object : permanent_magnet_motor_model_record
+    )
+    return boolean
+    is
+    begin
+        return id_calculation_is_ready(pmsm_model_object.iq_current_model);
+    end id_calculation_is_ready;
+------------------------------------------------------------------------
     procedure request_angular_speed_calculation
     (
         signal pmsm_model_object : out permanent_magnet_motor_model_record
     ) is
     begin
-        
+        request_angular_speed_calculation(pmsm_model_object.angular_speed_model);
     end request_angular_speed_calculation;
 ------------------------------------------------------------------------
     procedure request_id_calculation

@@ -21,7 +21,7 @@ package pmsm_electrical_model_pkg is
     constant init_id_current_model : id_current_model_record := (15, init_state_variable_gain(15000), 5000, 0, 500, false);
 
 ------------------------------------------------------------------------
-    function id_calculation_is_ready ( signal id_current_object : id_current_model_record)
+    function id_calculation_is_ready ( id_current_object : id_current_model_record)
         return boolean;
 ------------------------------------------------------------------------
     procedure request_iq_calculation (
@@ -45,7 +45,7 @@ package body pmsm_electrical_model_pkg is
 ------------------------------------------------------------------------
     function id_calculation_is_ready
     (
-        signal id_current_object : id_current_model_record
+        id_current_object : id_current_model_record
     )
     return boolean
     is

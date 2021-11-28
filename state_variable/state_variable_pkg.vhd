@@ -18,7 +18,7 @@ package state_variable_pkg is
     constant init_state_variable : state_variable_record := (false, 0, 0, 1);
 
 --------------------------------------------------
-    function state_variable_calculation_is_ready ( signal state_variable : state_variable_record)
+    function state_variable_calculation_is_ready ( state_variable : state_variable_record)
         return boolean;
 --------------------------------------------------
     function init_state_variable_gain ( integrator_gain : int18)
@@ -69,7 +69,7 @@ package body state_variable_pkg is
 --------------------------------------------------
     function state_variable_calculation_is_ready
     (
-        signal state_variable : state_variable_record
+        state_variable : state_variable_record
     )
     return boolean
     is

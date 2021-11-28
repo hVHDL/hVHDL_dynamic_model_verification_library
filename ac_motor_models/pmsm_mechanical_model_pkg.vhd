@@ -30,8 +30,11 @@ package pmsm_mechanical_model_pkg is
         reluctance_torque                 => 0                             ,
         friction                          => 0                             );
 ------------------------------------------------------------------------
+    function angular_speed_calculation_is_ready ( angular_speed_object : angular_speed_record)
+        return boolean;
+------------------------------------------------------------------------
     procedure request_angular_speed_calculation (
-        signal angular_speed_object : inout angular_speed_record);
+        signal angular_speed_object : out angular_speed_record);
     --------------------------------------------------
     procedure create_angular_speed_model (
         signal angular_speed_object : inout angular_speed_record;
@@ -47,9 +50,20 @@ end package pmsm_mechanical_model_pkg;
 
 package body pmsm_mechanical_model_pkg is
 
+------------------------------------------------------------------------
+    function angular_speed_calculation_is_ready
+    (
+        angular_speed_object : angular_speed_record
+    )
+    return boolean
+    is
+    begin
+        return state_variable_calculation_is_ready(angular_speed_object.angular_speed);
+    end angular_speed_calculation_is_ready;
+------------------------------------------------------------------------
     procedure request_angular_speed_calculation
     (
-        signal angular_speed_object : inout angular_speed_record
+        signal angular_speed_object : out angular_speed_record
     ) is
     begin
         angular_speed_object.angular_speed_calculation_counter <= 0;

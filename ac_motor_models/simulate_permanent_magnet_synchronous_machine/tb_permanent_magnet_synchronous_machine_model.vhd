@@ -13,9 +13,6 @@ library math_library;
     use math_library.ab_to_abc_transform_pkg.all;
     use math_library.dq_to_ab_transform_pkg.all;
     use math_library.ab_to_dq_transform_pkg.all;
-    use math_library.state_variable_pkg.all;
-    use math_library.pmsm_electrical_model_pkg.all;
-    use math_library.pmsm_mechanical_model_pkg.all;
     use math_library.permanent_magnet_motor_model_pkg.all;
 
 entity tb_permanent_magnet_synchronous_machine_model is
@@ -113,13 +110,13 @@ begin
                 vd_input_voltage      ,
                 vq_input_voltage      );
             --------------------------------------------------
-            if simulation_counter = 10 or id_calculation_is_ready(iq_current_model)  then
+            if simulation_counter = 10 or id_calculation_is_ready(pmsm_model)  then
                 request_id_calculation(pmsm_model);
                 request_iq_calculation(pmsm_model);
             end if;
 
-            if simulation_counter = 10 or state_variable_calculation_is_ready(angular_speed) then
-                request_angular_speed_calculation(angular_speed_model);
+            if simulation_counter = 10 or angular_speed_calculation_is_ready(pmsm_model) then
+                request_angular_speed_calculation(pmsm_model);
             end if;
 
         end if; -- rising_edge
