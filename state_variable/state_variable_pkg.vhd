@@ -9,12 +9,17 @@ library math_library;
 package state_variable_pkg is
 
     type state_variable_record is record
+        state_variable_has_been_calculated : boolean;
         state           : int18;
         integrator_gain : int18;
         state_counter : natural range 0 to 1;
     end record;
 
-    constant init_state_variable : state_variable_record := (0, 0, 1);
+    constant init_state_variable : state_variable_record := (false, 0, 0, 1);
+
+--------------------------------------------------
+    function state_variable_calculation_is_ready ( signal state_variable : state_variable_record)
+        return boolean;
 --------------------------------------------------
     function init_state_variable_gain ( integrator_gain : int18)
         return state_variable_record;
@@ -62,15 +67,25 @@ end package state_variable_pkg;
 package body state_variable_pkg is
 
 --------------------------------------------------
+    function state_variable_calculation_is_ready
+    (
+        signal state_variable : state_variable_record
+    )
+    return boolean
+    is
+    begin
+        return state_variable.state_variable_has_been_calculated;
+    end state_variable_calculation_is_ready;
+--------------------------------------------------
     function init_state_variable_gain
     (
         integrator_gain : int18
     )
     return state_variable_record
     is
-        variable state_variable : state_variable_record;
+        variable state_variable : state_variable_record := init_state_variable;
     begin
-        state_variable := (state => 0, integrator_gain => integrator_gain, state_counter => 1);
+        state_variable := (state_variable_has_been_calculated => false, state => 0, integrator_gain => integrator_gain, state_counter => 1);
         return state_variable;
     end init_state_variable_gain;
 
@@ -82,9 +97,14 @@ package body state_variable_pkg is
         state_equation : int18
     ) is
     begin 
+        state_variable.state_variable_has_been_calculated <= false;
         if state_variable.state_counter = 0 then
             integrate_state(state_variable, hw_multiplier, 15, state_equation);
             increment_counter_when_ready(hw_multiplier, state_variable.state_counter);
+            if multiplier_is_ready(hw_multiplier) then
+                state_variable.state_variable_has_been_calculated <= true;
+            end if;
+
         end if;
 
     end create_state_variable;

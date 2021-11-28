@@ -19,8 +19,8 @@ package lcr_filter_model_pkg is
     end record;
 
     constant init_lcr_filter : lcr_model_record := 
-            (inductor_current          => (0 , 0 , 1) ,
-            capacitor_voltage          => (0 , 0 , 1) ,
+            (inductor_current          => init_state_variable ,
+            capacitor_voltage          => init_state_variable ,
             process_counter            => 4  ,
             inductor_current_delta     => 0  ,
             inductor_series_resistance => 200);
