@@ -15,6 +15,7 @@ library math_library;
     use math_library.ab_to_dq_transform_pkg.all;
     use math_library.state_variable_pkg.all;
     use math_library.pmsm_electrical_model_pkg.all;
+    use math_library.pmsm_mechanical_model_pkg.all;
 
 
 entity tb_permanent_magnet_synchronous_machine_model is
@@ -63,28 +64,6 @@ architecture vunit_simulation of tb_permanent_magnet_synchronous_machine_model i
     constant permanent_magnet_flux           : int18                 := 5000;
     constant number_of_pole_pairs            : int18                 := 2;
 
-    type angular_speed_record is record
-        angular_speed                     : state_variable_record;
-        angular_speed_calculation_counter : natural range 0 to 15;
-        load_torque                       : int18                ;
-        w_state_equation                  : int18                ;
-        permanent_magnet_torque           : int18                ;
-        Ld                                : int18                ;
-        Lq                                : int18                ;
-        reluctance_torque                 : int18                ;
-        friction                          : int18                ;
-    end record;
-    constant init_angular_speed_model : angular_speed_record :=(
-        angular_speed                     => init_state_variable_gain(500) ,
-        angular_speed_calculation_counter => 15                            ,
-        load_torque                       => 1000                          ,
-        w_state_equation                  => 0                             ,
-        permanent_magnet_torque           => 0                             ,
-        Ld                                => 5000                          ,
-        Lq                                => 15000                         ,
-        reluctance_torque                 => 0                             ,
-        friction                          => 0                             );
-    --------------------------------------------------
     signal angular_speed_model : angular_speed_record := init_angular_speed_model;
 
     alias id_current is id_current_model.id_current.state;

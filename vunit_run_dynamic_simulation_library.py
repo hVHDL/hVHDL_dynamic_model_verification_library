@@ -22,6 +22,7 @@ mathlib.add_source_files(ROOT / "../math_library/coordinate_transforms/ab_to_dq_
 
 mathlib.add_source_files(ROOT / "state_variable/state_variable_pkg.vhd")
 mathlib.add_source_files(ROOT / "ac_motor_models/pmsm_electrical_model_pkg.vhd")
+mathlib.add_source_files(ROOT / "ac_motor_models/pmsm_mechanical_model_pkg.vhd")
 
 mathlib.add_source_files(ROOT / "../math_library/coordinate_transforms/ab_to_dq_transform/ab_to_dq_transform_pkg.vhd") 
 mathlib.add_source_files(ROOT / "ac_motor_models/simulate_permanent_magnet_synchronous_machine/tb_permanent_magnet_synchronous_machine_model.vhd")
