@@ -64,6 +64,9 @@ architecture vunit_simulation of tb_permanent_magnet_synchronous_machine_model i
     constant permanent_magnet_flux           : int18                 := 5000;
     constant number_of_pole_pairs            : int18                 := 2;
 
+    signal Ld : int18 := 5000  ;
+    signal Lq : int18 := 15000 ;
+
     signal angular_speed_model : angular_speed_record := init_angular_speed_model;
 
     alias id_current is id_current_model.id_current.state;
@@ -74,8 +77,6 @@ architecture vunit_simulation of tb_permanent_magnet_synchronous_machine_model i
     alias load_torque                       is angular_speed_model.load_torque                      ;
     alias w_state_equation                  is angular_speed_model.w_state_equation                 ;
     alias permanent_magnet_torque           is angular_speed_model.permanent_magnet_torque          ;
-    alias Ld                                is angular_speed_model.Ld                               ;
-    alias Lq                                is angular_speed_model.Lq                               ;
     alias reluctance_torque                 is angular_speed_model.reluctance_torque                ;
     alias friction                          is angular_speed_model.friction                         ;
 
@@ -116,8 +117,6 @@ begin
             create_multiplier(multiplier(iq));
             create_multiplier(multiplier(w));
 
-            create_state_variable(angular_speed , w_multiplier  , w_state_equation);
-
             --------------------------------------------------
             create_pmsm_electrical_model(
                 id_current_model    ,
@@ -129,6 +128,13 @@ begin
                 vq_input_voltage    ,
                 permanent_magnet_flux);
             --------------------------------------------------
+            create_angular_speed_model(
+                angular_speed_model ,
+                w_multiplier        ,
+                Ld                  ,
+                Lq                  ,
+                id_current          ,
+                iq_current);
             if simulation_counter = 10 or id_calculation_is_ready(iq_current_model)  then
                 request_iq_calculation(id_current_model);
                 request_iq_calculation(iq_current_model);
@@ -138,40 +144,6 @@ begin
                 angular_speed_calculation_counter <= 0;
             end if;
 
-            CASE angular_speed_calculation_counter is
-                WHEN 0 =>
-                    multiply(w_multiplier, id_current, iq_current);
-                    increment(angular_speed_calculation_counter);
-                WHEN 1 =>
-                    multiply(w_multiplier, permanent_magnet_flux, iq_current);
-                    increment(angular_speed_calculation_counter);
-                WHEN 2 =>
-                    if multiplier_is_ready(w_multiplier) then
-                        multiply(w_multiplier, (Ld-Lq), get_multiplier_result(w_multiplier, 15));
-                        increment(angular_speed_calculation_counter);
-                    end if;
-                WHEN 3 =>
-                    multiply(w_multiplier, angular_speed.state, 10e3);
-                    permanent_magnet_torque <= get_multiplier_result(w_multiplier, 15);
-                    w_state_equation        <= get_multiplier_result(w_multiplier, 15);
-                    increment(angular_speed_calculation_counter);
-                WHEN 4 =>
-                    increment(angular_speed_calculation_counter);
-                WHEN 5 =>
-                    if multiplier_is_ready(w_multiplier) then
-                        reluctance_torque <= get_multiplier_result(w_multiplier, 15);
-                        w_state_equation <= w_state_equation + get_multiplier_result(w_multiplier, 15);
-                        increment(angular_speed_calculation_counter);
-                    end if;
-                WHEN 6 =>
-                    friction <= - get_multiplier_result(w_multiplier, 15);
-                    w_state_equation <= w_state_equation - get_multiplier_result(w_multiplier, 15);
-                    increment(angular_speed_calculation_counter);
-                WHEN 7 =>
-                    request_state_variable_calculation(angular_speed);
-                    increment(angular_speed_calculation_counter);
-                WHEN others =>
-            end CASE;
 
         end if; -- rising_edge
     end process stimulus;	
