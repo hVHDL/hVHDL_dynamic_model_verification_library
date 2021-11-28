@@ -26,7 +26,7 @@ architecture vunit_simulation of tb_permanent_magnet_synchronous_machine_model i
     signal simulator_clock     : std_logic  := '0'    ;
     constant clock_per         : time       := 1 ns   ;
     constant clock_half_per    : time       := 0.5 ns ;
-    constant simtime_in_clocks : integer    := 25e3   ;
+    constant simtime_in_clocks : integer    := 50e3   ;
 
     signal simulation_counter : natural := 0;
     -----------------------------------
@@ -47,8 +47,8 @@ architecture vunit_simulation of tb_permanent_magnet_synchronous_machine_model i
     --------------------------------------------------
     -- motor electrical simulation signals --
 
-    signal vd_input_voltage : int18 := 500;
-    signal vq_input_voltage : int18 := 500;
+    signal vd_input_voltage : int18 := 300;
+    signal vq_input_voltage : int18 := -300;
 
     signal pmsm_model : permanent_magnet_motor_model_record := init_permanent_magnet_motor_model;
 
@@ -58,19 +58,6 @@ architecture vunit_simulation of tb_permanent_magnet_synchronous_machine_model i
 
     --------------------------------------------------
     -- mechanical model
-    signal electrical_angle : state_variable_record := init_state_variable_gain(30000);
-
-    function get_16_bits
-    (
-        number : int18
-    )
-    return integer
-    is
-        variable uint_number : unsigned(17 downto 0);
-    begin
-       uint_number := unsigned(std_logic_vector(to_signed(number, 18)));
-       return to_integer(uint_number(15 downto 0));
-    end get_16_bits;
 
 begin
 
@@ -110,16 +97,14 @@ begin
             create_multiplier(multiplier(w));
             create_multiplier(multiplier(angle));
 
-            electrical_angle.state <= get_16_bits(electrical_angle.state);
-            create_state_variable(electrical_angle,multiplier(angle), get_angle(pmsm_model));
-
             --------------------------------------------------
             create_pmsm_model(
-                pmsm_model            ,
-                multiplier(id)        ,
-                multiplier(iq)        ,
-                multiplier(w)         ,
-                vd_input_voltage      ,
+                pmsm_model        ,
+                multiplier(id)    ,
+                multiplier(iq)    ,
+                multiplier(w)     ,
+                multiplier(angle) ,
+                vd_input_voltage  ,
                 vq_input_voltage      );
             --------------------------------------------------
             if simulation_counter = 10 or id_calculation_is_ready(pmsm_model)  then
@@ -129,9 +114,15 @@ begin
 
             if simulation_counter = 10 or angular_speed_calculation_is_ready(pmsm_model) then
                 request_angular_speed_calculation(pmsm_model);
-                request_state_variable_calculation(electrical_angle);
             end if;
 
+            if angular_speed_calculation_is_ready(pmsm_model) then
+                request_electrical_angle_calculation(pmsm_model);
+            end if;
+
+            if simulation_counter = 25e3 then
+                set_load_torque(pmsm_model, 1000);
+            end if;
 
         end if; -- rising_edge
     end process stimulus;	

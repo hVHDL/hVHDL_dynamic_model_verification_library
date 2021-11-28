@@ -23,14 +23,18 @@ package pmsm_mechanical_model_pkg is
     constant init_angular_speed_model : angular_speed_record :=(
         angular_speed                     => init_state_variable_gain(500) ,
         angular_speed_calculation_counter => 15                            ,
-        load_torque                       => 1000                          ,
+        load_torque                       => 0                             ,
         w_state_equation                  => 0                             ,
         permanent_magnet_torque           => 0                             ,
         permanent_magnet_flux             => 5000                          ,
         reluctance_torque                 => 0                             ,
         friction                          => 0                             );
 ------------------------------------------------------------------------
-    function get_angle ( angular_speed_object : angular_speed_record)
+    procedure set_load_torque (
+        signal angular_speed_object : out angular_speed_record;
+        load_torque : in int18);
+------------------------------------------------------------------------
+    function get_angular_speed ( angular_speed_object : angular_speed_record)
         return int18;
 ------------------------------------------------------------------------
     function angular_speed_calculation_is_ready ( angular_speed_object : angular_speed_record)
@@ -54,7 +58,17 @@ end package pmsm_mechanical_model_pkg;
 package body pmsm_mechanical_model_pkg is
 
 ------------------------------------------------------------------------
-    function get_angle
+    procedure set_load_torque
+    (
+        signal angular_speed_object : out angular_speed_record;
+        load_torque : in int18
+    ) is
+    begin
+        angular_speed_object.load_torque <= load_torque;
+        
+    end set_load_torque;
+------------------------------------------------------------------------
+    function get_angular_speed
     (
         angular_speed_object : angular_speed_record
     )
@@ -62,7 +76,7 @@ package body pmsm_mechanical_model_pkg is
     is
     begin
         return angular_speed_object.angular_speed.state;
-    end get_angle;
+    end get_angular_speed;
 ------------------------------------------------------------------------
     function angular_speed_calculation_is_ready
     (
@@ -117,7 +131,7 @@ package body pmsm_mechanical_model_pkg is
             WHEN 3 =>
                 multiply(w_multiplier, angular_speed.state, 10e3);
                 permanent_magnet_torque <= get_multiplier_result(w_multiplier, 15);
-                w_state_equation        <= get_multiplier_result(w_multiplier, 15);
+                w_state_equation        <= get_multiplier_result(w_multiplier, 15) - load_torque;
                 increment(angular_speed_calculation_counter);
             WHEN 4 =>
                 increment(angular_speed_calculation_counter);
