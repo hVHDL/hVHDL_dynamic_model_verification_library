@@ -27,7 +27,7 @@ architecture vunit_simulation of tb_permanent_magnet_synchronous_machine_model i
     signal simulator_clock : std_logic;
     constant clock_per : time := 1 ns;
     constant clock_half_per : time := 0.5 ns;
-    constant simtime_in_clocks : integer := 50e3;
+    constant simtime_in_clocks : integer := 25e3;
 
     signal simulation_counter : natural := 0;
     -----------------------------------
@@ -111,20 +111,20 @@ begin
             -- create_state_variable(angular_speed , multiplier(w)  , w_state_equation);
 
             --------------------------------------------------
-            if simulation_counter = 10 then
+            create_pmsm_electrical_model(
+                id_current_model    ,
+                iq_current_model    ,
+                multiplier(id)      ,
+                multiplier(iq)      ,
+                -5000 ,
+                vd_input_voltage    ,
+                vq_input_voltage    ,
+                permanent_magnet_flux);
+            --------------------------------------------------
+            if simulation_counter = 10 or id_calculation_is_ready(iq_current_model)  then
                 request_iq_calculation(id_current_model);
                 request_iq_calculation(iq_current_model);
             end if;
-            --------------------------------------------------
-            create_pmsm_electrical_model(
-                id_current_model ,
-                iq_current_model ,
-                multiplier(id)   ,
-                multiplier(iq)   ,
-                angular_speed    ,
-                vd_input_voltage ,
-                vq_input_voltage ,
-                permanent_magnet_flux);
 
         end if; -- rising_edge
     end process stimulus;	
