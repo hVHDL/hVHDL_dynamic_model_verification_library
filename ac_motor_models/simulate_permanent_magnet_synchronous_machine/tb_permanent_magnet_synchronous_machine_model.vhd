@@ -68,17 +68,6 @@ architecture vunit_simulation of tb_permanent_magnet_synchronous_machine_model i
     signal id_current_model : id_current_model_record    := init_id_current_model;
     signal iq_current_model : id_current_model_record    := init_id_current_model;
 
-    alias rotor_resistance       is id_current_model.rotor_resistance      ;
-    alias id_calculation_counter is id_current_model.id_calculation_counter;
-    alias id_state_equation      is id_current_model.id_state_equation     ;
-    alias Ld                     is id_current_model.Ld                    ;
-    alias id_current             is id_current_model.id_current            ;
-
-    alias iq_calculation_counter is iq_current_model.id_calculation_counter;
-    alias iq_state_equation      is iq_current_model.id_state_equation;
-    alias Lq                     is iq_current_model.Ld;
-    alias iq_current             is iq_current_model.id_current;
-
     alias id_multiplier is multiplier(id);
     alias iq_multiplier is multiplier(iq);
 
@@ -119,77 +108,24 @@ begin
             create_multiplier(multiplier(iq));
             create_multiplier(multiplier(w));
 
-            create_state_variable(id_current    , multiplier(id) , id_state_equation);
-            create_state_variable(iq_current    , multiplier(iq) , iq_state_equation);
-            create_state_variable(angular_speed , multiplier(w)  , w_state_equation);
+            -- create_state_variable(angular_speed , multiplier(w)  , w_state_equation);
 
             --------------------------------------------------
             if simulation_counter = 10 then
-                id_calculation_counter <= 0;
-                iq_calculation_counter <= 0;
+                request_iq_calculation(id_current_model);
+                request_iq_calculation(iq_current_model);
             end if;
             --------------------------------------------------
+            create_pmsm_electrical_model(
+                id_current_model ,
+                iq_current_model ,
+                multiplier(id)   ,
+                multiplier(iq)   ,
+                angular_speed    ,
+                vd_input_voltage ,
+                vq_input_voltage ,
+                permanent_magnet_flux);
 
-            CASE id_calculation_counter is
-                -- calculate id state equation
-                WHEN 0 =>
-                    multiply(id_multiplier, rotor_resistance, id_current.state);
-                    increment(id_calculation_counter);
-                WHEN 1 =>
-                    multiply(id_multiplier, angular_speed.state, iq_current.state);
-                    increment(id_calculation_counter);
-                WHEN 2 =>
-                    if multiplier_is_ready(id_multiplier) then
-                        id_state_equation <= -get_multiplier_result(id_multiplier,15);
-                        increment(id_calculation_counter);
-                    end if;
-                WHEN 3 =>
-                    multiply(id_multiplier, Lq, get_multiplier_result(id_multiplier,15));
-                    increment(id_calculation_counter);
-                WHEN 4 =>
-                    if multiplier_is_ready(id_multiplier) then
-                        id_state_equation <= id_state_equation + get_multiplier_result(id_multiplier,15) + vd_input_voltage;
-                        increment(id_calculation_counter);
-                        request_state_variable_calculation(id_current);
-                    end if;
-                WHEN others => -- hang here
-            end CASE;
-
-            CASE iq_calculation_counter is
-                -- calculate iq state equation
-                WHEN 0 =>
-                    multiply(iq_multiplier, rotor_resistance, iq_current.state);
-                    increment(iq_calculation_counter);
-                WHEN 1 =>
-                    multiply(iq_multiplier, permanent_magnet_flux, angular_speed.state);
-                    increment(iq_calculation_counter);
-                WHEN 2 =>
-                    multiply(iq_multiplier, id_current.state, angular_speed.state);
-                    increment(iq_calculation_counter);
-                WHEN 3 =>
-                    if multiplier_is_ready(iq_multiplier) then
-                        iq_state_equation <= - get_multiplier_result(iq_multiplier, 15);
-                        increment(iq_calculation_counter);
-                    end if;
-                WHEN 4 =>
-                    iq_state_equation <= iq_state_equation - get_multiplier_result(iq_multiplier, 15);
-                    increment(iq_calculation_counter);
-                WHEN 5 =>
-                    multiply(iq_multiplier, Ld, get_multiplier_result(iq_multiplier, 15));
-                    increment(iq_calculation_counter);
-                WHEN 6 =>
-                    if multiplier_is_ready(iq_multiplier) then
-                        iq_state_equation <= iq_state_equation - get_multiplier_result(iq_multiplier, 15) + vq_input_voltage;
-                        increment(iq_calculation_counter);
-                        request_state_variable_calculation(iq_current);
-                    end if;
-                WHEN 7 =>
-                    if state_variable_calculation_is_ready(iq_current) then
-                        id_calculation_counter <= 0;
-                        iq_calculation_counter <= 0;
-                    end if;
-                WHEN others => -- hang here
-            end CASE;
         end if; -- rising_edge
     end process stimulus;	
 ------------------------------------------------------------------------
