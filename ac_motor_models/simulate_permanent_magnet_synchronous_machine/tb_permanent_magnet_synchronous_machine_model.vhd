@@ -14,6 +14,7 @@ library math_library;
     use math_library.dq_to_ab_transform_pkg.all;
     use math_library.ab_to_dq_transform_pkg.all;
     use math_library.permanent_magnet_motor_model_pkg.all;
+    use math_library.state_variable_pkg.all;
 
 entity tb_permanent_magnet_synchronous_machine_model is
   generic (runner_cfg : string);
@@ -30,13 +31,13 @@ architecture vunit_simulation of tb_permanent_magnet_synchronous_machine_model i
     signal simulation_counter : natural := 0;
     -----------------------------------
     -- simulation specific signals ----
-    type abc is (phase_a, phase_b, phase_c, id, iq, w);
+    type abc is (phase_a, phase_b, phase_c, id, iq, w, angle);
 
     type multiplier_array is array (abc range abc'left to abc'right) of multiplier_record;
-    signal multiplier : multiplier_array := (init_multiplier, init_multiplier, init_multiplier, init_multiplier, init_multiplier, init_multiplier);
+    signal multiplier : multiplier_array := (init_multiplier,init_multiplier, init_multiplier, init_multiplier, init_multiplier, init_multiplier, init_multiplier);
 
     type sincos_array is array (abc range abc'left to abc'right) of sincos_record;
-    signal sincos : sincos_array := (init_sincos, init_sincos, init_sincos, init_sincos, init_sincos, init_sincos);
+    signal sincos : sincos_array := (init_sincos, init_sincos, init_sincos, init_sincos, init_sincos, init_sincos, init_sincos);
 
     signal angle_rad16 : unsigned(15 downto 0) := to_unsigned(10e3, 16);
 
@@ -51,18 +52,25 @@ architecture vunit_simulation of tb_permanent_magnet_synchronous_machine_model i
 
     signal pmsm_model : permanent_magnet_motor_model_record := init_permanent_magnet_motor_model;
 
-    alias id_current_model    is pmsm_model.id_current_model ;
-    alias iq_current_model    is pmsm_model.iq_current_model ;
-    alias angular_speed_model is pmsm_model.angular_speed_model ;
-
     alias id_multiplier is multiplier(id);
     alias iq_multiplier is multiplier(iq);
     alias w_multiplier is multiplier(w);
 
     --------------------------------------------------
     -- mechanical model
-    alias angular_speed                     is angular_speed_model.angular_speed                    ;
-    alias angular_speed_calculation_counter is angular_speed_model.angular_speed_calculation_counter;
+    signal electrical_angle : state_variable_record := init_state_variable_gain(30000);
+
+    function get_16_bits
+    (
+        number : int18
+    )
+    return integer
+    is
+        variable uint_number : unsigned(17 downto 0);
+    begin
+       uint_number := unsigned(std_logic_vector(to_signed(number, 18)));
+       return to_integer(uint_number(15 downto 0));
+    end get_16_bits;
 
 begin
 
@@ -100,6 +108,10 @@ begin
             create_multiplier(multiplier(id));
             create_multiplier(multiplier(iq));
             create_multiplier(multiplier(w));
+            create_multiplier(multiplier(angle));
+
+            electrical_angle.state <= get_16_bits(electrical_angle.state);
+            create_state_variable(electrical_angle,multiplier(angle), get_angle(pmsm_model));
 
             --------------------------------------------------
             create_pmsm_model(
@@ -117,7 +129,9 @@ begin
 
             if simulation_counter = 10 or angular_speed_calculation_is_ready(pmsm_model) then
                 request_angular_speed_calculation(pmsm_model);
+                request_state_variable_calculation(electrical_angle);
             end if;
+
 
         end if; -- rising_edge
     end process stimulus;	

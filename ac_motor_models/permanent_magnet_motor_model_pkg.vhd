@@ -26,6 +26,9 @@ package permanent_magnet_motor_model_pkg is
     function angular_speed_calculation_is_ready ( pmsm_model_object : permanent_magnet_motor_model_record)
         return boolean;
 ------------------------------------------------------------------------
+    function get_angle ( pmsm_model_object : permanent_magnet_motor_model_record)
+        return int18;
+------------------------------------------------------------------------
     procedure request_id_calculation (
         signal pmsm_model_object : out permanent_magnet_motor_model_record);
 ------------------------------------------------------------------------
@@ -51,6 +54,17 @@ end package permanent_magnet_motor_model_pkg;
 
 package body permanent_magnet_motor_model_pkg is
 
+------------------------------------------------------------------------
+    function get_angle
+    (
+        pmsm_model_object : permanent_magnet_motor_model_record
+    )
+    return int18
+    is
+    begin
+        return get_angle(pmsm_model_object.angular_speed_model);
+        
+    end get_angle;
 ------------------------------------------------------------------------
     function angular_speed_calculation_is_ready
     (

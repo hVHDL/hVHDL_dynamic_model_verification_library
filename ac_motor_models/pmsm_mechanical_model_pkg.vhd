@@ -30,6 +30,9 @@ package pmsm_mechanical_model_pkg is
         reluctance_torque                 => 0                             ,
         friction                          => 0                             );
 ------------------------------------------------------------------------
+    function get_angle ( angular_speed_object : angular_speed_record)
+        return int18;
+------------------------------------------------------------------------
     function angular_speed_calculation_is_ready ( angular_speed_object : angular_speed_record)
         return boolean;
 ------------------------------------------------------------------------
@@ -50,6 +53,16 @@ end package pmsm_mechanical_model_pkg;
 
 package body pmsm_mechanical_model_pkg is
 
+------------------------------------------------------------------------
+    function get_angle
+    (
+        angular_speed_object : angular_speed_record
+    )
+    return int18
+    is
+    begin
+        return angular_speed_object.angular_speed.state;
+    end get_angle;
 ------------------------------------------------------------------------
     function angular_speed_calculation_is_ready
     (
