@@ -23,11 +23,11 @@ end;
 
 architecture vunit_simulation of tb_permanent_magnet_synchronous_machine_model is
 
-    signal simulation_running : boolean;
-    signal simulator_clock : std_logic;
-    constant clock_per : time := 1 ns;
-    constant clock_half_per : time := 0.5 ns;
-    constant simtime_in_clocks : integer := 25e3;
+    signal simulation_running  : boolean    := false  ;
+    signal simulator_clock     : std_logic  := '0'    ;
+    constant clock_per         : time       := 1 ns   ;
+    constant clock_half_per    : time       := 0.5 ns ;
+    constant simtime_in_clocks : integer    := 25e3   ;
 
     signal simulation_counter : natural := 0;
     -----------------------------------
@@ -46,23 +46,33 @@ architecture vunit_simulation of tb_permanent_magnet_synchronous_machine_model i
     signal ab_to_dq_transform : ab_to_dq_record := init_ab_to_dq_transform;
 
     --------------------------------------------------
-    -- motor simulation signals --
+    -- motor electrical simulation signals --
 
     signal vd_input_voltage        : int18 := 500;
     signal vq_input_voltage        : int18 := -500;
 
-    constant permanent_magnet_flux : int18 := 5000;
-    constant number_of_pole_pairs  : int18 := 2;
-    signal load_torque             : int18 := 1000;
-    signal w_state_equation : int18 := 0;
-
-    signal angular_speed : state_variable_record := init_state_variable_gain(5000);
-
-    signal id_current_model : id_current_model_record    := init_id_current_model;
-    signal iq_current_model : id_current_model_record    := init_id_current_model;
+    signal id_current_model : id_current_model_record := init_id_current_model;
+    signal iq_current_model : id_current_model_record := init_id_current_model;
 
     alias id_multiplier is multiplier(id);
     alias iq_multiplier is multiplier(iq);
+    alias w_multiplier is multiplier(w);
+
+    --------------------------------------------------
+    -- mechanical model
+    signal angular_speed                     : state_variable_record := init_state_variable_gain(5000);
+    signal angular_speed_calculation_counter : natural range 0 to 15 := 15;
+    constant permanent_magnet_flux           : int18                 := 5000;
+    constant number_of_pole_pairs            : int18                 := 2;
+    signal load_torque                       : int18                 := 1000;
+    signal w_state_equation                  : int18                 := 0;
+    signal permanent_magnet_torque : int18 := 0;
+    signal Ld : int18 := 0;
+    signal Lq : int18 := 0;
+    signal reluctance_torque : int18 := 0;
+    --------------------------------------------------
+    alias id_current is id_current_model.id_current.state;
+    alias iq_current is iq_current_model.id_current.state;
 
 begin
 
@@ -118,6 +128,32 @@ begin
                 request_iq_calculation(id_current_model);
                 request_iq_calculation(iq_current_model);
             end if;
+
+            CASE angular_speed_calculation_counter is
+                WHEN 0 =>
+                    multiply(w_multiplier, id_current, iq_current);
+                    increment(angular_speed_calculation_counter);
+                WHEN 1 =>
+                    multiply(w_multiplier, permanent_magnet_flux, iq_current);
+                    increment(angular_speed_calculation_counter);
+                WHEN 2 =>
+                    if multiplier_is_ready(w_multiplier) then
+                        multiply(w_multiplier, (Ld-Lq), get_multiplier_result(w_multiplier, 15));
+                        increment(angular_speed_calculation_counter);
+                    end if;
+                WHEN 3 =>
+                    permanent_magnet_torque <= get_multiplier_result(w_multiplier, 15);
+                    w_state_equation <= get_multiplier_result(w_multiplier, 15);
+                    increment(angular_speed_calculation_counter);
+                WHEN 4 =>
+                    if multiplier_is_ready(w_multiplier) then
+                        reluctance_torque <= get_multiplier_result(w_multiplier, 15);
+                        w_state_equation <= w_state_equation + get_multiplier_result(w_multiplier, 15);
+                        request_state_variable_calculation(angular_speed);
+                        increment(angular_speed_calculation_counter);
+                    end if;
+                WHEN others =>
+            end CASE;
 
         end if; -- rising_edge
     end process stimulus;	
