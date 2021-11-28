@@ -8,6 +8,7 @@ library math_library;
 
 package pmsm_mechanical_model_pkg is
 
+------------------------------------------------------------------------
     type angular_speed_record is record
         angular_speed                     : state_variable_record;
         angular_speed_calculation_counter : natural range 0 to 15;
@@ -18,6 +19,7 @@ package pmsm_mechanical_model_pkg is
         reluctance_torque                 : int18                ;
         friction                          : int18                ;
     end record;
+
     constant init_angular_speed_model : angular_speed_record :=(
         angular_speed                     => init_state_variable_gain(500) ,
         angular_speed_calculation_counter => 15                            ,
@@ -37,6 +39,7 @@ package pmsm_mechanical_model_pkg is
         iq_current                  : int18);
     --------------------------------------------------
 
+------------------------------------------------------------------------
 end package pmsm_mechanical_model_pkg;
 
 package body pmsm_mechanical_model_pkg is

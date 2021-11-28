@@ -17,7 +17,6 @@ library math_library;
     use math_library.pmsm_electrical_model_pkg.all;
     use math_library.pmsm_mechanical_model_pkg.all;
 
-
 entity tb_permanent_magnet_synchronous_machine_model is
   generic (runner_cfg : string);
 end;
@@ -49,8 +48,8 @@ architecture vunit_simulation of tb_permanent_magnet_synchronous_machine_model i
     --------------------------------------------------
     -- motor electrical simulation signals --
 
-    signal vd_input_voltage        : int18 := 500;
-    signal vq_input_voltage        : int18 := 500;
+    signal vd_input_voltage : int18 := 500;
+    signal vq_input_voltage : int18 := 500;
 
     signal id_current_model : id_current_model_record := init_id_current_model;
     signal iq_current_model : id_current_model_record := init_id_current_model;
@@ -61,8 +60,8 @@ architecture vunit_simulation of tb_permanent_magnet_synchronous_machine_model i
 
     --------------------------------------------------
     -- mechanical model
-    constant permanent_magnet_flux           : int18                 := 5000;
-    constant number_of_pole_pairs            : int18                 := 2;
+    constant permanent_magnet_flux : int18 := 5000;
+    constant number_of_pole_pairs  : int18 := 2;
 
     signal Ld : int18 := 5000  ;
     signal Lq : int18 := 15000 ;
@@ -135,6 +134,7 @@ begin
                 Lq                  ,
                 id_current          ,
                 iq_current);
+            --------------------------------------------------
             if simulation_counter = 10 or id_calculation_is_ready(iq_current_model)  then
                 request_iq_calculation(id_current_model);
                 request_iq_calculation(iq_current_model);
@@ -143,7 +143,6 @@ begin
             if simulation_counter = 10 or state_variable_calculation_is_ready(angular_speed) then
                 angular_speed_calculation_counter <= 0;
             end if;
-
 
         end if; -- rising_edge
     end process stimulus;	
