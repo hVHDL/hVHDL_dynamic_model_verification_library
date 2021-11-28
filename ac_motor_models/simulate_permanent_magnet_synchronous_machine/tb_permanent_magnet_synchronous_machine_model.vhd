@@ -48,7 +48,7 @@ architecture vunit_simulation of tb_permanent_magnet_synchronous_machine_model i
     --------------------------------------------------
     -- motor electrical simulation signals --
 
-    signal vd_input_voltage        : int18 := -500;
+    signal vd_input_voltage        : int18 := 500;
     signal vq_input_voltage        : int18 := 500;
 
     signal id_current_model : id_current_model_record := init_id_current_model;
@@ -60,20 +60,45 @@ architecture vunit_simulation of tb_permanent_magnet_synchronous_machine_model i
 
     --------------------------------------------------
     -- mechanical model
-    signal angular_speed                     : state_variable_record := init_state_variable_gain(500);
-    signal angular_speed_calculation_counter : natural range 0 to 15 := 15;
     constant permanent_magnet_flux           : int18                 := 5000;
     constant number_of_pole_pairs            : int18                 := 2;
-    signal load_torque                       : int18                 := 1000;
-    signal w_state_equation                  : int18                 := 0;
-    signal permanent_magnet_torque : int18 := 0;
-    signal Ld : int18 := 5000;
-    signal Lq : int18 := 15000;
-    signal reluctance_torque : int18 := 0;
-    signal friction : int18 := 0;
+
+    type angular_speed_record is record
+        angular_speed                     : state_variable_record;
+        angular_speed_calculation_counter : natural range 0 to 15;
+        load_torque                       : int18                ;
+        w_state_equation                  : int18                ;
+        permanent_magnet_torque           : int18                ;
+        Ld                                : int18                ;
+        Lq                                : int18                ;
+        reluctance_torque                 : int18                ;
+        friction                          : int18                ;
+    end record;
+    constant init_angular_speed_model : angular_speed_record :=(
+        angular_speed                     => init_state_variable_gain(500) ,
+        angular_speed_calculation_counter => 15                            ,
+        load_torque                       => 1000                          ,
+        w_state_equation                  => 0                             ,
+        permanent_magnet_torque           => 0                             ,
+        Ld                                => 5000                          ,
+        Lq                                => 15000                         ,
+        reluctance_torque                 => 0                             ,
+        friction                          => 0                             );
     --------------------------------------------------
+    signal angular_speed_model : angular_speed_record := init_angular_speed_model;
+
     alias id_current is id_current_model.id_current.state;
     alias iq_current is iq_current_model.id_current.state;
+
+    alias angular_speed                     is angular_speed_model.angular_speed                    ;
+    alias angular_speed_calculation_counter is angular_speed_model.angular_speed_calculation_counter;
+    alias load_torque                       is angular_speed_model.load_torque                      ;
+    alias w_state_equation                  is angular_speed_model.w_state_equation                 ;
+    alias permanent_magnet_torque           is angular_speed_model.permanent_magnet_torque          ;
+    alias Ld                                is angular_speed_model.Ld                               ;
+    alias Lq                                is angular_speed_model.Lq                               ;
+    alias reluctance_torque                 is angular_speed_model.reluctance_torque                ;
+    alias friction                          is angular_speed_model.friction                         ;
 
 begin
 
