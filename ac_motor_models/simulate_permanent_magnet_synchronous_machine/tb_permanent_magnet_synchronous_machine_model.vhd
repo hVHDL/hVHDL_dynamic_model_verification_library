@@ -74,10 +74,10 @@ architecture vunit_simulation of tb_permanent_magnet_synchronous_machine_model i
     alias Ld                     is id_current_model.Ld                    ;
     alias id_current             is id_current_model.id_current            ;
 
-    signal iq_calculation_counter : natural range 0 to 15 := 15;
-    signal iq_state_equation      : int18                 := 0;
-    signal Lq                     : int18                 := 5000;
-    signal iq_current             : state_variable_record := init_state_variable_gain(Lq);
+    alias iq_calculation_counter is iq_current_model.id_calculation_counter;
+    alias iq_state_equation      is iq_current_model.id_state_equation;
+    alias Lq                     is iq_current_model.Ld;
+    alias iq_current             is iq_current_model.id_current;
 
 
 begin
