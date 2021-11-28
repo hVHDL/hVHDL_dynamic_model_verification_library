@@ -23,38 +23,70 @@ package permanent_magnet_motor_model_pkg is
          init_id_current_model ,
          init_angular_speed_model);
 ------------------------------------------------------------------------
+    procedure request_id_calculation (
+        signal pmsm_model_object : out permanent_magnet_motor_model_record);
+------------------------------------------------------------------------
+    procedure request_iq_calculation (
+        signal pmsm_model_object : out permanent_magnet_motor_model_record);
+------------------------------------------------------------------------
     procedure create_pmsm_model (
         signal pmsm_model_object : inout permanent_magnet_motor_model_record ;
-        signal id_multiplier  : inout multiplier_record ;
-        signal iq_multiplier  : inout multiplier_record ;
-        signal w_multiplier   : inout multiplier_record ;
-        vd_input_voltage      : int18                   ;
-        vq_input_voltage      : int18                   ;
-        permanent_magnet_flux : int18                   ;
-        Ld                    : int18                   ;
-        Lq                    : int18);
+        signal id_multiplier     : inout multiplier_record ;
+        signal iq_multiplier     : inout multiplier_record ;
+        signal w_multiplier      : inout multiplier_record ;
+        vd_input_voltage         : int18                   ;
+        vq_input_voltage         : int18                   );
 ------------------------------------------------------------------------
 
 end package permanent_magnet_motor_model_pkg;
 
 package body permanent_magnet_motor_model_pkg is
 
+------------------------------------------------------------------------
+    procedure request_angular_speed_calculation
+    (
+        signal pmsm_model_object : out permanent_magnet_motor_model_record
+    ) is
+    begin
+        
+    end request_angular_speed_calculation;
+------------------------------------------------------------------------
+    procedure request_id_calculation
+    (
+        signal pmsm_model_object : out permanent_magnet_motor_model_record
+    )
+    is
+    begin
+        request_iq_calculation(pmsm_model_object.iq_current_model);
+    end request_id_calculation;
+------------------------------------------------------------------------
+    procedure request_iq_calculation
+    (
+        signal pmsm_model_object : out permanent_magnet_motor_model_record
+    )
+    is
+    begin
+        request_iq_calculation(pmsm_model_object.id_current_model);
+    end request_iq_calculation;
+------------------------------------------------------------------------
     procedure create_pmsm_model
     (
         signal pmsm_model_object : inout permanent_magnet_motor_model_record ;
 
-        signal id_multiplier  : inout multiplier_record ;
-        signal iq_multiplier  : inout multiplier_record ;
-        signal w_multiplier   : inout multiplier_record ;
-        vd_input_voltage      : int18                   ;
-        vq_input_voltage      : int18                   ;
-        permanent_magnet_flux : int18                   ;
-        Ld                    : int18                   ;
-        Lq                    : int18
+        signal id_multiplier : inout multiplier_record ;
+        signal iq_multiplier : inout multiplier_record ;
+        signal w_multiplier  : inout multiplier_record ;
+        vd_input_voltage     : int18                   ;
+        vq_input_voltage     : int18
     ) is
-        alias id_current_model    is pmsm_model_object.id_current_model ;
-        alias iq_current_model    is pmsm_model_object.iq_current_model ;
+        alias id_current_model    is pmsm_model_object.id_current_model    ;
+        alias iq_current_model    is pmsm_model_object.iq_current_model    ;
         alias angular_speed_model is pmsm_model_object.angular_speed_model ;
+
+        constant permanent_magnet_flux : int18 := 5000;
+        constant Ld : int18 := 5000  ;
+        constant Lq : int18 := 15000 ;
+
     begin
         
         --------------------------------------------------
@@ -78,4 +110,6 @@ package body permanent_magnet_motor_model_pkg is
             id_current_model.id_current.state);
         --------------------------------------------------
     end create_pmsm_model;
+
+------------------------------------------------------------------------
 end package body permanent_magnet_motor_model_pkg;

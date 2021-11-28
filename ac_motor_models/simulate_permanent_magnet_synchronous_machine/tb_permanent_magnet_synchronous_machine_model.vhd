@@ -64,11 +64,6 @@ architecture vunit_simulation of tb_permanent_magnet_synchronous_machine_model i
 
     --------------------------------------------------
     -- mechanical model
-    constant permanent_magnet_flux : int18 := 5000;
-
-    signal Ld : int18 := 5000  ;
-    signal Lq : int18 := 15000 ;
-
     alias angular_speed                     is angular_speed_model.angular_speed                    ;
     alias angular_speed_calculation_counter is angular_speed_model.angular_speed_calculation_counter;
 
@@ -116,19 +111,15 @@ begin
                 multiplier(iq)        ,
                 multiplier(w)         ,
                 vd_input_voltage      ,
-                vq_input_voltage      ,
-                permanent_magnet_flux ,
-                Ld                    ,
-                Lq                    );
-
+                vq_input_voltage      );
             --------------------------------------------------
             if simulation_counter = 10 or id_calculation_is_ready(iq_current_model)  then
-                request_iq_calculation(id_current_model);
-                request_iq_calculation(iq_current_model);
+                request_id_calculation(pmsm_model);
+                request_iq_calculation(pmsm_model);
             end if;
 
             if simulation_counter = 10 or state_variable_calculation_is_ready(angular_speed) then
-                angular_speed_calculation_counter <= 0;
+                request_angular_speed_calculation(angular_speed_model);
             end if;
 
         end if; -- rising_edge

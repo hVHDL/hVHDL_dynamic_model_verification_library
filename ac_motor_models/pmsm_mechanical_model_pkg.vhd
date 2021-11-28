@@ -29,6 +29,9 @@ package pmsm_mechanical_model_pkg is
         permanent_magnet_flux             => 5000                          ,
         reluctance_torque                 => 0                             ,
         friction                          => 0                             );
+------------------------------------------------------------------------
+    procedure request_angular_speed_calculation (
+        signal angular_speed_object : inout angular_speed_record);
     --------------------------------------------------
     procedure create_angular_speed_model (
         signal angular_speed_object : inout angular_speed_record;
@@ -44,6 +47,14 @@ end package pmsm_mechanical_model_pkg;
 
 package body pmsm_mechanical_model_pkg is
 
+    procedure request_angular_speed_calculation
+    (
+        signal angular_speed_object : inout angular_speed_record
+    ) is
+    begin
+        angular_speed_object.angular_speed_calculation_counter <= 0;
+    end request_angular_speed_calculation;
+------------------------------------------------------------------------
     procedure create_angular_speed_model
     (
         signal angular_speed_object : inout angular_speed_record;
@@ -101,4 +112,5 @@ package body pmsm_mechanical_model_pkg is
         
     end create_angular_speed_model;
 
+------------------------------------------------------------------------
 end package body pmsm_mechanical_model_pkg;
