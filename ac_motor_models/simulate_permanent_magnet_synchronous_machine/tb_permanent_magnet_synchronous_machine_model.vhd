@@ -79,6 +79,8 @@ architecture vunit_simulation of tb_permanent_magnet_synchronous_machine_model i
     alias Lq                     is iq_current_model.Ld;
     alias iq_current             is iq_current_model.id_current;
 
+    alias id_multiplier is multiplier(id);
+    alias iq_multiplier is multiplier(iq);
 
 begin
 
@@ -131,22 +133,22 @@ begin
             CASE id_calculation_counter is
                 -- calculate id state equation
                 WHEN 0 =>
-                    multiply(multiplier(id), rotor_resistance, id_current.state);
+                    multiply(id_multiplier, rotor_resistance, id_current.state);
                     increment(id_calculation_counter);
                 WHEN 1 =>
-                    multiply(multiplier(id), angular_speed.state, iq_current.state);
+                    multiply(id_multiplier, angular_speed.state, iq_current.state);
                     increment(id_calculation_counter);
                 WHEN 2 =>
-                    if multiplier_is_ready(multiplier(id)) then
-                        id_state_equation <= -get_multiplier_result(multiplier(id),15);
+                    if multiplier_is_ready(id_multiplier) then
+                        id_state_equation <= -get_multiplier_result(id_multiplier,15);
                         increment(id_calculation_counter);
                     end if;
                 WHEN 3 =>
-                    multiply(multiplier(id), Lq, get_multiplier_result(multiplier(id),15));
+                    multiply(id_multiplier, Lq, get_multiplier_result(id_multiplier,15));
                     increment(id_calculation_counter);
                 WHEN 4 =>
-                    if multiplier_is_ready(multiplier(id)) then
-                        id_state_equation <= id_state_equation + get_multiplier_result(multiplier(id),15) + vd_input_voltage;
+                    if multiplier_is_ready(id_multiplier) then
+                        id_state_equation <= id_state_equation + get_multiplier_result(id_multiplier,15) + vd_input_voltage;
                         increment(id_calculation_counter);
                         request_state_variable_calculation(id_current);
                     end if;
@@ -156,28 +158,28 @@ begin
             CASE iq_calculation_counter is
                 -- calculate iq state equation
                 WHEN 0 =>
-                    multiply(multiplier(iq), rotor_resistance, iq_current.state);
+                    multiply(iq_multiplier, rotor_resistance, iq_current.state);
                     increment(iq_calculation_counter);
                 WHEN 1 =>
-                    multiply(multiplier(iq), permanent_magnet_flux, angular_speed.state);
+                    multiply(iq_multiplier, permanent_magnet_flux, angular_speed.state);
                     increment(iq_calculation_counter);
                 WHEN 2 =>
-                    multiply(multiplier(iq), id_current.state, angular_speed.state);
+                    multiply(iq_multiplier, id_current.state, angular_speed.state);
                     increment(iq_calculation_counter);
                 WHEN 3 =>
-                    if multiplier_is_ready(multiplier(iq)) then
-                        iq_state_equation <= - get_multiplier_result(multiplier(iq), 15);
+                    if multiplier_is_ready(iq_multiplier) then
+                        iq_state_equation <= - get_multiplier_result(iq_multiplier, 15);
                         increment(iq_calculation_counter);
                     end if;
                 WHEN 4 =>
-                    iq_state_equation <= iq_state_equation - get_multiplier_result(multiplier(iq), 15);
+                    iq_state_equation <= iq_state_equation - get_multiplier_result(iq_multiplier, 15);
                     increment(iq_calculation_counter);
                 WHEN 5 =>
-                    multiply(multiplier(iq), Ld, get_multiplier_result(multiplier(iq), 15));
+                    multiply(iq_multiplier, Ld, get_multiplier_result(iq_multiplier, 15));
                     increment(iq_calculation_counter);
                 WHEN 6 =>
-                    if multiplier_is_ready(multiplier(iq)) then
-                        iq_state_equation <= iq_state_equation - get_multiplier_result(multiplier(iq), 15) + vq_input_voltage;
+                    if multiplier_is_ready(iq_multiplier) then
+                        iq_state_equation <= iq_state_equation - get_multiplier_result(iq_multiplier, 15) + vq_input_voltage;
                         increment(iq_calculation_counter);
                         request_state_variable_calculation(iq_current);
                     end if;
