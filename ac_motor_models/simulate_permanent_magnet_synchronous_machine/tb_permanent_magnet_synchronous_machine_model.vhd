@@ -48,35 +48,37 @@ architecture vunit_simulation of tb_permanent_magnet_synchronous_machine_model i
     --------------------------------------------------
     -- motor simulation signals --
 
-
     signal vd_input_voltage        : int18 := 500;
     signal vq_input_voltage        : int18 := -500;
 
     constant permanent_magnet_flux : int18 := 5000;
     constant number_of_pole_pairs  : int18 := 2;
     signal load_torque             : int18 := 1000;
-
-    signal iq_calculation_counter : natural range 0 to 15 := 15;
-
-    signal iq_state_equation : int18 := 0;
     signal w_state_equation : int18 := 0;
-    signal Lq : int18 := 5000;
 
-    -- signal rotor_resistance       : int18                 := 1000;
-    -- signal id_calculation_counter : natural range 0 to 15 := 15;
-    -- signal id_state_equation      : int18                 := 0;
-    -- signal Ld                     : int18                 := 5000;
+    type iq_current_model_record is record
+        iq_calculation_counter : natural range 0 to 15;
+        iq_state_equation      : int18                ;
+        Lq                     : int18                ;
+        iq_current             : state_variable_record;
+    end record;
 
-    signal iq_current             : state_variable_record := init_state_variable_gain(Lq);
     signal angular_speed : state_variable_record := init_state_variable_gain(5000);
 
     signal id_current_model : id_current_model_record    := init_id_current_model;
+    signal iq_current_model : id_current_model_record    := init_id_current_model;
 
     alias rotor_resistance       is id_current_model.rotor_resistance      ;
     alias id_calculation_counter is id_current_model.id_calculation_counter;
     alias id_state_equation      is id_current_model.id_state_equation     ;
     alias Ld                     is id_current_model.Ld                    ;
     alias id_current             is id_current_model.id_current            ;
+
+    signal iq_calculation_counter : natural range 0 to 15 := 15;
+    signal iq_state_equation      : int18                 := 0;
+    signal Lq                     : int18                 := 5000;
+    signal iq_current             : state_variable_record := init_state_variable_gain(Lq);
+
 
 begin
 
