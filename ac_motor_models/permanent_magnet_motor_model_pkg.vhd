@@ -24,6 +24,16 @@ package permanent_magnet_motor_model_pkg is
          init_id_current_model    ,
          init_angular_speed_model ,
          init_state_variable_gain(3000));
+
+------------------------------------------------------------------------
+    function get_electrical_angle ( pmsm_model_object : permanent_magnet_motor_model_record)
+        return int18;
+------------------------------------------------------------------------
+    function get_d_component ( pmsm_model_object : permanent_magnet_motor_model_record)
+        return int18;
+------------------------------------------------------------------------
+    function get_q_component ( pmsm_model_object : permanent_magnet_motor_model_record)
+        return int18;
 ------------------------------------------------------------------------
     procedure request_electrical_angle_calculation (
         signal pmsm_model_object : inout permanent_magnet_motor_model_record);
@@ -64,6 +74,48 @@ end package permanent_magnet_motor_model_pkg;
 
 package body permanent_magnet_motor_model_pkg is
 
+    function get_16_bits
+    (
+        number : int18
+    )
+    return integer
+    is
+        variable uint_number : unsigned(17 downto 0);
+    begin
+       uint_number := unsigned(std_logic_vector(to_signed(number, 18)));
+       return to_integer(uint_number(15 downto 0));
+    end get_16_bits;
+
+------------------------------------------------------------------------
+    function get_electrical_angle
+    (
+        pmsm_model_object : permanent_magnet_motor_model_record
+    )
+    return int18
+    is
+    begin
+        return get_16_bits(pmsm_model_object.electrical_angle.state);
+    end get_electrical_angle;
+------------------------------------------------------------------------
+    function get_d_component
+    (
+        pmsm_model_object : permanent_magnet_motor_model_record
+    )
+    return int18
+    is
+    begin
+        return get_d_component(pmsm_model_object.id_current_model);
+    end get_d_component;
+------------------------------------------------------------------------
+    function get_q_component
+    (
+        pmsm_model_object : permanent_magnet_motor_model_record
+    )
+    return int18
+    is
+    begin
+        return get_d_component(pmsm_model_object.iq_current_model);
+    end get_q_component;
 ------------------------------------------------------------------------
     procedure request_electrical_angle_calculation
     (
@@ -158,20 +210,9 @@ package body permanent_magnet_motor_model_pkg is
         alias electrical_angle is pmsm_model_object.electrical_angle;
 
         constant permanent_magnet_flux : int18 := 5000;
-        constant Ld : int18 := 5000  ;
+        constant Ld : int18 := 50000  ;
         constant Lq : int18 := 15000 ;
 
-        function get_16_bits
-        (
-            number : int18
-        )
-        return integer
-        is
-            variable uint_number : unsigned(17 downto 0);
-        begin
-           uint_number := unsigned(std_logic_vector(to_signed(number, 18)));
-           return to_integer(uint_number(15 downto 0));
-        end get_16_bits;
 
     begin
         

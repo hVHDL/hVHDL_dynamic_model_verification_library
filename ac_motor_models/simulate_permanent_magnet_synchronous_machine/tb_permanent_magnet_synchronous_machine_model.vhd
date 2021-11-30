@@ -26,7 +26,7 @@ architecture vunit_simulation of tb_permanent_magnet_synchronous_machine_model i
     signal simulator_clock     : std_logic  := '0'    ;
     constant clock_per         : time       := 1 ns   ;
     constant clock_half_per    : time       := 0.5 ns ;
-    constant simtime_in_clocks : integer    := 50e3   ;
+    constant simtime_in_clocks : integer    := 150e3   ;
 
     signal simulation_counter : natural := 0;
     -----------------------------------
@@ -46,6 +46,7 @@ architecture vunit_simulation of tb_permanent_magnet_synchronous_machine_model i
 
     --------------------------------------------------
     -- motor electrical simulation signals --
+
 
     signal vd_input_voltage : int18 := 300;
     signal vq_input_voltage : int18 := -300;
@@ -97,6 +98,14 @@ begin
             create_multiplier(multiplier(w));
             create_multiplier(multiplier(angle));
 
+            create_multiplier(multiplier(phase_a));
+            create_sincos(multiplier(phase_a) , sincos(phase_a));
+
+            create_multiplier(multiplier(phase_b));
+            create_dq_to_ab_transform(multiplier(phase_b), dq_to_ab_transform);
+
+            request_sincos(sincos(phase_a), get_electrical_angle(pmsm_model));
+
             --------------------------------------------------
             create_pmsm_model(
                 pmsm_model        ,
@@ -118,10 +127,19 @@ begin
 
             if angular_speed_calculation_is_ready(pmsm_model) then
                 request_electrical_angle_calculation(pmsm_model);
+                request_dq_to_ab_transform(
+                    dq_to_ab_transform          ,
+                    get_sine(sincos(phase_a))   ,
+                    get_cosine(sincos(phase_a)) ,
+                    get_d_component(pmsm_model) , get_q_component(pmsm_model));
+
             end if;
 
+            -- if dq_to_ab_transform_is_ready(dq_to_ab_transform) then
+            -- end if;
+
             if simulation_counter = 25e3 then
-                set_load_torque(pmsm_model, 1000);
+                set_load_torque(pmsm_model, 20000);
             end if;
 
         end if; -- rising_edge

@@ -21,6 +21,9 @@ package pmsm_electrical_model_pkg is
     constant init_id_current_model : id_current_model_record := (15, init_state_variable_gain(15000), 5000, 0, 500, false);
 
 ------------------------------------------------------------------------
+    function get_d_component ( id_current_object : id_current_model_record)
+        return int18;
+------------------------------------------------------------------------
     function id_calculation_is_ready ( id_current_object : id_current_model_record)
         return boolean;
 ------------------------------------------------------------------------
@@ -42,6 +45,16 @@ end package pmsm_electrical_model_pkg;
 
 package body pmsm_electrical_model_pkg is
 
+------------------------------------------------------------------------
+    function get_d_component
+    (
+        id_current_object : id_current_model_record
+    )
+    return int18
+    is
+    begin
+        return id_current_object.id_current.state;
+    end get_d_component;
 ------------------------------------------------------------------------
     function id_calculation_is_ready
     (
