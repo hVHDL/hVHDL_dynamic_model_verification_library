@@ -61,6 +61,7 @@ architecture vunit_simulation of tb_permanent_magnet_synchronous_machine_model i
     -- mechanical model
 
     signal process_counter : natural range 0 to 15 := 15;
+    signal rotor_angle : int18 := 0;
 
 begin
 
@@ -133,9 +134,13 @@ begin
                 request_iq_calculation(pmsm_model , vq_input_voltage );
             end if;
 
-            if simulation_counter = 25e3 then
-                set_load_torque(pmsm_model, 200);
-            end if;
+            CASE simulation_counter is
+                WHEN 0 => set_load_torque(pmsm_model, 100);
+                WHEN 20e3 => set_load_torque(pmsm_model, 1000);
+                WHEN 25e3 => set_load_torque(pmsm_model, 500);
+                when others => -- do nothing
+            end case;
+            rotor_angle <= get_electrical_angle(pmsm_model);
 
         end if; -- rising_edge
     end process stimulus;	
