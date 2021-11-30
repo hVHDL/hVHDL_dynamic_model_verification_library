@@ -4,7 +4,6 @@ library ieee;
 
 library math_library;
     use math_library.multiplier_pkg.all;
-    use math_library.sincos_pkg.all;
     use math_library.state_variable_pkg.all;
     use math_library.pmsm_electrical_model_pkg.all;
     use math_library.pmsm_mechanical_model_pkg.all;
@@ -13,17 +12,20 @@ package permanent_magnet_motor_model_pkg is
 
 ------------------------------------------------------------------------
     type permanent_magnet_motor_model_record is record
-        id_current_model    : id_current_model_record;
-        iq_current_model    : id_current_model_record;
-        angular_speed_model : angular_speed_record;
-        electrical_angle : state_variable_record;
-    end record;
+        id_current_model    : id_current_model_record ;
+        iq_current_model    : id_current_model_record ;
+        angular_speed_model : angular_speed_record    ;
+        electrical_angle : state_variable_record      ;
+        vd_input_voltage        : int18               ;
+        vq_input_voltage        : int18               ;
+    end record                                        ;
 
     constant init_permanent_magnet_motor_model : permanent_magnet_motor_model_record := 
-        (init_id_current_model    ,
-         init_id_current_model    ,
-         init_angular_speed_model ,
-         init_state_variable_gain(3000));
+        (init_id_current_model          ,
+         init_id_current_model          ,
+         init_angular_speed_model       ,
+         init_state_variable_gain(3000) ,
+         0, 0);
 
 ------------------------------------------------------------------------
     function get_electrical_angle ( pmsm_model_object : permanent_magnet_motor_model_record)
@@ -45,10 +47,12 @@ package permanent_magnet_motor_model_pkg is
         return int18;
 ------------------------------------------------------------------------
     procedure request_id_calculation (
-        signal pmsm_model_object : out permanent_magnet_motor_model_record);
+        signal pmsm_model_object : out permanent_magnet_motor_model_record;
+        vd_voltage : in int18);
 ------------------------------------------------------------------------
     procedure request_iq_calculation (
-        signal pmsm_model_object : out permanent_magnet_motor_model_record);
+        signal pmsm_model_object : out permanent_magnet_motor_model_record;
+        vq_voltage : in int18);
 ------------------------------------------------------------------------
     procedure request_angular_speed_calculation (
         signal pmsm_model_object : out permanent_magnet_motor_model_record);
@@ -58,12 +62,10 @@ package permanent_magnet_motor_model_pkg is
 ------------------------------------------------------------------------
     procedure create_pmsm_model (
         signal pmsm_model_object : inout permanent_magnet_motor_model_record ;
-        signal id_multiplier     : inout multiplier_record ;
-        signal iq_multiplier     : inout multiplier_record ;
-        signal w_multiplier      : inout multiplier_record ;
-        signal angle_multiplier : inout multiplier_record ;
-        vd_input_voltage         : int18                   ;
-        vq_input_voltage         : int18                   );
+        signal id_multiplier     : inout multiplier_record                   ;
+        signal iq_multiplier     : inout multiplier_record                   ;
+        signal w_multiplier      : inout multiplier_record                   ;
+        signal angle_multiplier : inout multiplier_record                    );
 ------------------------------------------------------------------------
     procedure set_load_torque (
         signal pmsm_model_object : out permanent_magnet_motor_model_record;
@@ -74,18 +76,29 @@ end package permanent_magnet_motor_model_pkg;
 
 package body permanent_magnet_motor_model_pkg is
 
+------------------------------------------------------------------------
     function get_16_bits
     (
         number : int18
     )
     return integer
     is
+    --------------------------------------------------
+        function "+" ( left : unsigned; right : std_logic) 
+            return unsigned is
+        begin
+            if right = '1' then
+                return left + 1;
+            else
+                return left;
+            end if;
+        end "+";
+    --------------------------------------------------
         variable uint_number : unsigned(17 downto 0);
     begin
        uint_number := unsigned(std_logic_vector(to_signed(number, 18)));
-       return to_integer(uint_number(15 downto 0));
+       return to_integer(uint_number(16 downto 1)+uint_number(0));
     end get_16_bits;
-
 ------------------------------------------------------------------------
     function get_electrical_angle
     (
@@ -177,21 +190,37 @@ package body permanent_magnet_motor_model_pkg is
 ------------------------------------------------------------------------
     procedure request_id_calculation
     (
-        signal pmsm_model_object : out permanent_magnet_motor_model_record
+        signal pmsm_model_object : out permanent_magnet_motor_model_record;
+        vd_voltage : in int18
     )
     is
     begin
+        pmsm_model_object.vd_input_voltage <= vd_voltage;
         request_iq_calculation(pmsm_model_object.iq_current_model);
     end request_id_calculation;
 ------------------------------------------------------------------------
     procedure request_iq_calculation
     (
-        signal pmsm_model_object : out permanent_magnet_motor_model_record
+        signal pmsm_model_object : out permanent_magnet_motor_model_record;
+        vq_voltage : in int18
     )
     is
     begin
+        pmsm_model_object.vq_input_voltage <= vq_voltage;
         request_iq_calculation(pmsm_model_object.id_current_model);
     end request_iq_calculation;
+------------------------------------------------------------------------
+    function get_17_bits
+    (
+        number : int18
+    )
+    return integer
+    is
+        variable uint_number : unsigned(17 downto 0);
+    begin
+       uint_number := unsigned(std_logic_vector(to_signed(number, 18)));
+       return to_integer(uint_number(16 downto 0));
+    end get_17_bits;
 ------------------------------------------------------------------------
     procedure create_pmsm_model
     (
@@ -200,19 +229,18 @@ package body permanent_magnet_motor_model_pkg is
         signal id_multiplier    : inout multiplier_record ;
         signal iq_multiplier    : inout multiplier_record ;
         signal w_multiplier     : inout multiplier_record ;
-        signal angle_multiplier : inout multiplier_record ;
-        vd_input_voltage        : int18                   ;
-        vq_input_voltage        : int18
+        signal angle_multiplier : inout multiplier_record 
     ) is
         alias id_current_model    is pmsm_model_object.id_current_model    ;
         alias iq_current_model    is pmsm_model_object.iq_current_model    ;
         alias angular_speed_model is pmsm_model_object.angular_speed_model ;
-        alias electrical_angle is pmsm_model_object.electrical_angle;
+        alias electrical_angle    is pmsm_model_object.electrical_angle    ;
+        alias vd_input_voltage    is pmsm_model_object.vd_input_voltage    ;
+        alias vq_input_voltage    is pmsm_model_object.vq_input_voltage    ;
 
         constant permanent_magnet_flux : int18 := 5000;
         constant Ld : int18 := 50000  ;
         constant Lq : int18 := 15000 ;
-
 
     begin
         
@@ -236,8 +264,8 @@ package body permanent_magnet_motor_model_pkg is
             id_current_model.id_current.state ,
             id_current_model.id_current.state);
         --------------------------------------------------
-        electrical_angle.state <= get_16_bits(electrical_angle.state);
-        create_state_variable(electrical_angle,angle_multiplier, get_angular_speed(angular_speed_model));
+        create_state_variable(electrical_angle,angle_multiplier, to_signed(get_angular_speed(angular_speed_model),18));
+
     end create_pmsm_model;
 
 ------------------------------------------------------------------------

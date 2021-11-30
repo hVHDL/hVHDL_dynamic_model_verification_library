@@ -18,6 +18,11 @@ package state_variable_pkg is
     constant init_state_variable : state_variable_record := (false, 0, 0, 1);
 
 --------------------------------------------------
+    procedure create_state_variable (
+        signal state_variable : inout state_variable_record;
+        signal hw_multiplier : inout multiplier_record;
+        state_equation : signed(17 downto 0));
+--------------------------------------------------
     function state_variable_calculation_is_ready ( state_variable : state_variable_record)
         return boolean;
 --------------------------------------------------
@@ -103,6 +108,27 @@ package body state_variable_pkg is
             increment_counter_when_ready(hw_multiplier, state_variable.state_counter);
             if multiplier_is_ready(hw_multiplier) then
                 state_variable.state_variable_has_been_calculated <= true;
+            end if;
+
+        end if;
+
+    end create_state_variable;
+
+--------------------------------------------------
+    procedure create_state_variable
+    (
+        signal state_variable : inout state_variable_record;
+        signal hw_multiplier : inout multiplier_record;
+        state_equation : signed(17 downto 0)
+    ) is
+    begin 
+        state_variable.state_variable_has_been_calculated <= false;
+        if state_variable.state_counter = 0 then
+            sequential_multiply(hw_multiplier, state_variable.integrator_gain, to_integer(state_equation));
+            if multiplier_is_ready(hw_multiplier) then
+                state_variable.state_variable_has_been_calculated <= true;
+                state_variable.state <= to_integer(to_signed(state_variable.state,18) + to_signed(get_multiplier_result(hw_multiplier, 15),18));
+                increment(state_variable.state_counter);
             end if;
 
         end if;

@@ -26,7 +26,7 @@ architecture vunit_simulation of tb_permanent_magnet_synchronous_machine_model i
     signal simulator_clock     : std_logic  := '0'    ;
     constant clock_per         : time       := 1 ns   ;
     constant clock_half_per    : time       := 0.5 ns ;
-    constant simtime_in_clocks : integer    := 150e3   ;
+    constant simtime_in_clocks : integer    := 50e3   ;
 
     signal simulation_counter : natural := 0;
     -----------------------------------
@@ -60,6 +60,8 @@ architecture vunit_simulation of tb_permanent_magnet_synchronous_machine_model i
     --------------------------------------------------
     -- mechanical model
 
+    signal process_counter : natural range 0 to 15 := 15;
+
 begin
 
 ------------------------------------------------------------------------
@@ -91,7 +93,6 @@ begin
         if rising_edge(simulator_clock) then
             --------------------------------------------------
             simulation_counter <= simulation_counter + 1;
-
             --------------------------------------------------
             create_multiplier(multiplier(id));
             create_multiplier(multiplier(iq));
@@ -112,20 +113,12 @@ begin
                 multiplier(id)    ,
                 multiplier(iq)    ,
                 multiplier(w)     ,
-                multiplier(angle) ,
-                vd_input_voltage  ,
-                vq_input_voltage      );
+                multiplier(angle) );
             --------------------------------------------------
-            if simulation_counter = 10 or id_calculation_is_ready(pmsm_model)  then
-                request_id_calculation(pmsm_model);
-                request_iq_calculation(pmsm_model);
-            end if;
 
             if simulation_counter = 10 or angular_speed_calculation_is_ready(pmsm_model) then
                 request_angular_speed_calculation(pmsm_model);
-            end if;
 
-            if angular_speed_calculation_is_ready(pmsm_model) then
                 request_electrical_angle_calculation(pmsm_model);
                 request_dq_to_ab_transform(
                     dq_to_ab_transform          ,
@@ -135,11 +128,13 @@ begin
 
             end if;
 
-            -- if dq_to_ab_transform_is_ready(dq_to_ab_transform) then
-            -- end if;
+            if simulation_counter = 10 or id_calculation_is_ready(pmsm_model)  then
+                request_id_calculation(pmsm_model , vd_input_voltage);
+                request_iq_calculation(pmsm_model , vq_input_voltage );
+            end if;
 
             if simulation_counter = 25e3 then
-                set_load_torque(pmsm_model, 20000);
+                set_load_torque(pmsm_model, 200);
             end if;
 
         end if; -- rising_edge
