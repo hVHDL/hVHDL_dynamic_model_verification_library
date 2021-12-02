@@ -12,13 +12,11 @@ package pmsm_electrical_model_pkg is
     type id_current_model_record is record
         id_calculation_counter : natural range 0 to 15;
         id_current        : state_variable_record;
-        Ld                : int18;
         id_state_equation : int18;
-        rotor_resistance  : int18;
         calculation_is_ready : boolean;
     end record;
 
-    constant init_id_current_model : id_current_model_record := (15, init_state_variable_gain(15000), 5000, 0, 500, false);
+    constant init_id_current_model : id_current_model_record := (15, init_state_variable_gain(15000), 0, false);
 
 ------------------------------------------------------------------------
     function get_d_component ( id_current_object : id_current_model_record)
@@ -38,7 +36,10 @@ package pmsm_electrical_model_pkg is
         angular_speed            : in int18;
         vd_input_voltage         : in int18;
         vq_input_voltage         : in int18;
-        permanent_magnet_flux    : in int18);
+        permanent_magnet_flux    : in int18;
+        Ld                       : in int18;
+        Lq                       : in int18;
+        rotor_resistance         : in int18);
 ------------------------------------------------------------------------
 
 end package pmsm_electrical_model_pkg;
@@ -88,17 +89,17 @@ package body pmsm_electrical_model_pkg is
         angular_speed            : in int18;
         vd_input_voltage         : in int18;
         vq_input_voltage         : in int18;
-        permanent_magnet_flux : in int18
+        permanent_magnet_flux    : in int18;
+        Ld                       : in int18;
+        Lq                       : in int18;
+        rotor_resistance         : in int18
     ) is
-        alias rotor_resistance       is id_current_object.rotor_resistance      ;
         alias id_calculation_counter is id_current_object.id_calculation_counter;
         alias id_state_equation      is id_current_object.id_state_equation     ;
-        alias Ld                     is id_current_object.Ld                    ;
         alias id_current             is id_current_object.id_current            ;
 
         alias iq_calculation_counter is iq_current_object.id_calculation_counter;
         alias iq_state_equation      is iq_current_object.id_state_equation;
-        alias Lq                     is iq_current_object.Ld;
         alias iq_current             is iq_current_object.id_current;
 
     begin

@@ -130,7 +130,8 @@ begin
                 multiplier(id)    ,
                 multiplier(iq)    ,
                 multiplier(w)     ,
-                multiplier(angle) );
+                multiplier(angle) ,
+                default_motor_parameters);
             --------------------------------------------------
             create_multiplier(control_multiplier);
             create_motor_current_control(

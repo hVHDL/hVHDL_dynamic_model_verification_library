@@ -11,14 +11,16 @@ library math_library;
 package permanent_magnet_motor_model_pkg is
 
 ------------------------------------------------------------------------
-    type motor_parameters is record
+    type motor_parameter_record is record
         Ld                    : int18;
         Lq                    : int18;
         permanent_magnet_flux : int18;
         intertial_mass        : int18;
         pole_pairs            : int18;
+        rotor_resistance            : int18;
     end record;
-    constant default_motor_parameters : motor_parameters := (10e3, 25e3, 50e3, 5000, 1);
+
+    constant default_motor_parameters : motor_parameter_record := (10e3, 25e3, 50e3, 5000, 1, 100);
 ------------------------------------------------------------------------
     type permanent_magnet_motor_model_record is record
         id_current_model    : id_current_model_record ;
@@ -74,7 +76,8 @@ package permanent_magnet_motor_model_pkg is
         signal id_multiplier     : inout multiplier_record                   ;
         signal iq_multiplier     : inout multiplier_record                   ;
         signal w_multiplier      : inout multiplier_record                   ;
-        signal angle_multiplier : inout multiplier_record                    );
+        signal angle_multiplier  : inout multiplier_record;
+        motor_parameters         : in motor_parameter_record);
 ------------------------------------------------------------------------
     procedure set_load_torque (
         signal pmsm_model_object : out permanent_magnet_motor_model_record;
@@ -238,7 +241,8 @@ package body permanent_magnet_motor_model_pkg is
         signal id_multiplier    : inout multiplier_record ;
         signal iq_multiplier    : inout multiplier_record ;
         signal w_multiplier     : inout multiplier_record ;
-        signal angle_multiplier : inout multiplier_record 
+        signal angle_multiplier : inout multiplier_record;
+        motor_parameters        : in motor_parameter_record
     ) is
         alias id_current_model    is pmsm_model_object.id_current_model    ;
         alias iq_current_model    is pmsm_model_object.iq_current_model    ;
@@ -247,9 +251,12 @@ package body permanent_magnet_motor_model_pkg is
         alias vd_input_voltage    is pmsm_model_object.vd_input_voltage    ;
         alias vq_input_voltage    is pmsm_model_object.vq_input_voltage    ;
 
-        constant permanent_magnet_flux : int18 := 50000;
-        constant Ld : int18 := 25e3  ;
-        constant Lq : int18 := 10000 ;
+        alias Ld                    is motor_parameters.Ld                    ;
+        alias Lq                    is motor_parameters.Lq                    ;
+        alias permanent_magnet_flux is motor_parameters.permanent_magnet_flux ;
+        alias intertial_mass        is motor_parameters.intertial_mass        ;
+        alias pole_pairs            is motor_parameters.pole_pairs            ;
+        alias rotor_resistance      is motor_parameters.rotor_resistance      ;
 
     begin
         
@@ -262,7 +269,10 @@ package body permanent_magnet_motor_model_pkg is
             angular_speed_model.angular_speed.state ,
             vd_input_voltage                        ,
             vq_input_voltage                        ,
-            permanent_magnet_flux);
+            permanent_magnet_flux                   ,
+            Ld                                      ,
+            Lq                                      ,
+            rotor_resistance);
 
         --------------------------------------------------
         create_angular_speed_model(

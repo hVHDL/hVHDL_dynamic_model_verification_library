@@ -26,7 +26,7 @@ architecture vunit_simulation of tb_permanent_magnet_synchronous_machine_model i
     signal simulator_clock     : std_logic  := '0'    ;
     constant clock_per         : time       := 1 ns   ;
     constant clock_half_per    : time       := 0.5 ns ;
-    constant simtime_in_clocks : integer    := 50e3   ;
+    constant simtime_in_clocks : integer    := 15e3   ;
 
     signal simulation_counter : natural := 0;
     -----------------------------------
@@ -114,7 +114,8 @@ begin
                 multiplier(id)    ,
                 multiplier(iq)    ,
                 multiplier(w)     ,
-                multiplier(angle) );
+                multiplier(angle) ,
+                default_motor_parameters);
             --------------------------------------------------
 
             if simulation_counter = 10 or angular_speed_calculation_is_ready(pmsm_model) then
