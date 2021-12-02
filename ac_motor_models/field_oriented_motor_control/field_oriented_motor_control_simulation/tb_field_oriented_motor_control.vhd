@@ -15,6 +15,7 @@ library math_library;
     use math_library.ab_to_dq_transform_pkg.all;
     use math_library.permanent_magnet_motor_model_pkg.all;
     use math_library.state_variable_pkg.all;
+    use math_library.field_oriented_motor_control_pkg.all;
 
 entity tb_field_oriented_motor_control is
   generic (runner_cfg : string);
@@ -60,8 +61,6 @@ architecture vunit_simulation of tb_field_oriented_motor_control is
 
     signal rotor_angle : int18 := 0;
 
-    signal vd_control_process_counter : natural range 0 to 15 := 15;
-    signal vd_control_process_counter2 : natural range 0 to 15 := 15;
 
     alias control_multiplier is multiplier(vd);
     signal id_current : int18 := 0;
@@ -70,31 +69,8 @@ architecture vunit_simulation of tb_field_oriented_motor_control is
     signal q_inductance : int18 := 500;
     signal stator_resistance : int18 := 100;
 
-    type motor_current_control_record is record
-        control_input    : int18;
-        integrator       : int18;
-        pi_output_buffer : int18;
-        pi_output        : int18;
-        vd_kp            : int18;
-        vd_ki            : int18;
-    end record;
-    constant init_motor_current_control : motor_current_control_record :=
-    (
-        control_input    => 0    ,
-        integrator       => 0    ,
-        pi_output_buffer => 0    ,
-        pi_output        => 0    ,
-        vd_kp            => 5000 ,
-        vd_ki            => 500);
+    signal id_current_control : motor_current_control_record := init_motor_current_control;
 
-    signal vd_current_control : motor_current_control_record := init_motor_current_control;
-
-    alias control_input    is vd_current_control.control_input    ;
-    alias integrator       is vd_current_control.integrator       ;
-    alias pi_output_buffer is vd_current_control.pi_output_buffer ;
-    alias pi_output        is vd_current_control.pi_output        ;
-    alias vd_kp            is vd_current_control.vd_kp            ;
-    alias vd_ki            is vd_current_control.vd_ki            ;
 
 
 begin
@@ -162,8 +138,8 @@ begin
                     get_sine(sincos(phase_a))   ,
                     get_cosine(sincos(phase_a)) ,
                     get_d_component(pmsm_model) , get_q_component(pmsm_model));
+                request_motor_current_control(id_current_control);
 
-                    vd_control_process_counter <= 0;
             end if;
 
             CASE simulation_counter is
@@ -177,50 +153,12 @@ begin
 
         -----
             create_multiplier(control_multiplier);
-            CASE vd_control_process_counter is
-                WHEN 0 =>
-                    sequential_multiply(control_multiplier, q_inductance, angular_speed);
-                    if multiplier_is_ready(control_multiplier) then
-                        increment(vd_control_process_counter);
-                        vd_control_process_counter2 <= 0;
-                        multiply(control_multiplier, get_multiplier_result(control_multiplier, 15), iq_current);
-                    end if;
-                WHEN 1 =>
-                    multiply(control_multiplier, stator_resistance, id_current);
-                    increment(vd_control_process_counter);
-                WHEN 2 =>
-                    multiply(control_multiplier, vd_kp, control_input);
-                    increment(vd_control_process_counter);
-                WHEN 3 =>
-                    multiply(control_multiplier, vd_ki, control_input);
-                    increment(vd_control_process_counter);
-                when others => -- wait for triggering
-            end CASE;
-
-        --------------------------------------------------
-            CASE vd_control_process_counter2 is
-                WHEN 0 =>
-                    if multiplier_is_ready(control_multiplier) then
-                        increment(vd_control_process_counter2);
-                        pi_output_buffer <= get_multiplier_result(control_multiplier, 15);
-                    end if;
-                WHEN 1 =>
-                    if multiplier_is_ready(control_multiplier) then
-                        increment(vd_control_process_counter2);
-                        pi_output_buffer <= pi_output_buffer + get_multiplier_result(control_multiplier, 15);
-                    end if;
-                WHEN 2 =>
-                    if multiplier_is_ready(control_multiplier) then
-                        increment(vd_control_process_counter2);
-                        integrator <= integrator + get_multiplier_result(control_multiplier, 15);
-                    end if;
-                WHEN 3 =>
-                    if multiplier_is_ready(control_multiplier) then
-                        increment(vd_control_process_counter2);
-                        pi_output <= integrator + pi_output_buffer;
-                    end if;
-                WHEN others => -- wait for triggering
-            end CASE;
+            create_motor_current_control(
+                control_multiplier,
+                id_current_control,
+                500,
+                get_angular_speed(pmsm_model),
+                0, get_q_component(pmsm_model), 1000);
 
         end if; -- rising_edge
     end process stimulus;	

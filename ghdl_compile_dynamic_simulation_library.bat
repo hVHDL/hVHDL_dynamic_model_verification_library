@@ -15,3 +15,4 @@ ghdl -a --ieee=synopsys --work=math_library %source%/dynamic_simulation_library/
 ghdl -a --ieee=synopsys --work=math_library %source%/dynamic_simulation_library/ac_motor_models/pmsm_electrical_model_pkg.vhd
 ghdl -a --ieee=synopsys --work=math_library %source%/dynamic_simulation_library/ac_motor_models/pmsm_mechanical_model_pkg.vhd
 ghdl -a --ieee=synopsys --work=math_library %source%/dynamic_simulation_library/ac_motor_models/permanent_magnet_motor_model_pkg.vhd
+ghdl -a --ieee=synopsys --work=math_library %source%/dynamic_simulation_library/ac_motor_models/field_oriented_motor_control/field_oriented_motor_control_pkg.vhd
