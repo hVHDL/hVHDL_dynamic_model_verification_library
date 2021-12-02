@@ -11,6 +11,15 @@ library math_library;
 package permanent_magnet_motor_model_pkg is
 
 ------------------------------------------------------------------------
+    type motor_parameters is record
+        Ld                    : int18;
+        Lq                    : int18;
+        permanent_magnet_flux : int18;
+        intertial_mass        : int18;
+        pole_pairs            : int18;
+    end record;
+    constant default_motor_parameters : motor_parameters := (10e3, 25e3, 50e3, 5000, 1);
+------------------------------------------------------------------------
     type permanent_magnet_motor_model_record is record
         id_current_model    : id_current_model_record ;
         iq_current_model    : id_current_model_record ;
