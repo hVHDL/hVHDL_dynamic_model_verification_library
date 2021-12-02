@@ -71,8 +71,6 @@ architecture vunit_simulation of tb_field_oriented_motor_control is
 
     signal id_current_control : motor_current_control_record := init_motor_current_control;
 
-
-
 begin
 
 ------------------------------------------------------------------------
@@ -138,6 +136,7 @@ begin
                     get_sine(sincos(phase_a))   ,
                     get_cosine(sincos(phase_a)) ,
                     get_d_component(pmsm_model) , get_q_component(pmsm_model));
+
                 request_motor_current_control(id_current_control);
 
             end if;

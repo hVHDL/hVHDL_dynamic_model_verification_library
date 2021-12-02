@@ -16,11 +16,14 @@ package field_oriented_motor_control_pkg is
         pi_output        : int18;
         vd_kp            : int18;
         vd_ki            : int18;
-        current_control_is_ready : boolean;
+        calculation_ready : boolean;
     end record;
 
     constant init_motor_current_control : motor_current_control_record :=
     (15 , 15 , 0 , 0 , 0 , 0 , 5000 , 500, false);
+
+    function get_control_output ( current_control_object : motor_current_control_record)
+        return int18;
 
     procedure request_motor_current_control (
         signal current_control_object : out motor_current_control_record);
@@ -42,6 +45,16 @@ end package field_oriented_motor_control_pkg;
 
 package body field_oriented_motor_control_pkg is
 
+    function get_control_output
+    (
+        current_control_object : motor_current_control_record
+    )
+    return int18
+    is
+    begin
+        return current_control_object.pi_output;
+    end get_control_output;
+
     function current_control_is_ready
     (
         current_control_object : motor_current_control_record
@@ -49,7 +62,7 @@ package body field_oriented_motor_control_pkg is
     return boolean
     is
     begin
-        return current_control_object.current_control_is_ready;
+        return current_control_object.calculation_ready;
     end current_control_is_ready;
 
     procedure request_motor_current_control
@@ -80,10 +93,10 @@ package body field_oriented_motor_control_pkg is
         alias vd_kp            is current_control_object.vd_kp            ;
         alias vd_ki            is current_control_object.vd_ki            ;
 
-        alias current_control_is_ready is current_control_object.current_control_is_ready ;
+        alias calculation_ready is current_control_object.calculation_ready ;
 
     begin
-            current_control_is_ready <= false;
+            calculation_ready <= false;
             CASE vd_control_process_counter is
                 WHEN 0 =>
                     sequential_multiply(control_multiplier, q_inductance, angular_speed);
@@ -125,7 +138,7 @@ package body field_oriented_motor_control_pkg is
                     if multiplier_is_ready(control_multiplier) then
                         increment(vd_control_process_counter2);
                         pi_output <= integrator + pi_output_buffer;
-                        current_control_is_ready <= true;
+                        calculation_ready <= true;
                     end if;
                 WHEN others => -- wait for triggering
             end CASE;
