@@ -66,6 +66,7 @@ architecture vunit_simulation of tb_field_oriented_motor_control is
     signal speed_control_multiplier : multiplier_record := init_multiplier;
     signal speed_controller : pi_controller_record := init_pi_controller;
 
+    signal speed_reference : int18 := -5e3;
 
 begin
 
@@ -171,14 +172,15 @@ begin
 
                 request_motor_current_control(id_current_control);
                 request_motor_current_control(iq_current_control);
-                request_pi_control(speed_controller, 15e3 - get_angular_speed(pmsm_model));
+                request_pi_control(speed_controller, speed_reference - get_angular_speed(pmsm_model));
 
             end if;
 
             CASE simulation_counter is
                 -- WHEN 0 => set_load_torque(pmsm_model, 500);
-                WHEN 6e3 => set_load_torque(pmsm_model, -6000);
-            --     WHEN 25e3 => set_load_torque(pmsm_model, 500);
+                WHEN 3e3 => set_load_torque(pmsm_model, -16e3);
+                WHEN 5e3 => set_load_torque(pmsm_model, 16e3);
+                WHEN 7e3 => speed_reference <=  -speed_reference;
                 when others => -- do nothing
             end case;
 
