@@ -238,9 +238,9 @@ package body permanent_magnet_motor_model_pkg is
         alias vd_input_voltage    is pmsm_model_object.vd_input_voltage    ;
         alias vq_input_voltage    is pmsm_model_object.vq_input_voltage    ;
 
-        constant permanent_magnet_flux : int18 := 5000;
+        constant permanent_magnet_flux : int18 := 50000;
         constant Ld : int18 := 25e3  ;
-        constant Lq : int18 := 20000 ;
+        constant Lq : int18 := 10000 ;
 
     begin
         
@@ -262,7 +262,7 @@ package body permanent_magnet_motor_model_pkg is
             Ld                                ,
             Lq                                ,
             id_current_model.id_current.state ,
-            id_current_model.id_current.state);
+            iq_current_model.id_current.state);
         --------------------------------------------------
         create_state_variable(electrical_angle,angle_multiplier, to_signed(get_angular_speed(angular_speed_model),18));
 

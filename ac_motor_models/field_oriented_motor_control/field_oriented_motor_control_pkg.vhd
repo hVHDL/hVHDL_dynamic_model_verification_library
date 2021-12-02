@@ -20,7 +20,7 @@ package field_oriented_motor_control_pkg is
     end record;
 
     constant init_motor_current_control : motor_current_control_record :=
-    (15 , 15 , 0 , 0 , 0 , 0 , 22000 , 1000, false);
+    (15 , 15 , 0 , 0 , 0 , 0 , 28000 , 4000, false);
 
     function get_control_output ( current_control_object : motor_current_control_record)
         return int18;
@@ -138,7 +138,7 @@ package body field_oriented_motor_control_pkg is
                     if multiplier_is_ready(control_multiplier) then
                         integrator <= integrator + get_multiplier_result(control_multiplier, 15);
                         increment(vd_control_process_counter2);
-                        pi_output <= pi_output_buffer-integrator ;
+                        pi_output <= pi_output_buffer - integrator ;
                         calculation_ready <= true;
                     end if;
                 WHEN others => -- wait for triggering

@@ -64,8 +64,6 @@ architecture vunit_simulation of tb_field_oriented_motor_control is
 
     alias control_multiplier is multiplier(vd);
     alias control_multiplier2 is multiplier(vq);
-    signal id_current : int18 := 0;
-    signal iq_current : int18 := 0;
     signal angular_speed : int18 := 0;
     signal q_inductance : int18 := 500;
     signal stator_resistance : int18 := 100;
@@ -130,10 +128,10 @@ begin
             create_motor_current_control(
                 control_multiplier,
                 id_current_control,
-                20000,
+                25000,
                 get_angular_speed(pmsm_model),
-                1000,
-                -1000-get_d_component(pmsm_model), get_q_component(pmsm_model));
+                100,
+                0-get_d_component(pmsm_model), get_q_component(pmsm_model));
 
             create_multiplier(control_multiplier2);
             create_motor_current_control(
@@ -141,7 +139,7 @@ begin
                 iq_current_control,
                 20000,
                 get_angular_speed(pmsm_model),
-                1000,
+                100,
                 -10000-get_q_component(pmsm_model), get_d_component(pmsm_model));
 
             if current_control_is_ready(id_current_control) then
@@ -166,7 +164,7 @@ begin
 
             CASE simulation_counter is
                 -- WHEN 0 => set_load_torque(pmsm_model, 500);
-                WHEN 20e3 => set_load_torque(pmsm_model, -6000);
+                WHEN 2e3 => set_load_torque(pmsm_model, -6000);
             --     WHEN 25e3 => set_load_torque(pmsm_model, 500);
                 when others => -- do nothing
             end case;
