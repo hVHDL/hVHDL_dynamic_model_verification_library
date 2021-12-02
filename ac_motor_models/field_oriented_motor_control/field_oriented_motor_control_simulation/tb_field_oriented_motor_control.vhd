@@ -32,13 +32,13 @@ architecture vunit_simulation of tb_field_oriented_motor_control is
     signal simulation_counter : natural := 0;
     -----------------------------------
     -- simulation specific signals ----
-    type abc is (vd, phase_a, phase_b, phase_c, id, iq, w, angle);
+    type abc is (vd, vq, phase_a, phase_b, phase_c, id, iq, w, angle);
 
     type multiplier_array is array (abc range abc'left to abc'right) of multiplier_record;
-    signal multiplier : multiplier_array := (init_multiplier,init_multiplier, init_multiplier, init_multiplier, init_multiplier, init_multiplier, init_multiplier, init_multiplier);
+    signal multiplier : multiplier_array := (init_multiplier, init_multiplier,init_multiplier, init_multiplier, init_multiplier, init_multiplier, init_multiplier, init_multiplier, init_multiplier);
 
     type sincos_array is array (abc range abc'left to abc'right) of sincos_record;
-    signal sincos : sincos_array := (init_sincos, init_sincos, init_sincos, init_sincos, init_sincos, init_sincos, init_sincos, init_sincos);
+    signal sincos : sincos_array := (init_sincos, init_sincos, init_sincos, init_sincos, init_sincos, init_sincos, init_sincos, init_sincos, init_sincos);
 
     signal angle_rad16 : unsigned(15 downto 0) := to_unsigned(10e3, 16);
 
@@ -63,6 +63,7 @@ architecture vunit_simulation of tb_field_oriented_motor_control is
 
 
     alias control_multiplier is multiplier(vd);
+    alias control_multiplier2 is multiplier(vq);
     signal id_current : int18 := 0;
     signal iq_current : int18 := 0;
     signal angular_speed : int18 := 0;
@@ -70,6 +71,7 @@ architecture vunit_simulation of tb_field_oriented_motor_control is
     signal stator_resistance : int18 := 100;
 
     signal id_current_control : motor_current_control_record := init_motor_current_control;
+    signal iq_current_control : motor_current_control_record := init_motor_current_control;
 
 begin
 
@@ -131,13 +133,26 @@ begin
                 20000,
                 get_angular_speed(pmsm_model),
                 1000,
-                250-get_d_component(pmsm_model), get_q_component(pmsm_model));
+                -1000-get_d_component(pmsm_model), get_q_component(pmsm_model));
+
+            create_multiplier(control_multiplier2);
+            create_motor_current_control(
+                control_multiplier2,
+                iq_current_control,
+                20000,
+                get_angular_speed(pmsm_model),
+                1000,
+                -10000-get_q_component(pmsm_model), get_d_component(pmsm_model));
+
+            if current_control_is_ready(id_current_control) then
+                request_motor_current_control(iq_current_control);
+            end if;
 
             if simulation_counter = 10 or angular_speed_calculation_is_ready(pmsm_model) then
                 request_angular_speed_calculation(pmsm_model);
                 request_electrical_angle_calculation(pmsm_model);
                 request_id_calculation(pmsm_model , -get_control_output(id_current_control));
-                request_iq_calculation(pmsm_model , vq_input_voltage );
+                request_iq_calculation(pmsm_model , -get_control_output(iq_current_control) );
 
                 request_dq_to_ab_transform(
                     dq_to_ab_transform          ,
@@ -151,7 +166,7 @@ begin
 
             CASE simulation_counter is
                 -- WHEN 0 => set_load_torque(pmsm_model, 500);
-            --     WHEN 20e3 => set_load_torque(pmsm_model, 6000);
+                WHEN 20e3 => set_load_torque(pmsm_model, -6000);
             --     WHEN 25e3 => set_load_torque(pmsm_model, 500);
                 when others => -- do nothing
             end case;
