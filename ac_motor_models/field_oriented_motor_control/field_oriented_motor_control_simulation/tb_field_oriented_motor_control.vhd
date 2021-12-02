@@ -155,7 +155,7 @@ begin
                 request_angular_speed_calculation(pmsm_model);
                 request_electrical_angle_calculation(pmsm_model);
                 request_id_calculation(pmsm_model , -get_control_output(id_current_control));
-                request_iq_calculation(pmsm_model , -get_control_output(iq_current_control) + get_angular_speed(pmsm_model)*50e3 );
+                request_iq_calculation(pmsm_model , -get_control_output(iq_current_control) + get_angular_speed(pmsm_model)*default_motor_parameters.permanent_magnet_flux );
 
                 request_dq_to_ab_transform(
                     dq_to_ab_transform          ,
