@@ -20,7 +20,7 @@ package field_oriented_motor_control_pkg is
     end record;
 
     constant init_motor_current_control : motor_current_control_record :=
-    (15 , 15 , 0 , 0 , 0 , 0 , 5000 , 500, false);
+    (15 , 15 , 0 , 0 , 0 , 0 , 22000 , 1000, false);
 
     function get_control_output ( current_control_object : motor_current_control_record)
         return int18;
@@ -36,9 +36,9 @@ package field_oriented_motor_control_pkg is
         signal current_control_object : inout motor_current_control_record;
         q_inductance                  : int18;
         angular_speed                 : int18;
+        stator_resistance             : int18;
         id_current                    : int18;
-        iq_current                    : int18;
-        stator_resistance             : int18);
+        iq_current                    : int18);
 
 
 end package field_oriented_motor_control_pkg;
@@ -79,14 +79,14 @@ package body field_oriented_motor_control_pkg is
         signal current_control_object : inout motor_current_control_record;
         q_inductance                  : int18;
         angular_speed                 : int18;
+        stator_resistance             : int18;
         id_current                    : int18;
-        iq_current                    : int18;
-        stator_resistance             : int18
+        iq_current                    : int18
     ) is
 
         alias vd_control_process_counter    is current_control_object.vd_control_process_counter    ;
         alias vd_control_process_counter2    is current_control_object.vd_control_process_counter2    ;
-        alias control_input    is current_control_object.control_input    ;
+        alias control_input    is id_current    ;
         alias integrator       is current_control_object.integrator       ;
         alias pi_output_buffer is current_control_object.pi_output_buffer ;
         alias pi_output        is current_control_object.pi_output        ;
@@ -131,13 +131,14 @@ package body field_oriented_motor_control_pkg is
                     end if;
                 WHEN 2 =>
                     if multiplier_is_ready(control_multiplier) then
+                        pi_output_buffer <= pi_output_buffer - get_multiplier_result(control_multiplier, 15);
                         increment(vd_control_process_counter2);
-                        integrator <= integrator + get_multiplier_result(control_multiplier, 15);
                     end if;
                 WHEN 3 =>
                     if multiplier_is_ready(control_multiplier) then
+                        integrator <= integrator + get_multiplier_result(control_multiplier, 15);
                         increment(vd_control_process_counter2);
-                        pi_output <= integrator + pi_output_buffer;
+                        pi_output <= pi_output_buffer-integrator ;
                         calculation_ready <= true;
                     end if;
                 WHEN others => -- wait for triggering

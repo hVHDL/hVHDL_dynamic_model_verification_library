@@ -128,14 +128,15 @@ begin
             create_motor_current_control(
                 control_multiplier,
                 id_current_control,
-                500,
+                20000,
                 get_angular_speed(pmsm_model),
-                600-get_d_component(pmsm_model), get_q_component(pmsm_model), 1000);
+                1000,
+                250-get_d_component(pmsm_model), get_q_component(pmsm_model));
 
             if simulation_counter = 10 or angular_speed_calculation_is_ready(pmsm_model) then
                 request_angular_speed_calculation(pmsm_model);
                 request_electrical_angle_calculation(pmsm_model);
-                request_id_calculation(pmsm_model , get_control_output(id_current_control));
+                request_id_calculation(pmsm_model , -get_control_output(id_current_control));
                 request_iq_calculation(pmsm_model , vq_input_voltage );
 
                 request_dq_to_ab_transform(
@@ -148,12 +149,12 @@ begin
 
             end if;
 
-            -- CASE simulation_counter is
-            --     WHEN 0 => set_load_torque(pmsm_model, 500);
+            CASE simulation_counter is
+                -- WHEN 0 => set_load_torque(pmsm_model, 500);
             --     WHEN 20e3 => set_load_torque(pmsm_model, 6000);
             --     WHEN 25e3 => set_load_torque(pmsm_model, 500);
-            --     when others => -- do nothing
-            -- end case;
+                when others => -- do nothing
+            end case;
             rotor_angle <= get_electrical_angle(pmsm_model);
 
 

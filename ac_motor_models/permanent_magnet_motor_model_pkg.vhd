@@ -239,8 +239,8 @@ package body permanent_magnet_motor_model_pkg is
         alias vq_input_voltage    is pmsm_model_object.vq_input_voltage    ;
 
         constant permanent_magnet_flux : int18 := 5000;
-        constant Ld : int18 := 50000  ;
-        constant Lq : int18 := 15000 ;
+        constant Ld : int18 := 25e3  ;
+        constant Lq : int18 := 20000 ;
 
     begin
         
