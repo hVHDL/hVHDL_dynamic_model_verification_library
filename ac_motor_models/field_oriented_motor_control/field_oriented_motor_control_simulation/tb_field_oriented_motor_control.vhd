@@ -28,7 +28,7 @@ architecture vunit_simulation of tb_field_oriented_motor_control is
     signal simulator_clock     : std_logic  := '0'    ;
     constant clock_per         : time       := 1 ns   ;
     constant clock_half_per    : time       := 0.5 ns ;
-    constant simtime_in_clocks : integer    := 5e3   ;
+    constant simtime_in_clocks : integer    := 10e3   ;
 
     signal simulation_counter : natural := 0;
     -----------------------------------
@@ -63,6 +63,7 @@ architecture vunit_simulation of tb_field_oriented_motor_control is
     signal id_current_control : motor_current_control_record := init_motor_current_control;
     signal iq_current_control : motor_current_control_record := init_motor_current_control;
 
+    signal speed_control_multiplier : multiplier_record := init_multiplier;
     signal speed_controller : pi_controller_record := init_pi_controller;
 
 
@@ -139,18 +140,23 @@ begin
                 id_current_control,
                 default_motor_parameters.Lq,
                 get_angular_speed(pmsm_model),
-                100,
-                -350-get_d_component(pmsm_model), get_q_component(pmsm_model));
+                default_motor_parameters.rotor_resistance,
+                -0-get_d_component(pmsm_model), get_q_component(pmsm_model));
 
+            --------------------------------------------------
             create_multiplier(control_multiplier2);
             create_motor_current_control(
                 control_multiplier2,
                 iq_current_control,
                 default_motor_parameters.Ld,
                 get_angular_speed(pmsm_model),
-                100,
-                10000-get_q_component(pmsm_model), get_d_component(pmsm_model));
+                default_motor_parameters.rotor_resistance,
+                get_pi_control_output(speed_controller)-get_q_component(pmsm_model), get_d_component(pmsm_model));
+            --------------------------------------------------
+            create_multiplier(speed_control_multiplier);
+            create_pi_controller(speed_control_multiplier, speed_controller, 30000, 2500);
 
+            --------------------------------------------------
             if simulation_counter = 10 or angular_speed_calculation_is_ready(pmsm_model) then
                 request_angular_speed_calculation(pmsm_model);
                 request_electrical_angle_calculation(pmsm_model);
@@ -165,17 +171,16 @@ begin
 
                 request_motor_current_control(id_current_control);
                 request_motor_current_control(iq_current_control);
+                request_pi_control(speed_controller, 15e3 - get_angular_speed(pmsm_model));
 
             end if;
 
             CASE simulation_counter is
                 -- WHEN 0 => set_load_torque(pmsm_model, 500);
-                WHEN 2e3 => set_load_torque(pmsm_model, 6000);
+                WHEN 6e3 => set_load_torque(pmsm_model, -6000);
             --     WHEN 25e3 => set_load_torque(pmsm_model, 500);
                 when others => -- do nothing
             end case;
-
-        -----
 
         end if; -- rising_edge
     end process stimulus;	
