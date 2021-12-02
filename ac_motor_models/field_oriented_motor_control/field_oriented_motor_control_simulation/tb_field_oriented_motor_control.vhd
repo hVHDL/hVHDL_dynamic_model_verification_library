@@ -64,19 +64,38 @@ architecture vunit_simulation of tb_field_oriented_motor_control is
     signal vd_control_process_counter2 : natural range 0 to 15 := 15;
 
     alias control_multiplier is multiplier(vd);
-    signal stator_resistance : int18 := 100;
     signal id_current : int18 := 0;
     signal iq_current : int18 := 0;
     signal angular_speed : int18 := 0;
-    signal vd_kp : int18 := 5000;
-    signal vd_ki : int18 := 500;
-    signal control_input : int18 := 0;
     signal q_inductance : int18 := 500;
+    signal stator_resistance : int18 := 100;
 
-    signal integrator : int18 := 0;
-    signal pi_output_buffer : int18 := 0;
-    signal intermediat2 : int18 := 0;
-    signal pi_output : int18 := 0;
+    type motor_current_control_record is record
+        control_input    : int18;
+        integrator       : int18;
+        pi_output_buffer : int18;
+        pi_output        : int18;
+        vd_kp            : int18;
+        vd_ki            : int18;
+    end record;
+    constant init_motor_current_control : motor_current_control_record :=
+    (
+        control_input    => 0    ,
+        integrator       => 0    ,
+        pi_output_buffer => 0    ,
+        pi_output        => 0    ,
+        vd_kp            => 5000 ,
+        vd_ki            => 500);
+
+    signal vd_current_control : motor_current_control_record := init_motor_current_control;
+
+    alias control_input    is vd_current_control.control_input    ;
+    alias integrator       is vd_current_control.integrator       ;
+    alias pi_output_buffer is vd_current_control.pi_output_buffer ;
+    alias pi_output        is vd_current_control.pi_output        ;
+    alias vd_kp            is vd_current_control.vd_kp            ;
+    alias vd_ki            is vd_current_control.vd_ki            ;
+
 
 begin
 
