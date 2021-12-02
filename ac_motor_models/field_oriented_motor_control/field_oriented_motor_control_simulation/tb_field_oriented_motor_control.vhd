@@ -137,7 +137,7 @@ begin
             create_motor_current_control(
                 control_multiplier,
                 id_current_control,
-                10000,
+                default_motor_parameters.Lq,
                 get_angular_speed(pmsm_model),
                 100,
                 -350-get_d_component(pmsm_model), get_q_component(pmsm_model));
@@ -146,7 +146,7 @@ begin
             create_motor_current_control(
                 control_multiplier2,
                 iq_current_control,
-                25000,
+                default_motor_parameters.Ld,
                 get_angular_speed(pmsm_model),
                 100,
                 10000-get_q_component(pmsm_model), get_d_component(pmsm_model));
@@ -170,7 +170,7 @@ begin
 
             CASE simulation_counter is
                 -- WHEN 0 => set_load_torque(pmsm_model, 500);
-                WHEN 2e3 => set_load_torque(pmsm_model, -6000);
+                WHEN 2e3 => set_load_torque(pmsm_model, 6000);
             --     WHEN 25e3 => set_load_torque(pmsm_model, 500);
                 when others => -- do nothing
             end case;

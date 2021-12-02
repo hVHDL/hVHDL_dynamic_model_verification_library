@@ -17,18 +17,18 @@ package permanent_magnet_motor_model_pkg is
         permanent_magnet_flux : int18;
         intertial_mass        : int18;
         pole_pairs            : int18;
-        rotor_resistance            : int18;
+        rotor_resistance      : int18;
     end record;
 
-    constant default_motor_parameters : motor_parameter_record := (10e3, 25e3, 50e3, 5000, 1, 100);
+    constant default_motor_parameters : motor_parameter_record := (10e3, 25e3, 25e3, 5000, 1, 100);
 ------------------------------------------------------------------------
     type permanent_magnet_motor_model_record is record
         id_current_model    : id_current_model_record ;
         iq_current_model    : id_current_model_record ;
         angular_speed_model : angular_speed_record    ;
-        electrical_angle : state_variable_record      ;
-        vd_input_voltage        : int18               ;
-        vq_input_voltage        : int18               ;
+        electrical_angle    : state_variable_record   ;
+        vd_input_voltage    : int18                   ;
+        vq_input_voltage    : int18                   ;
     end record                                        ;
 
     constant init_permanent_magnet_motor_model : permanent_magnet_motor_model_record := 
@@ -281,7 +281,8 @@ package body permanent_magnet_motor_model_pkg is
             Ld                                ,
             Lq                                ,
             id_current_model.id_current.state ,
-            iq_current_model.id_current.state);
+            iq_current_model.id_current.state ,
+            permanent_magnet_flux);
         --------------------------------------------------
         create_state_variable(electrical_angle,angle_multiplier, to_signed(get_angular_speed(angular_speed_model),18));
 

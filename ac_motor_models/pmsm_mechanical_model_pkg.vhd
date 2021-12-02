@@ -15,7 +15,6 @@ package pmsm_mechanical_model_pkg is
         load_torque                       : int18                ;
         w_state_equation                  : int18                ;
         permanent_magnet_torque           : int18                ;
-        permanent_magnet_flux             : int18                ;
         reluctance_torque                 : int18                ;
         friction                          : int18                ;
     end record;
@@ -26,7 +25,6 @@ package pmsm_mechanical_model_pkg is
         load_torque                       => 0                             ,
         w_state_equation                  => 0                             ,
         permanent_magnet_torque           => 0                             ,
-        permanent_magnet_flux             => 15000                          ,
         reluctance_torque                 => 0                             ,
         friction                          => 0                             );
 ------------------------------------------------------------------------
@@ -49,7 +47,8 @@ package pmsm_mechanical_model_pkg is
         Ld                          : int18;
         Lq                          : int18;
         id_current                  : int18;
-        iq_current                  : int18);
+        iq_current                  : int18;
+        permanent_magnet_flux       : int18);
     --------------------------------------------------
 
 ------------------------------------------------------------------------
@@ -103,14 +102,14 @@ package body pmsm_mechanical_model_pkg is
         Ld                          : int18;
         Lq                          : int18;
         id_current                  : int18;
-        iq_current                  : int18
+        iq_current                  : int18;
+        permanent_magnet_flux       : int18
     ) is
         alias angular_speed                     is angular_speed_object.angular_speed                     ;
         alias angular_speed_calculation_counter is angular_speed_object.angular_speed_calculation_counter ;
         alias load_torque                       is angular_speed_object.load_torque                       ;
         alias w_state_equation                  is angular_speed_object.w_state_equation                  ;
         alias permanent_magnet_torque           is angular_speed_object.permanent_magnet_torque           ;
-        alias permanent_magnet_flux             is angular_speed_object.permanent_magnet_flux             ;
         alias reluctance_torque                 is angular_speed_object.reluctance_torque                 ;
         alias friction                          is angular_speed_object.friction                          ;
     begin
