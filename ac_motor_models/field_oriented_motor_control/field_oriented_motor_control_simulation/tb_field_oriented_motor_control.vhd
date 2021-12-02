@@ -16,6 +16,7 @@ library math_library;
     use math_library.permanent_magnet_motor_model_pkg.all;
     use math_library.state_variable_pkg.all;
     use math_library.field_oriented_motor_control_pkg.all;
+    use math_library.pi_controller_pkg.all;
 
 entity tb_field_oriented_motor_control is
   generic (runner_cfg : string);
@@ -48,9 +49,6 @@ architecture vunit_simulation of tb_field_oriented_motor_control is
     --------------------------------------------------
     -- motor electrical simulation signals --
 
-    signal vd_input_voltage : int18 := 300;
-    signal vq_input_voltage : int18 := -300;
-
     signal pmsm_model : permanent_magnet_motor_model_record := init_permanent_magnet_motor_model;
 
     alias id_multiplier is multiplier(id);
@@ -59,17 +57,14 @@ architecture vunit_simulation of tb_field_oriented_motor_control is
 
     --------------------------------------------------
 
-    signal rotor_angle : int18 := 0;
-
-
     alias control_multiplier is multiplier(vd);
     alias control_multiplier2 is multiplier(vq);
-    signal angular_speed : int18 := 0;
-    signal q_inductance : int18 := 500;
-    signal stator_resistance : int18 := 100;
 
     signal id_current_control : motor_current_control_record := init_motor_current_control;
     signal iq_current_control : motor_current_control_record := init_motor_current_control;
+
+    signal speed_controller : pi_controller_record := init_pi_controller;
+
 
 begin
 
@@ -141,19 +136,19 @@ begin
             create_motor_current_control(
                 control_multiplier,
                 id_current_control,
-                25000,
+                10000,
                 get_angular_speed(pmsm_model),
                 100,
-                0-get_d_component(pmsm_model), get_q_component(pmsm_model));
+                -350-get_d_component(pmsm_model), get_q_component(pmsm_model));
 
             create_multiplier(control_multiplier2);
             create_motor_current_control(
                 control_multiplier2,
                 iq_current_control,
-                20000,
+                25000,
                 get_angular_speed(pmsm_model),
                 100,
-                -10000-get_q_component(pmsm_model), get_d_component(pmsm_model));
+                10000-get_q_component(pmsm_model), get_d_component(pmsm_model));
 
             if simulation_counter = 10 or angular_speed_calculation_is_ready(pmsm_model) then
                 request_angular_speed_calculation(pmsm_model);
@@ -174,12 +169,10 @@ begin
 
             CASE simulation_counter is
                 -- WHEN 0 => set_load_torque(pmsm_model, 500);
-                WHEN 2e3 => set_load_torque(pmsm_model, 6000);
+                WHEN 2e3 => set_load_torque(pmsm_model, -6000);
             --     WHEN 25e3 => set_load_torque(pmsm_model, 500);
                 when others => -- do nothing
             end case;
-            rotor_angle <= get_electrical_angle(pmsm_model);
-
 
         -----
 
