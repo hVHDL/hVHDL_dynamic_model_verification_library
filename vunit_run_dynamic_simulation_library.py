@@ -27,5 +27,6 @@ mathlib.add_source_files(ROOT / "ac_motor_models/permanent_magnet_motor_model_pk
 
 mathlib.add_source_files(ROOT / "../math_library/coordinate_transforms/ab_to_dq_transform/ab_to_dq_transform_pkg.vhd") 
 mathlib.add_source_files(ROOT / "ac_motor_models/simulate_permanent_magnet_synchronous_machine/tb_permanent_magnet_synchronous_machine_model.vhd")
+mathlib.add_source_files(ROOT / "ac_motor_models/field_oriented_motor_control/field_oriented_motor_control_simulation/tb_field_oriented_motor_control.vhd")
 
 VU.main()
