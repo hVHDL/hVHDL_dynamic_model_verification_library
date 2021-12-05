@@ -8,7 +8,7 @@ library math_library;
 package field_oriented_motor_control_pkg is
 
     type motor_current_control_record is record
-        vd_control_process_counter : natural range 0 to 15 ;
+        vd_control_process_counter  : natural range 0 to 15 ;
         vd_control_process_counter2 : natural range 0 to 15;
         control_input    : int18;
         integrator       : int18;
@@ -21,30 +21,32 @@ package field_oriented_motor_control_pkg is
 
     constant init_motor_current_control : motor_current_control_record :=
     (15 , 15 , 0 , 0 , 0 , 0 , 28000 , 4000, false);
-
+------------------------------------------------------------------------
     function get_control_output ( current_control_object : motor_current_control_record)
         return int18;
-
+------------------------------------------------------------------------
     procedure request_motor_current_control (
         signal current_control_object : out motor_current_control_record);
-
+------------------------------------------------------------------------
     function current_control_is_ready ( current_control_object : motor_current_control_record)
         return boolean;
-
+------------------------------------------------------------------------
     procedure create_motor_current_control (
         signal control_multiplier     : inout multiplier_record;
         signal current_control_object : inout motor_current_control_record;
         q_inductance                  : int18;
         angular_speed                 : int18;
         stator_resistance             : int18;
-        id_current                    : int18;
-        iq_current                    : int18);
+        feedback_current              : int18;
+        feedforward_current           : int18);
+------------------------------------------------------------------------
 
 
 end package field_oriented_motor_control_pkg;
 
 package body field_oriented_motor_control_pkg is
 
+------------------------------------------------------------------------
     function get_control_output
     (
         current_control_object : motor_current_control_record
@@ -55,6 +57,7 @@ package body field_oriented_motor_control_pkg is
         return current_control_object.pi_output;
     end get_control_output;
 
+------------------------------------------------------------------------
     function current_control_is_ready
     (
         current_control_object : motor_current_control_record
@@ -65,6 +68,7 @@ package body field_oriented_motor_control_pkg is
         return current_control_object.calculation_ready;
     end current_control_is_ready;
 
+------------------------------------------------------------------------
     procedure request_motor_current_control
     (
         signal current_control_object : out motor_current_control_record
@@ -73,6 +77,7 @@ package body field_oriented_motor_control_pkg is
         current_control_object.vd_control_process_counter <= 0;
     end request_motor_current_control;
 
+------------------------------------------------------------------------
     procedure create_motor_current_control
     (
         signal control_multiplier     : inout multiplier_record;
@@ -80,13 +85,14 @@ package body field_oriented_motor_control_pkg is
         q_inductance                  : int18;
         angular_speed                 : int18;
         stator_resistance             : int18;
-        id_current                    : int18;
-        iq_current                    : int18
+        feedback_current                    : int18;
+        feedforward_current                    : int18
     ) is
 
-        alias vd_control_process_counter    is current_control_object.vd_control_process_counter    ;
-        alias vd_control_process_counter2    is current_control_object.vd_control_process_counter2    ;
-        alias control_input    is id_current    ;
+        alias vd_control_process_counter    is current_control_object.vd_control_process_counter   ;
+        alias vd_control_process_counter2    is current_control_object.vd_control_process_counter2 ;
+
+        alias control_input    is feedback_current    ;
         alias integrator       is current_control_object.integrator       ;
         alias pi_output_buffer is current_control_object.pi_output_buffer ;
         alias pi_output        is current_control_object.pi_output        ;
@@ -103,10 +109,10 @@ package body field_oriented_motor_control_pkg is
                     if multiplier_is_ready(control_multiplier) then
                         increment(vd_control_process_counter);
                         vd_control_process_counter2 <= 0;
-                        multiply(control_multiplier, get_multiplier_result(control_multiplier, 15), iq_current);
+                        multiply(control_multiplier, get_multiplier_result(control_multiplier, 15), feedforward_current);
                     end if;
                 WHEN 1 =>
-                    multiply(control_multiplier, stator_resistance, id_current);
+                    multiply(control_multiplier, stator_resistance, feedback_current);
                     increment(vd_control_process_counter);
                 WHEN 2 =>
                     multiply(control_multiplier, vd_kp, control_input);
@@ -146,4 +152,5 @@ package body field_oriented_motor_control_pkg is
         
     end create_motor_current_control;
 
+------------------------------------------------------------------------
 end package body field_oriented_motor_control_pkg;
