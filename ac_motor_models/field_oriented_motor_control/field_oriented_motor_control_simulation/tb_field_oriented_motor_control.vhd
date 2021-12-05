@@ -45,6 +45,8 @@ architecture vunit_simulation of tb_field_oriented_motor_control is
 
     signal dq_to_ab_transform : dq_to_ab_record := init_dq_to_ab_transform;
     signal ab_to_dq_transform : ab_to_dq_record := init_ab_to_dq_transform;
+    signal d_reference : int18 := 15000;
+    signal square_sum : int18 := 0;
 
     --------------------------------------------------
     -- motor electrical simulation signals --
@@ -66,7 +68,7 @@ architecture vunit_simulation of tb_field_oriented_motor_control is
     signal speed_control_multiplier : multiplier_record := init_multiplier;
     signal speed_controller : pi_controller_record := init_pi_controller;
 
-    signal speed_reference : int18 := -5e3;
+    signal speed_reference : int18 := 15e3;
 
 begin
 
@@ -137,22 +139,22 @@ begin
             --------------------------------------------------
             create_multiplier(control_multiplier);
             create_motor_current_control(
-                control_multiplier,
-                id_current_control,
-                default_motor_parameters.Lq,
-                get_angular_speed(pmsm_model),
-                default_motor_parameters.rotor_resistance,
-                -0-get_d_component(pmsm_model), get_q_component(pmsm_model));
+                control_multiplier                        ,
+                id_current_control                        ,
+                default_motor_parameters.Lq               ,
+                get_angular_speed(pmsm_model)             ,
+                default_motor_parameters.rotor_resistance ,
+                d_reference-get_d_component(pmsm_model)            , get_q_component(pmsm_model));
 
             --------------------------------------------------
             create_multiplier(control_multiplier2);
             create_motor_current_control(
-                control_multiplier2,
-                iq_current_control,
-                default_motor_parameters.Ld,
-                get_angular_speed(pmsm_model),
-                default_motor_parameters.rotor_resistance,
-                get_pi_control_output(speed_controller)-get_q_component(pmsm_model), get_d_component(pmsm_model));
+                control_multiplier2                                                 ,
+                iq_current_control                                                  ,
+                default_motor_parameters.Ld                                         ,
+                get_angular_speed(pmsm_model)                                       ,
+                default_motor_parameters.rotor_resistance                           ,
+                get_pi_control_output(speed_controller)-get_q_component(pmsm_model) , get_d_component(pmsm_model));
             --------------------------------------------------
             create_multiplier(speed_control_multiplier);
             create_pi_controller(speed_control_multiplier, speed_controller, 30000, 2500);
@@ -163,6 +165,7 @@ begin
                 request_electrical_angle_calculation(pmsm_model);
                 request_id_calculation(pmsm_model , -get_control_output(id_current_control));
                 request_iq_calculation(pmsm_model , -get_control_output(iq_current_control) + get_angular_speed(pmsm_model)*default_motor_parameters.permanent_magnet_flux );
+                d_reference <= d_reference - 50;
 
                 request_dq_to_ab_transform(
                     dq_to_ab_transform          ,
@@ -178,11 +181,13 @@ begin
 
             CASE simulation_counter is
                 -- WHEN 0 => set_load_torque(pmsm_model, 500);
-                WHEN 3e3 => set_load_torque(pmsm_model, -16e3);
-                WHEN 5e3 => set_load_torque(pmsm_model, 16e3);
-                WHEN 7e3 => speed_reference <=  -speed_reference;
+                WHEN 0 => set_load_torque(pmsm_model, -10e3);
+                -- WHEN 5e3 => set_load_torque(pmsm_model, 16e3);
+                -- WHEN 7e3 => speed_reference <=  0;
+                --             set_load_torque(pmsm_model, -16e3);
                 when others => -- do nothing
             end case;
+            square_sum <= get_q_component(pmsm_model) * get_q_component(pmsm_model) + get_d_component(pmsm_model) * get_d_component(pmsm_model);
 
         end if; -- rising_edge
     end process stimulus;	

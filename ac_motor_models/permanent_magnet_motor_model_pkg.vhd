@@ -20,7 +20,7 @@ package permanent_magnet_motor_model_pkg is
         rotor_resistance      : int18;
     end record;
 
-    constant default_motor_parameters : motor_parameter_record := (10e3, 25e3, 25e3, 5000, 1, 100);
+    constant default_motor_parameters : motor_parameter_record := (5e3, 25e3, 25e3, 5000, 1, 100);
 ------------------------------------------------------------------------
     type permanent_magnet_motor_model_record is record
         id_current_model    : id_current_model_record ;
