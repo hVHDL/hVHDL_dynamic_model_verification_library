@@ -144,7 +144,7 @@ begin
                 default_motor_parameters.Lq               ,
                 get_angular_speed(pmsm_model)             ,
                 default_motor_parameters.rotor_resistance ,
-                d_reference-get_d_component(pmsm_model)            , get_q_component(pmsm_model));
+                d_reference-get_d_component(pmsm_model)   , get_q_component(pmsm_model));
 
             --------------------------------------------------
             create_multiplier(control_multiplier2);

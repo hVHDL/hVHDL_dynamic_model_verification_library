@@ -128,7 +128,7 @@ package body pmsm_mechanical_model_pkg is
                     increment(angular_speed_calculation_counter);
                 end if;
             WHEN 3 =>
-                multiply(w_multiplier, angular_speed.state, 10e2);
+                multiply(w_multiplier, angular_speed.state, 10e3);
                 permanent_magnet_torque <= get_multiplier_result(w_multiplier, 15);
                 w_state_equation        <= get_multiplier_result(w_multiplier, 15) - load_torque;
                 increment(angular_speed_calculation_counter);
