@@ -29,14 +29,14 @@ package lcr_filter_model_pkg is
     procedure create_lcr_filter (
         signal lcr_filter : inout lcr_model_record;
         signal multiplier : inout multiplier_record;
-        inductor_current_state_equation : int18;
-        capacitor_voltage_state_equation : int18 );
+        inductor_current_state_equation : in int18;
+        capacitor_voltage_state_equation : in int18 );
 
     procedure create_lcr_filter (
         signal lcr_filter : inout lcr_model_record;
         signal multiplier : inout multiplier_record;
-        inductor_current_state_equation : int18;
-        capacitor_voltage_state_equation : state_variable_record );
+        inductor_current_state_equation : in int18;
+        capacitor_voltage_state_equation : in state_variable_record );
 ------------------------------------------------------------------------
 ------------------------------------------------------------------------
     procedure calculate_lcr_filter (
@@ -58,8 +58,8 @@ package body lcr_filter_model_pkg is
     (
         signal lcr_filter : inout lcr_model_record;
         signal multiplier : inout multiplier_record;
-        inductor_current_state_equation : int18;
-        capacitor_voltage_state_equation : int18
+        inductor_current_state_equation : in int18;
+        capacitor_voltage_state_equation : in int18
 
     ) is
         alias hw_multiplier is multiplier;
@@ -99,8 +99,8 @@ package body lcr_filter_model_pkg is
     (
         signal lcr_filter : inout lcr_model_record;
         signal multiplier : inout multiplier_record;
-        inductor_current_state_equation : int18;
-        capacitor_voltage_state_equation : state_variable_record
+        inductor_current_state_equation : in int18;
+        capacitor_voltage_state_equation : in state_variable_record
 
     ) is
     begin

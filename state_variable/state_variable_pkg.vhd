@@ -21,7 +21,7 @@ package state_variable_pkg is
     procedure create_state_variable (
         signal state_variable : inout state_variable_record;
         signal hw_multiplier : inout multiplier_record;
-        state_equation : signed(17 downto 0));
+        state_equation : in signed(17 downto 0));
 --------------------------------------------------
     function state_variable_calculation_is_ready ( state_variable : state_variable_record)
         return boolean;
@@ -33,7 +33,7 @@ package state_variable_pkg is
     procedure create_state_variable (
         signal state_variable : inout state_variable_record;
         signal hw_multiplier : inout multiplier_record;
-        state_equation : int18);
+        state_equation : in int18);
 
 --------------------------------------------------
     procedure integrate_state (
@@ -99,7 +99,7 @@ package body state_variable_pkg is
     (
         signal state_variable : inout state_variable_record;
         signal hw_multiplier : inout multiplier_record;
-        state_equation : int18
+        state_equation : in int18
     ) is
     begin 
         state_variable.state_variable_has_been_calculated <= false;
@@ -119,7 +119,7 @@ package body state_variable_pkg is
     (
         signal state_variable : inout state_variable_record;
         signal hw_multiplier : inout multiplier_record;
-        state_equation : signed(17 downto 0)
+        state_equation : in signed(17 downto 0)
     ) is
     begin 
         state_variable.state_variable_has_been_calculated <= false;
