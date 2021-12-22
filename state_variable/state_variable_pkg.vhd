@@ -12,10 +12,10 @@ package state_variable_pkg is
         state_variable_has_been_calculated : boolean;
         state           : int18;
         integrator_gain : int18;
-        state_counter : natural range 0 to 1;
+        state_counter : natural range 0 to 7;
     end record;
 
-    constant init_state_variable : state_variable_record := (false, 0, 0, 1);
+    constant init_state_variable : state_variable_record := (false, 0, 0, 7);
 
 --------------------------------------------------
     procedure create_state_variable (
@@ -104,15 +104,24 @@ package body state_variable_pkg is
         state_equation : in int18
     ) is
     begin 
-        state_variable.state_variable_has_been_calculated <= false;
-        if state_variable.state_counter = 0 then
-            integrate_state(state_variable, hw_multiplier, 15, state_equation);
-            increment_counter_when_ready(hw_multiplier, state_variable.state_counter);
-            if multiplier_is_ready(hw_multiplier) then
-                state_variable.state_variable_has_been_calculated <= true;
-            end if;
-
-        end if;
+        CASE  state_variable.state_counter is
+            WHEN 0 =>
+                state_variable.state_variable_has_been_calculated <= false;
+                if multiplier_is_not_busy(hw_multiplier) then
+                    multiply(hw_multiplier, state_variable.integrator_gain, state_equation); 
+                    increment(state_variable.state_counter);
+                end if;
+            WHEN 1 =>
+                if multiplier_is_ready(hw_multiplier) then
+                    state_variable.state_variable_has_been_calculated <= true;
+                    state_variable.state <= get_multiplier_result(hw_multiplier, 15) + state_variable.state;
+                    increment(state_variable.state_counter);
+                else
+                    state_variable.state_variable_has_been_calculated <= false;
+                end if;
+            WHEN others => -- do nothing
+                    state_variable.state_variable_has_been_calculated <= false;
+        end CASE;
 
     end create_state_variable;
 
