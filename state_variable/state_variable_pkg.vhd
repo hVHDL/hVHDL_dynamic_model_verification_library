@@ -48,6 +48,8 @@ package state_variable_pkg is
     procedure request_state_variable_calculation (
         signal state_variable : out state_variable_record );
 ------------------------------------------------------------------------
+    function get_state ( state_variable : state_variable_record)
+        return integer;
 ------------------------------------------------------------------------
     function "-" ( left : state_variable_record; right : integer)
         return integer;
@@ -169,6 +171,17 @@ package body state_variable_pkg is
         
     end request_state_variable_calculation;
 
+------------------------------------------------------------------------
+    function get_state
+    (
+        state_variable : state_variable_record
+    )
+    return integer
+    is
+    begin
+        return state_variable.state;
+        
+    end get_state;
 ------------------------------------------------------------------------
     function "-"
     (
