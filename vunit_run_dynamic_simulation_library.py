@@ -34,4 +34,13 @@ mathlib.add_source_files(ROOT / "../math_library/coordinate_transforms/ab_to_dq_
 mathlib.add_source_files(ROOT / "ac_motor_models/simulate_permanent_magnet_synchronous_machine/tb_permanent_magnet_synchronous_machine_model.vhd")
 mathlib.add_source_files(ROOT / "ac_motor_models/field_oriented_motor_control/field_oriented_motor_control_simulation/tb_field_oriented_motor_control.vhd")
 
+mathlib.add_source_files(ROOT / "inverter_model/inverter_model_pkg.vhd")
+mathlib.add_source_files(ROOT / "inverter_model/inverter_model_simulation/tb_inverter_model.vhd")
+
+mathlib.add_source_files(ROOT / "power_supply_model/power_supply_simulation_model_pkg.vhd")
+mathlib.add_source_files(ROOT / "power_supply_model/psu_inverter_simulation_models_pkg.vhd")
+mathlib.add_source_files(ROOT / "power_supply_model/power_supply_model_simulation/tb_power_supply_model.vhd")
+
+mathlib.add_source_files(ROOT / "state_variable/simulation/tb_state_variable.vhd")
+
 VU.main()

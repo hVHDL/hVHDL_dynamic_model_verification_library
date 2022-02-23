@@ -10,8 +10,11 @@ LIBRARY std  ;
     use work.state_variable_pkg.all;
     use work.power_supply_simulation_model_pkg.all;
 
+library vunit_lib;
+    use vunit_lib.run_pkg.all;
 
 entity tb_power_supply_model is
+  generic (runner_cfg : string);
 end;
 
 architecture sim of tb_power_supply_model is
@@ -60,10 +63,11 @@ begin
 ------------------------------------------------------------------------
     simtime : process
     begin
+        test_runner_setup(runner, runner_cfg);
         simulation_running <= true;
         wait for simtime_in_clocks*clock_per;
         simulation_running <= false;
-        report "power supply model simulation successfull";
+        test_runner_cleanup(runner); -- Simulation ends here
         wait;
     end process simtime;	
 

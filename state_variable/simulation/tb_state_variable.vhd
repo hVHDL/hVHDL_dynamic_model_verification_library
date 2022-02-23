@@ -9,10 +9,14 @@ LIBRARY std  ;
     use work.multiplier_pkg.all;
     use work.state_variable_pkg.all;
 
-entity lrc_model is
+library vunit_lib;
+    use vunit_lib.run_pkg.all;
+
+entity tb_state_variable is
+  generic (runner_cfg : string);
 end;
 
-architecture sim of lrc_model is
+architecture sim of tb_state_variable is
     signal rstn : std_logic;
 
     signal simulation_running : boolean;
@@ -59,9 +63,11 @@ begin
 ------------------------------------------------------------------------
     simtime : process
     begin
+        test_runner_setup(runner, runner_cfg);
         simulation_running <= true;
         wait for simtime_in_clocks*clock_per;
         simulation_running <= false;
+        test_runner_cleanup(runner); -- Simulation ends here
         wait;
     end process simtime;	
 

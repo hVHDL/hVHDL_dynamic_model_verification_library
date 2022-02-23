@@ -110,6 +110,5 @@ begin
 
         end if; -- rstn
     end process clocked_reset_generator;	
-
 ------------------------------------------------------------------------
 end vunit_simulation;
