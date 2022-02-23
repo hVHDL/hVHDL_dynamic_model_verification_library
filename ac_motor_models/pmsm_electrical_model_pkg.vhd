@@ -2,10 +2,8 @@ library ieee;
     use ieee.std_logic_1164.all;
     use ieee.numeric_std.all;
 
-
-library math_library;
-    use math_library.multiplier_pkg.all;
-    use math_library.state_variable_pkg.all;
+    use work.multiplier_pkg.all;
+    use work.state_variable_pkg.all;
 
 package pmsm_electrical_model_pkg is
 

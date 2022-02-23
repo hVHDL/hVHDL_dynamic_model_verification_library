@@ -2,11 +2,10 @@ library ieee;
     use ieee.std_logic_1164.all;
     use ieee.numeric_std.all;
 
-library math_library;
-    use math_library.multiplier_pkg.all;
-    use math_library.state_variable_pkg.all;
-    use math_library.psu_inverter_simulation_models_pkg.all;
-    use math_library.pi_controller_pkg.all;
+    use work.multiplier_pkg.all;
+    use work.state_variable_pkg.all;
+    use work.psu_inverter_simulation_models_pkg.all;
+    use work.pi_controller_pkg.all;
 
 package power_supply_simulation_model_pkg is
 

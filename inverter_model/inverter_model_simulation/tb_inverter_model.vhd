@@ -6,11 +6,10 @@ LIBRARY std  ;
     use ieee.math_real.all;
     USE std.textio.all  ; 
 
-library math_library;
-    use math_library.multiplier_pkg.all;
-    use math_library.state_variable_pkg.all;
-    use math_library.lcr_filter_model_pkg.all;
-    use math_library.inverter_model_pkg.all;
+    use work.multiplier_pkg.all;
+    use work.state_variable_pkg.all;
+    use work.lcr_filter_model_pkg.all;
+    use work.inverter_model_pkg.all;
 
 
 entity tb_inverter_model is

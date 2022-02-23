@@ -1,19 +1,19 @@
 LIBRARY ieee  ; 
-LIBRARY std  ; 
     USE ieee.NUMERIC_STD.all  ; 
     USE ieee.std_logic_1164.all  ; 
-    USE ieee.std_logic_textio.all  ; 
     use ieee.math_real.all;
-    USE std.textio.all  ; 
 
-library math_library;
-    use math_library.multiplier_pkg.all;
-    use math_library.lcr_filter_model_pkg.all;
+    use work.multiplier_pkg.all;
+    use work.lcr_filter_model_pkg.all;
+
+library vunit_lib;
+    use vunit_lib.run_pkg.all;
 
 entity tb_lcr_filter is
+  generic (runner_cfg : string);
 end;
 
-architecture sim of tb_lcr_filter is
+architecture vunit_simulation of tb_lcr_filter is
     signal rstn : std_logic;
 
     signal simulation_running : boolean;
@@ -40,19 +40,19 @@ architecture sim of tb_lcr_filter is
     signal lcr_filter2 : lcr_model_record := init_lcr_model_integrator_gains(25e3, 2e3);
     signal lcr_filter3 : lcr_model_record := init_lcr_model_integrator_gains(25e3, 2e3);
 
-    signal int18_inductor_current  : int18 := 0;
-    signal int18_capacitor_voltage : int18 := 0;
 begin
 
 ------------------------------------------------------------------------
     simtime : process
     begin
+        test_runner_setup(runner, runner_cfg);
         simulation_running <= true;
         wait for simtime_in_clocks*clock_per;
         simulation_running <= false;
-        report "lcr filter simulation succeeded";
+        test_runner_cleanup(runner); -- Simulation ends here
         wait;
     end process simtime;	
+
 
 ------------------------------------------------------------------------
     sim_clock_gen : process
@@ -111,8 +111,5 @@ begin
         end if; -- rstn
     end process clocked_reset_generator;	
 
-    int18_inductor_current <= lcr_filter3.inductor_current.state;
-    int18_capacitor_voltage <= lcr_filter3.capacitor_voltage.state;
-
 ------------------------------------------------------------------------
-end sim;
+end vunit_simulation;

@@ -2,11 +2,10 @@ library ieee;
     use ieee.std_logic_1164.all;
     use ieee.numeric_std.all;
 
-library math_library;
-    use math_library.multiplier_pkg.all;
-    use math_library.state_variable_pkg.all;
-    use math_library.pmsm_electrical_model_pkg.all;
-    use math_library.pmsm_mechanical_model_pkg.all;
+    use work.multiplier_pkg.all;
+    use work.state_variable_pkg.all;
+    use work.pmsm_electrical_model_pkg.all;
+    use work.pmsm_mechanical_model_pkg.all;
 
 package permanent_magnet_motor_model_pkg is
 

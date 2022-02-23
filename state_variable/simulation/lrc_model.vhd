@@ -6,9 +6,8 @@ LIBRARY std  ;
     use ieee.math_real.all;
     USE std.textio.all  ; 
 
-library math_library;
-    use math_library.multiplier_pkg.all;
-    use math_library.state_variable_pkg.all;
+    use work.multiplier_pkg.all;
+    use work.state_variable_pkg.all;
 
 entity lrc_model is
 end;

@@ -2,9 +2,8 @@ library ieee;
     use ieee.std_logic_1164.all;
     use ieee.numeric_std.all;
 
-library math_library;
-    use math_library.multiplier_pkg.all;
-    use math_library.state_variable_pkg.all;
+    use work.multiplier_pkg.all;
+    use work.state_variable_pkg.all;
 
 package lcr_filter_model_pkg is
 
@@ -133,7 +132,6 @@ package body lcr_filter_model_pkg is
         return lcr_filter_init;
         
     end init_lcr_model_integrator_gains;
-
 
 ------------------------------------------------------------------------
 end package body lcr_filter_model_pkg; 

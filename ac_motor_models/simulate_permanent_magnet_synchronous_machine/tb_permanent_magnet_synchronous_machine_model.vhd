@@ -6,15 +6,14 @@ LIBRARY ieee  ;
 library vunit_lib;
     use vunit_lib.run_pkg.all;
 
-library math_library;
-    use math_library.multiplier_pkg.all;
-    use math_library.sincos_pkg.all;
-    use math_library.abc_to_ab_transform_pkg.all;
-    use math_library.ab_to_abc_transform_pkg.all;
-    use math_library.dq_to_ab_transform_pkg.all;
-    use math_library.ab_to_dq_transform_pkg.all;
-    use math_library.permanent_magnet_motor_model_pkg.all;
-    use math_library.state_variable_pkg.all;
+    use work.multiplier_pkg.all;
+    use work.sincos_pkg.all;
+    use work.abc_to_ab_transform_pkg.all;
+    use work.ab_to_abc_transform_pkg.all;
+    use work.dq_to_ab_transform_pkg.all;
+    use work.ab_to_dq_transform_pkg.all;
+    use work.permanent_magnet_motor_model_pkg.all;
+    use work.state_variable_pkg.all;
 
 entity tb_permanent_magnet_synchronous_machine_model is
   generic (runner_cfg : string);
