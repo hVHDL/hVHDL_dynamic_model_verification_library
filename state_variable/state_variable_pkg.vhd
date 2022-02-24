@@ -9,8 +9,8 @@ package state_variable_pkg is
 
     type state_variable_record is record
         state_variable_has_been_calculated : boolean;
-        state           : int18;
-        integrator_gain : int18;
+        state           : int;
+        integrator_gain : int;
         state_counter : natural range 0 to 7;
     end record;
 
@@ -25,21 +25,33 @@ package state_variable_pkg is
     function state_variable_calculation_is_ready ( state_variable : state_variable_record)
         return boolean;
 --------------------------------------------------
-    function init_state_variable_gain ( integrator_gain : int18)
+    function init_state_variable_gain ( integrator_gain : integer)
         return state_variable_record;
 
 --------------------------------------------------
     procedure create_state_variable (
         signal state_variable : inout state_variable_record;
         signal hw_multiplier : inout multiplier_record;
-        state_equation : in int18);
+        radix : integer;
+        state_equation : in integer);
+
+--------------------------------------------------
+    procedure create_state_variable (
+        signal state_variable : inout state_variable_record;
+        signal hw_multiplier : inout multiplier_record;
+        state_equation : in integer);
+
+------------------------------------------------------------------------
+    procedure integrate_state (
+        signal state_variable : inout state_variable_record;
+        state_equation : in integer);
 
 --------------------------------------------------
     procedure integrate_state (
         signal state_variable : inout state_variable_record;
         signal multiplier : inout multiplier_record;
         constant radix : in natural;
-        state_equation : in int18);
+        state_equation : in integer);
 
 ------------------------------------------------------------------------
     procedure calculate ( signal state_variable : out state_variable_record);
@@ -57,7 +69,7 @@ package state_variable_pkg is
     function "-" ( left : state_variable_record ; right : state_variable_record)
         return integer;
     function "-" ( system_state : state_variable_record)
-        return int18;
+        return integer;
 ------------------------------------------------------------------------
     function "+" ( left : state_variable_record; right : integer)
         return integer;
@@ -85,7 +97,7 @@ package body state_variable_pkg is
 --------------------------------------------------
     function init_state_variable_gain
     (
-        integrator_gain : int18
+        integrator_gain : integer
     )
     return state_variable_record
     is
@@ -100,7 +112,8 @@ package body state_variable_pkg is
     (
         signal state_variable : inout state_variable_record;
         signal hw_multiplier : inout multiplier_record;
-        state_equation : in int18
+        radix : integer;
+        state_equation : in integer
     ) is
     begin 
         CASE  state_variable.state_counter is
@@ -113,7 +126,7 @@ package body state_variable_pkg is
             WHEN 1 =>
                 if multiplier_is_ready(hw_multiplier) then
                     state_variable.state_variable_has_been_calculated <= true;
-                    state_variable.state <= get_multiplier_result(hw_multiplier, 15) + state_variable.state;
+                    state_variable.state <= get_multiplier_result(hw_multiplier, radix) + state_variable.state;
                     increment(state_variable.state_counter);
                 else
                     state_variable.state_variable_has_been_calculated <= false;
@@ -123,6 +136,18 @@ package body state_variable_pkg is
         end CASE;
 
     end create_state_variable;
+
+--------------------------------------------------
+    procedure create_state_variable
+    (
+        signal state_variable : inout state_variable_record;
+        signal hw_multiplier : inout multiplier_record;
+        state_equation : in integer
+    ) is
+    begin 
+        create_state_variable(state_variable, hw_multiplier, 15, state_equation);
+    end create_state_variable;
+
 
 --------------------------------------------------
     procedure create_state_variable
@@ -149,15 +174,26 @@ package body state_variable_pkg is
     procedure integrate_state
     (
         signal state_variable : inout state_variable_record;
+        state_equation : in integer
+    ) is
+    begin
+        state_variable.state <= state_equation + state_variable.state;
+        
+    end integrate_state;
+
+--------------------------------------------------
+    procedure integrate_state
+    (
+        signal state_variable : inout state_variable_record;
         signal multiplier : inout multiplier_record;
         constant radix : in natural;
-        state_equation : in int18
+        state_equation : in integer
     ) is
         alias integrator_gain is state_variable.integrator_gain;
     begin
         sequential_multiply(multiplier, integrator_gain, state_equation); 
         if multiplier_is_ready(multiplier) then
-            state_variable.state <= get_multiplier_result(multiplier, radix) + state_variable.state;
+            integrate_state(state_variable, get_multiplier_result(multiplier, radix));
         end if;
         
     end integrate_state;
@@ -230,7 +266,7 @@ package body state_variable_pkg is
     (
         system_state : state_variable_record
     )
-    return int18
+    return integer
     is
     begin
         return -system_state.state;
