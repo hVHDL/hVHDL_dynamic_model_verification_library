@@ -13,8 +13,8 @@ package lcr_filter_model_pkg is
         capacitor_voltage : state_variable_record;
         process_counter   : natural range 0 to 7;
 
-        inductor_current_delta     : int18;
-        inductor_series_resistance : int18;
+        inductor_current_delta     : int;
+        inductor_series_resistance : int;
     end record;
 
     constant init_lcr_filter : lcr_model_record := 
@@ -28,13 +28,13 @@ package lcr_filter_model_pkg is
     procedure create_lcr_filter (
         signal lcr_filter : inout lcr_model_record;
         signal multiplier : inout multiplier_record;
-        inductor_current_state_equation : in int18;
-        capacitor_voltage_state_equation : in int18 );
+        inductor_current_state_equation : in integer;
+        capacitor_voltage_state_equation : in integer );
 
     procedure create_lcr_filter (
         signal lcr_filter : inout lcr_model_record;
         signal multiplier : inout multiplier_record;
-        inductor_current_state_equation : in int18;
+        inductor_current_state_equation : in integer;
         capacitor_voltage_state_equation : in state_variable_record );
 ------------------------------------------------------------------------
 ------------------------------------------------------------------------
@@ -42,8 +42,8 @@ package lcr_filter_model_pkg is
         signal lcr_filter : inout lcr_model_record);
 ------------------------------------------------------------------------
     function init_lcr_model_integrator_gains (
-        inductor_integrator_gain : int18;
-        capacitor_integrator_gain : int18)
+        inductor_integrator_gain : integer;
+        capacitor_integrator_gain : integer)
         return lcr_model_record;
 
 ------------------------------------------------------------------------
@@ -57,8 +57,8 @@ package body lcr_filter_model_pkg is
     (
         signal lcr_filter : inout lcr_model_record;
         signal multiplier : inout multiplier_record;
-        inductor_current_state_equation : in int18;
-        capacitor_voltage_state_equation : in int18
+        inductor_current_state_equation : in integer;
+        capacitor_voltage_state_equation : in integer
 
     ) is
         alias hw_multiplier is multiplier;
@@ -68,8 +68,8 @@ package body lcr_filter_model_pkg is
         alias inductor_current is lcr_filter.inductor_current;
         alias capacitor_voltage is lcr_filter.capacitor_voltage;
     --------------------------------------------------
-        impure function "*" ( left, right : int18)
-        return int18
+        impure function "*" ( left, right : integer)
+        return integer
         is
         begin
             sequential_multiply(hw_multiplier, left, right);
@@ -98,7 +98,7 @@ package body lcr_filter_model_pkg is
     (
         signal lcr_filter : inout lcr_model_record;
         signal multiplier : inout multiplier_record;
-        inductor_current_state_equation : in int18;
+        inductor_current_state_equation : in integer;
         capacitor_voltage_state_equation : in state_variable_record
 
     ) is
@@ -119,8 +119,8 @@ package body lcr_filter_model_pkg is
 ------------------------------------------------------------------------
     function init_lcr_model_integrator_gains
     (
-        inductor_integrator_gain : int18;
-        capacitor_integrator_gain : int18
+        inductor_integrator_gain : integer;
+        capacitor_integrator_gain : integer
     )
     return lcr_model_record
     is
