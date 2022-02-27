@@ -115,7 +115,7 @@ package body lcr_filter_model_pkg is
         
         lcr_filter_is_ready <= false;
         CASE process_counter is
-            WHEN 0 => multiply_and_increment_counter(hw_multiplier , process_counter , get_state(inductor_current) , R_inductor) ;
+            WHEN 0 => multiply_and_increment_counter(hw_multiplier , process_counter , get_state(inductor_current) , 4000) ;
             WHEN others =>  -- do nothing
         end CASE;
 
@@ -123,7 +123,7 @@ package body lcr_filter_model_pkg is
             WHEN 0 => 
                 if multiplier_is_ready(hw_multiplier) then
                     current_state_equation <= get_multiplier_result(hw_multiplier, 15);
-                    voltage_state_equation <= get_state(inductor_current) - load_current;
+                    voltage_state_equation <= get_state(inductor_current) + load_current;
                     increment(process_counter2);
                 end if;
 
