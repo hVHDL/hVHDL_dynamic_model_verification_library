@@ -103,7 +103,7 @@ package body state_variable_pkg is
     is
         variable state_variable : state_variable_record := init_state_variable;
     begin
-        state_variable := (state_variable_has_been_calculated => false, state => 0, integrator_gain => integrator_gain, state_counter => 1);
+        state_variable := (state_variable_has_been_calculated => false, state => 0, integrator_gain => integrator_gain, state_counter => 2);
         return state_variable;
     end init_state_variable_gain;
 
@@ -128,11 +128,8 @@ package body state_variable_pkg is
                     state_variable.state_variable_has_been_calculated <= true;
                     state_variable.state <= get_multiplier_result(hw_multiplier, radix) + state_variable.state;
                     increment(state_variable.state_counter);
-                else
-                    state_variable.state_variable_has_been_calculated <= false;
                 end if;
             WHEN others => -- do nothing
-                    state_variable.state_variable_has_been_calculated <= false;
         end CASE;
 
     end create_state_variable;

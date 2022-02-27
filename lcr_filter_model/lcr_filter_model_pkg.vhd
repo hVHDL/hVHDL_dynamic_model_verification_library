@@ -20,7 +20,7 @@ package lcr_filter_model_pkg is
         inductor_current_delta     : int;
         inductor_series_resistance : int;
 
-        lcr_filter_calculation_is_ready : boolean;
+        lcr_filter_is_ready : boolean;
     end record;
 
     constant init_lcr_filter : lcr_model_record := 
@@ -32,7 +32,7 @@ package lcr_filter_model_pkg is
             voltage_state_equation     => 0                   ,
             inductor_current_delta     => 0                   ,
             inductor_series_resistance => 4000                 ,
-            lcr_filter_calculation_is_ready => false);
+            lcr_filter_is_ready => false);
 ------------------------------------------------------------------------
     procedure create_test_lcr_filter (
         signal hw_multiplier     : inout multiplier_record;
@@ -58,7 +58,7 @@ package lcr_filter_model_pkg is
         signal lcr_filter_object : out lcr_model_record);
 
 ------------------------------------------------------------------------
-    function lcr_filter_is_ready ( lcr_filter_object : lcr_model_record)
+    function lcr_filter_calculation_is_ready ( lcr_filter_object : lcr_model_record)
         return boolean;
 
 ------------------------------------------------------------------------
@@ -106,50 +106,43 @@ package body lcr_filter_model_pkg is
         alias voltage_state_equation  is lcr_filter_object.voltage_state_equation     ;
         alias R_inductor              is lcr_filter_object.inductor_series_resistance ;
 
-        alias lcr_filter_calculation_is_ready is lcr_filter_object.lcr_filter_calculation_is_ready;
+        alias lcr_filter_is_ready is lcr_filter_object.lcr_filter_is_ready;
     begin
 
         -- this does not, uses aliases for inductor_current and capacitor_voltage
         create_state_variable(inductor_current  , hw_multiplier , current_state_equation);
         create_state_variable(capacitor_voltage , hw_multiplier , voltage_state_equation);
         
-        lcr_filter_calculation_is_ready <= false;
+        lcr_filter_is_ready <= false;
         CASE process_counter is
-            WHEN 0 => multiply_and_increment_counter(hw_multiplier , process_counter , get_state(capacitor_voltage ) , 500 ) ;
-            WHEN 1 => multiply_and_increment_counter(hw_multiplier , process_counter , get_state(inductor_current  ) , R_inductor ) ;
+            WHEN 0 => multiply_and_increment_counter(hw_multiplier , process_counter , get_state(inductor_current) , 4000) ;
             WHEN others =>  -- do nothing
         end CASE;
 
         CASE process_counter2 is
             WHEN 0 => 
                 if multiplier_is_ready(hw_multiplier) then
-                    voltage_state_equation <= get_multiplier_result(hw_multiplier, 15);
+                    current_state_equation <= get_multiplier_result(hw_multiplier, 15);
+                    voltage_state_equation <= get_state(inductor_current) - load_current;
                     increment(process_counter2);
                 end if;
 
             WHEN 1 => 
-                if multiplier_is_ready(hw_multiplier) then
-                    current_state_equation <= get_multiplier_result(hw_multiplier, 15);
-                    voltage_state_equation <= -voltage_state_equation + get_state(inductor_current);
-                    increment(process_counter2);
-                end if;
-
-            WHEN 2 => 
                 current_state_equation <= -current_state_equation - capacitor_voltage + u_in;
                 increment(process_counter2);
 
-            WHEN 3 => 
+            WHEN 2 => 
                 request_state_variable_calculation(inductor_current);
                 increment(process_counter2);
                       
-            WHEN 4 => 
+            WHEN 3 => 
                 if state_variable_calculation_is_ready(inductor_current) then
                     request_state_variable_calculation(capacitor_voltage);
                     increment(process_counter2);
                 end if;
-            WHEN 5 => 
+            WHEN 4 => 
                 if state_variable_calculation_is_ready(capacitor_voltage) then
-                    lcr_filter_calculation_is_ready <= true;
+                    lcr_filter_is_ready <= true;
                     increment(process_counter2);
                 end if;
 
@@ -277,14 +270,14 @@ package body lcr_filter_model_pkg is
         return get_state(lcr_filter_object.inductor_current);
     end get_inductor_current;
 ------------------------------------------------------------------------
-    function lcr_filter_is_ready
+    function lcr_filter_calculation_is_ready
     (
         lcr_filter_object : lcr_model_record
     )
     return boolean
     is
     begin
-        return lcr_filter_object.lcr_filter_calculation_is_ready;
-    end lcr_filter_is_ready;
+        return lcr_filter_object.lcr_filter_is_ready;
+    end lcr_filter_calculation_is_ready;
 ------------------------------------------------------------------------
 end package body lcr_filter_model_pkg; 

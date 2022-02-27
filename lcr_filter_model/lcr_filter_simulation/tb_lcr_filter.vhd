@@ -42,6 +42,8 @@ architecture vunit_simulation of tb_lcr_filter is
     signal lcr_filter3 : lcr_model_record := init_lcr_model_integrator_gains(25e3, 2e3);
 
     signal lcr_filter4 : lcr_model_record := init_lcr_model_integrator_gains(25e3, 2e3);
+    signal lcr_filter5 : lcr_model_record := init_lcr_model_integrator_gains(25e3, 2e3);
+    signal lcr_filter6 : lcr_model_record := init_lcr_model_integrator_gains(25e3, 2e3);
 
 begin
 
@@ -92,7 +94,7 @@ begin
             create_multiplier(hw_multiplier3); 
             create_multiplier(hw_multiplier4); 
 
-            create_test_lcr_filter(hw_multiplier4, lcr_filter4, 200, 1500);
+            create_test_lcr_filter(hw_multiplier4 , lcr_filter4 , get_capacitor_voltage(lcr_filter4)/2 , 1500);
 
             create_lcr_filter(lcr_filter  , hw_multiplier  , input_voltage - lcr_filter.capacitor_voltage.state                        , lcr_filter.inductor_current.state - lcr_filter2.inductor_current.state);
             create_lcr_filter(lcr_filter2 , hw_multiplier2 , lcr_filter.capacitor_voltage.state - lcr_filter2.capacitor_voltage.state  , lcr_filter2.inductor_current.state - lcr_filter3.inductor_current.state);
@@ -108,6 +110,16 @@ begin
                 calculate_lcr_filter(lcr_filter3);
                 request_lcr_filter_calculation(lcr_filter4);
             end if;
+
+            if simulation_trigger_counter = 1 or lcr_filter_calculation_is_ready(lcr_filter4) then
+                request_lcr_filter_calculation(lcr_filter4);
+            end if;
+            -- if lcr_filter_calculation_is_ready(lcr_filter4) then
+            --     request_lcr_filter_calculation(lcr_filter5);
+            -- end if;
+            -- if lcr_filter_calculation_is_ready(lcr_filter5) then
+            --     request_lcr_filter_calculation(lcr_filter6);
+            -- end if;
 
             input_voltage <= 3e3;
             if simulation_counter mod 6000 = 0  then
