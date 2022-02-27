@@ -8,7 +8,7 @@ ROOT = Path(__file__).resolve().parent
 VU = VUnit.from_argv()
 
 mathlib = VU.add_library("math_library")
-mathlib.add_source_files(ROOT / "../math_library/multiplier/multiplier_base_types_pkg.vhd") 
+mathlib.add_source_files(ROOT / "../math_library/multiplier/multiplier_base_types_22bit_pkg.vhd") 
 mathlib.add_source_files(ROOT / "../math_library/multiplier/multiplier_pkg.vhd") 
 mathlib.add_source_files(ROOT / "../math_library/sincos/sincos_pkg.vhd") 
 mathlib.add_source_files(ROOT / "../math_library/pi_controller/pi_controller_pkg.vhd") 

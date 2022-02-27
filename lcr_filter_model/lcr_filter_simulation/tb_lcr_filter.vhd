@@ -28,17 +28,20 @@ architecture vunit_simulation of tb_lcr_filter is
     signal hw_multiplier : multiplier_record := multiplier_init_values;
     signal hw_multiplier2 : multiplier_record := multiplier_init_values;
     signal hw_multiplier3 : multiplier_record := multiplier_init_values;
+    signal hw_multiplier4 : multiplier_record := multiplier_init_values;
 ------------------------------------------------------------------------
     signal simulation_trigger_counter : natural := 0;
 ------------------------------------------------------------------------
     -- lrc model signals
     signal input_voltage   : int18 := 3000;
-    signal load_resistance : int18 := 10;
+    signal load_resistance : int18 := 100;
     signal load_current    : int18 := 3000;
 
     signal lcr_filter : lcr_model_record := init_lcr_model_integrator_gains(25e3, 2e3);
     signal lcr_filter2 : lcr_model_record := init_lcr_model_integrator_gains(25e3, 2e3);
     signal lcr_filter3 : lcr_model_record := init_lcr_model_integrator_gains(25e3, 2e3);
+
+    signal lcr_filter4 : lcr_model_record := init_lcr_model_integrator_gains(25e3, 2e3);
 
 begin
 
@@ -87,6 +90,9 @@ begin
             create_multiplier(hw_multiplier); 
             create_multiplier(hw_multiplier2); 
             create_multiplier(hw_multiplier3); 
+            create_multiplier(hw_multiplier4); 
+
+            create_test_lcr_filter(hw_multiplier4, lcr_filter4, 200, 1500);
 
             create_lcr_filter(lcr_filter  , hw_multiplier  , input_voltage - lcr_filter.capacitor_voltage.state                        , lcr_filter.inductor_current.state - lcr_filter2.inductor_current.state);
             create_lcr_filter(lcr_filter2 , hw_multiplier2 , lcr_filter.capacitor_voltage.state - lcr_filter2.capacitor_voltage.state  , lcr_filter2.inductor_current.state - lcr_filter3.inductor_current.state);
@@ -100,6 +106,7 @@ begin
                 calculate_lcr_filter(lcr_filter);
                 calculate_lcr_filter(lcr_filter2);
                 calculate_lcr_filter(lcr_filter3);
+                request_lcr_filter_calculation(lcr_filter4);
             end if;
 
             input_voltage <= 3e3;
