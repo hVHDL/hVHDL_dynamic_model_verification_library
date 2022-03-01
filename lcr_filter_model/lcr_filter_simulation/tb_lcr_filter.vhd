@@ -94,7 +94,7 @@ begin
             create_multiplier(hw_multiplier3); 
             create_multiplier(hw_multiplier4); 
 
-            create_test_lcr_filter(hw_multiplier4 , lcr_filter4 , -get_capacitor_voltage(lcr_filter4)  , 1500);
+            create_test_lcr_filter(hw_multiplier4 , lcr_filter4 , 0  , 1500);
             create_test_lcr_filter(hw_multiplier4 , lcr_filter5 , -get_capacitor_voltage(lcr_filter5)  , get_capacitor_voltage(lcr_filter4));
             -- create_test_lcr_filter(hw_multiplier4 , lcr_filter6 , get_capacitor_voltage(lcr_filter6)/2 , get_capacitor_voltage(lcr_filter5));
 

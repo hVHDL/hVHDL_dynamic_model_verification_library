@@ -116,9 +116,9 @@ package body state_variable_pkg is
         state_equation : in integer
     ) is
     begin 
+        state_variable.state_variable_has_been_calculated <= false;
         CASE  state_variable.state_counter is
             WHEN 0 =>
-                state_variable.state_variable_has_been_calculated <= false;
                 if multiplier_is_not_busy(hw_multiplier) then
                     multiply(hw_multiplier, state_variable.integrator_gain, state_equation); 
                     increment(state_variable.state_counter);

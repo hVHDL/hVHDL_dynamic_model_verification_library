@@ -31,7 +31,7 @@ package lcr_filter_model_pkg is
             current_state_equation     => 0                   ,
             voltage_state_equation     => 0                   ,
             inductor_current_delta     => 0                   ,
-            inductor_series_resistance => 4000                 ,
+            inductor_series_resistance => 1900                 ,
             lcr_filter_is_ready => false);
 ------------------------------------------------------------------------
     procedure create_test_lcr_filter (
@@ -113,7 +113,6 @@ package body lcr_filter_model_pkg is
         create_state_variable(inductor_current  , hw_multiplier , current_state_equation);
         create_state_variable(capacitor_voltage , hw_multiplier , voltage_state_equation);
         
-        lcr_filter_is_ready <= false;
         CASE process_counter is
             WHEN 0 => multiply_and_increment_counter(hw_multiplier , process_counter , get_state(inductor_current) , R_inductor) ;
             WHEN others =>  -- do nothing
@@ -142,7 +141,6 @@ package body lcr_filter_model_pkg is
                 end if;
             WHEN 4 => 
                 if state_variable_calculation_is_ready(capacitor_voltage) then
-                    lcr_filter_is_ready <= true;
                     increment(process_counter2);
                 end if;
 
@@ -277,7 +275,7 @@ package body lcr_filter_model_pkg is
     return boolean
     is
     begin
-        return lcr_filter_object.lcr_filter_is_ready;
+        return state_variable_calculation_is_ready(lcr_filter_object.capacitor_voltage);
     end lcr_filter_calculation_is_ready;
 ------------------------------------------------------------------------
 end package body lcr_filter_model_pkg; 
