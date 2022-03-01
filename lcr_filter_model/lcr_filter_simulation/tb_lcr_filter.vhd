@@ -41,9 +41,13 @@ architecture vunit_simulation of tb_lcr_filter is
     signal lcr_filter2 : lcr_model_record := init_lcr_model_integrator_gains(25e3, 2e3);
     signal lcr_filter3 : lcr_model_record := init_lcr_model_integrator_gains(25e3, 2e3);
 
-    signal lcr_filter4 : lcr_model_record := init_lcr_model_integrator_gains(25e3, 2e3);
-    signal lcr_filter5 : lcr_model_record := init_lcr_model_integrator_gains(25e3, 2e3);
-    signal lcr_filter6 : lcr_model_record := init_lcr_model_integrator_gains(25e3, 2e3);
+    signal lcr_filter4 : lcr_model_record := init_lcr_model_integrator_gains(16384, 16384);
+    signal lcr_filter5 : lcr_model_record := init_lcr_model_integrator_gains(5e3, 1e3);
+    signal lcr_filter6 : lcr_model_record := init_lcr_model_integrator_gains(5e3, 1e3);
+
+    signal inductor_current : real := 0.0;
+    signal capacitor_voltage : real := 0.0;
+    signal state_counter : integer := 0;
 
 begin
 
@@ -114,7 +118,18 @@ begin
 
             if simulation_trigger_counter = 1 or lcr_filter_calculation_is_ready(lcr_filter4) then
                 request_lcr_filter_calculation(lcr_filter4);
+                state_counter <= 0;
+
             end if;
+            CASE state_counter is
+                WHEN 0 => 
+                    inductor_current  <= inductor_current + 0.5*(1500.0 - capacitor_voltage - 20.0e-3*inductor_current);
+                    state_counter <= state_counter + 1;
+                WHEN 1 => 
+                    capacitor_voltage <= capacitor_voltage + 0.5*inductor_current;
+                    state_counter <= state_counter + 1;
+                WHEN others => -- do nothing
+            end CASE;
             -- if lcr_filter_calculation_is_ready(lcr_filter5) then
             --     request_lcr_filter_calculation(lcr_filter4);
             -- end if;
@@ -126,6 +141,8 @@ begin
             if simulation_counter mod 6000 = 0  then
                 load_current <= -load_current;
             end if;
+
+
 
 
         end if; -- rstn

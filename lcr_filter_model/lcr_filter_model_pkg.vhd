@@ -17,8 +17,9 @@ package lcr_filter_model_pkg is
         current_state_equation : int;
         voltage_state_equation : int;
 
-        inductor_current_delta     : int;
-        inductor_series_resistance : int;
+        inductor_current_delta      : int;
+        inductor_series_resistance  : int;
+        capacitor_series_resistance : int;
 
         lcr_filter_is_ready : boolean;
     end record;
@@ -31,13 +32,9 @@ package lcr_filter_model_pkg is
             current_state_equation     => 0                   ,
             voltage_state_equation     => 0                   ,
             inductor_current_delta     => 0                   ,
-            inductor_series_resistance => 1900                 ,
+            inductor_series_resistance => 625                 ,
+            capacitor_series_resistance => 0                ,
             lcr_filter_is_ready => false);
-------------------------------------------------------------------------
-    procedure create_test_lcr_filter (
-        signal hw_multiplier     : inout multiplier_record;
-        signal lcr_filter_object : inout lcr_model_record;
-        u_in                     : in int);
 
 ------------------------------------------------------------------------
     procedure create_test_lcr_filter (
@@ -98,13 +95,14 @@ package body lcr_filter_model_pkg is
         load_current             : in int;
         u_in : in int
     ) is
-        alias inductor_current        is lcr_filter_object.inductor_current           ;
-        alias capacitor_voltage       is lcr_filter_object.capacitor_voltage          ;
-        alias process_counter         is lcr_filter_object.process_counter            ;
-        alias process_counter2        is lcr_filter_object.multiplier_counter         ;
-        alias current_state_equation  is lcr_filter_object.current_state_equation     ;
-        alias voltage_state_equation  is lcr_filter_object.voltage_state_equation     ;
-        alias R_inductor              is lcr_filter_object.inductor_series_resistance ;
+        alias inductor_current            is  lcr_filter_object.inductor_current           ;
+        alias capacitor_voltage           is  lcr_filter_object.capacitor_voltage          ;
+        alias process_counter             is  lcr_filter_object.process_counter            ;
+        alias process_counter2            is  lcr_filter_object.multiplier_counter         ;
+        alias current_state_equation      is  lcr_filter_object.current_state_equation     ;
+        alias voltage_state_equation      is  lcr_filter_object.voltage_state_equation     ;
+        alias R_inductor                  is  lcr_filter_object.inductor_series_resistance ;
+        alias capacitor_series_resistance is  lcr_filter_object.capacitor_series_resistance ;
 
         alias lcr_filter_is_ready is lcr_filter_object.lcr_filter_is_ready;
     begin
@@ -115,53 +113,45 @@ package body lcr_filter_model_pkg is
         
         CASE process_counter is
             WHEN 0 => multiply_and_increment_counter(hw_multiplier , process_counter , get_state(inductor_current) , R_inductor) ;
+                      current_state_equation <= u_in - capacitor_voltage;
+            WHEN 1 => multiply_and_increment_counter(hw_multiplier , process_counter , get_state(inductor_current) , capacitor_series_resistance) ;
+            WHEN 2 => multiply_and_increment_counter(hw_multiplier , process_counter , load_current                , capacitor_series_resistance) ;
             WHEN others =>  -- do nothing
         end CASE;
 
         CASE process_counter2 is
             WHEN 0 => 
                 if multiplier_is_ready(hw_multiplier) then
-                    current_state_equation <= get_multiplier_result(hw_multiplier, 15);
-                    voltage_state_equation <= get_state(inductor_current) + load_current;
+                    current_state_equation <= current_state_equation - get_multiplier_result(hw_multiplier, 15);
+                    increment(process_counter2);
+                end if;
+            WHEN 1 => 
+                if multiplier_is_ready(hw_multiplier) then
+                    current_state_equation <= current_state_equation - get_multiplier_result(hw_multiplier, 15);
+                    increment(process_counter2);
+                end if;
+            WHEN 2 => 
+                if multiplier_is_ready(hw_multiplier) then
+                    current_state_equation <= current_state_equation + get_multiplier_result(hw_multiplier, 15);
                     increment(process_counter2);
                 end if;
 
-            WHEN 1 => 
-                current_state_equation <= -current_state_equation - capacitor_voltage + u_in;
-                increment(process_counter2);
-
-            WHEN 2 => 
+            WHEN 3 => 
                 request_state_variable_calculation(inductor_current);
                 increment(process_counter2);
                       
-            WHEN 3 => 
+            WHEN 4 => 
                 if state_variable_calculation_is_ready(inductor_current) then
+                    voltage_state_equation <= get_state(inductor_current) - load_current;
+                    increment(process_counter2);
+                end if;
+            WHEN 5 => 
                     request_state_variable_calculation(capacitor_voltage);
                     increment(process_counter2);
-                end if;
-            WHEN 4 => 
-                if state_variable_calculation_is_ready(capacitor_voltage) then
-                    increment(process_counter2);
-                end if;
 
             WHEN others =>  -- do nothing
         end CASE;
 
-    end create_test_lcr_filter;
-------------------------------------------------------------------------
-    procedure create_test_lcr_filter
-    (
-        signal hw_multiplier     : inout multiplier_record;
-        signal lcr_filter_object : inout lcr_model_record;
-        u_in                     : in int
-    ) is
-    begin
-        create_test_lcr_filter (
-            hw_multiplier     ,
-            lcr_filter_object ,
-            200               ,
-            u_in);
-        
     end create_test_lcr_filter;
 ------------------------------------------------------------------------
     procedure create_lcr_filter
