@@ -31,18 +31,18 @@ architecture sim of tb_power_supply_model is
 
 ------------------------------------------------------------------------
     -- inverter model signals
-    signal duty_ratio : int18 := 15e3;
-    signal input_voltage : int18 := 0;
-    signal dc_link_voltage : int18 := 0;
+    signal duty_ratio : int := 15e3;
+    signal input_voltage : int := 0;
+    signal dc_link_voltage : int := 0;
 
-    signal dc_link_current : int18 := 0;
-    signal dc_link_load_current : int18 := 0;
-    signal output_dc_link_load_current : int18 := 0;
-    signal output_inverter_load_current : int18 := 0;
-    signal output_voltage : int18 := 0;
+    signal dc_link_current : int := 0;
+    signal dc_link_load_current : int := 0;
+    signal output_dc_link_load_current : int := 0;
+    signal output_inverter_load_current : int := 0;
+    signal output_voltage : int := 0;
 
-    signal output_dc_link_voltage : int18 := 0;
-    signal output_dc_link_current : int18 := 0;
+    signal output_dc_link_voltage : int := 0;
+    signal output_dc_link_current : int := 0;
 
 ------------------------------------------------------------------------
     signal inverter_multiplier  : multiplier_record := multiplier_init_values;
@@ -51,8 +51,8 @@ architecture sim of tb_power_supply_model is
 
     signal output_resistance : natural  :=50e3;
     signal output_current : integer := 0;
-    signal dab_pi_output : int18 := 0;
-    signal dab_pi_error : int18 := 0;
+    signal dab_pi_output : int := 0;
+    signal dab_pi_error : int := 0;
 
     signal power_supply_simulation : power_supply_model_record := power_supply_model_init;
     signal grid_inductor_model_multiplier : multiplier_record := multiplier_init_values;

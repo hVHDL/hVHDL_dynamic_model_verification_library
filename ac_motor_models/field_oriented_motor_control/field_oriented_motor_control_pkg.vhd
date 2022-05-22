@@ -9,12 +9,12 @@ package field_oriented_motor_control_pkg is
     type motor_current_control_record is record
         vd_control_process_counter  : natural range 0 to 15 ;
         vd_control_process_counter2 : natural range 0 to 15;
-        control_input    : int18;
-        integrator       : int18;
-        pi_output_buffer : int18;
-        pi_output        : int18;
-        vd_kp            : int18;
-        vd_ki            : int18;
+        control_input    : int;
+        integrator       : int;
+        pi_output_buffer : int;
+        pi_output        : int;
+        vd_kp            : int;
+        vd_ki            : int;
         calculation_ready : boolean;
     end record;
 
@@ -22,7 +22,7 @@ package field_oriented_motor_control_pkg is
     (15 , 15 , 0 , 0 , 0 , 0 , 28000 , 4000, false);
 ------------------------------------------------------------------------
     function get_control_output ( current_control_object : motor_current_control_record)
-        return int18;
+        return int;
 ------------------------------------------------------------------------
     procedure request_motor_current_control (
         signal current_control_object : out motor_current_control_record);
@@ -33,11 +33,11 @@ package field_oriented_motor_control_pkg is
     procedure create_motor_current_control (
         signal control_multiplier     : inout multiplier_record;
         signal current_control_object : inout motor_current_control_record;
-        q_inductance                  : int18;
-        angular_speed                 : int18;
-        stator_resistance             : int18;
-        feedback_current              : int18;
-        feedforward_current           : int18);
+        q_inductance                  : int;
+        angular_speed                 : int;
+        stator_resistance             : int;
+        feedback_current              : int;
+        feedforward_current           : int);
 ------------------------------------------------------------------------
 
 
@@ -50,7 +50,7 @@ package body field_oriented_motor_control_pkg is
     (
         current_control_object : motor_current_control_record
     )
-    return int18
+    return int
     is
     begin
         return current_control_object.pi_output;
@@ -81,11 +81,11 @@ package body field_oriented_motor_control_pkg is
     (
         signal control_multiplier     : inout multiplier_record;
         signal current_control_object : inout motor_current_control_record;
-        q_inductance                  : int18;
-        angular_speed                 : int18;
-        stator_resistance             : int18;
-        feedback_current                    : int18;
-        feedforward_current                    : int18
+        q_inductance                  : int;
+        angular_speed                 : int;
+        stator_resistance             : int;
+        feedback_current                    : int;
+        feedforward_current                    : int
     ) is
 
         alias vd_control_process_counter    is current_control_object.vd_control_process_counter   ;

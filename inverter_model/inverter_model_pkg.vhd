@@ -13,11 +13,11 @@ package inverter_model_pkg is
         inverter_lc_filter  : lcr_model_record;
         dc_link_voltage     : state_variable_record;
 
-        duty_ratio                  : int18;
-        dc_link_current             : int18;
-        load_current                : int18;
-        load_resistor_current       : int18;
-        input_voltage               : int18;
+        duty_ratio                  : int;
+        dc_link_current             : int;
+        load_current                : int;
+        load_resistor_current       : int;
+        input_voltage               : int;
         grid_inverter_state_counter : natural range 0 to 7;
     end record;
 
@@ -25,39 +25,39 @@ package inverter_model_pkg is
 
 ------------------------------------------------------------------------
     function init_inverter_state_variable_gains (
-            inductor_integrator_gain     : int18;
-            ac_capacitor_integrator_gain : int18;
-            dc_link_integrator_gain      : int18)
+            inductor_integrator_gain     : int;
+            ac_capacitor_integrator_gain : int;
+            dc_link_integrator_gain      : int)
         return inverter_model_record;
 ------------------------------------------------------------------------
     function init_inverter_state_and_gains (
-            dc_link_voltage_init         : int18;
-            inductor_integrator_gain     : int18;
-            ac_capacitor_integrator_gain : int18;
-            dc_link_integrator_gain      : int18)
+            dc_link_voltage_init         : int;
+            inductor_integrator_gain     : int;
+            ac_capacitor_integrator_gain : int;
+            dc_link_integrator_gain      : int)
         return inverter_model_record;
 ------------------------------------------------------------------------
     function get_inverter_inductor_current ( inverter_model : inverter_model_record)
-        return int18;
+        return int;
 ------------------------------------------------------------------------
     procedure set_dc_link_voltage (
         signal inverter_model : out inverter_model_record;
-        set_value_for_dc_link : int18);
+        set_value_for_dc_link : int);
 ------------------------------------------------------------------------
     function get_dc_link_voltage ( inverter_model : inverter_model_record)
-        return int18;
+        return int;
 ------------------------------------------------------------------------
     function get_inverter_capacitor_voltage ( inverter_model : inverter_model_record)
-        return int18;
+        return int;
 ------------------------------------------------------------------------
     procedure create_inverter_model (
         signal inverter_model : inout inverter_model_record;
-        dc_link_load_current : in int18;
-        load_current : in int18);
+        dc_link_load_current : in int;
+        load_current : in int);
 ------------------------------------------------------------------------
     procedure request_inverter_calculation (
         signal inverter_model : out inverter_model_record;
-        duty_ratio : in int18);
+        duty_ratio : in int);
 
 ------------------------------------------------------------------------
 end package inverter_model_pkg;
@@ -68,8 +68,8 @@ package body inverter_model_pkg is
     procedure create_inverter_model
     (
         signal inverter_model : inout inverter_model_record;
-        dc_link_load_current : in int18;
-        load_current : in int18
+        dc_link_load_current : in int;
+        load_current : in int
     ) is
         alias inverter_multiplier is inverter_model.inverter_multiplier;
         alias dc_link_voltage is inverter_model.dc_link_voltage;
@@ -116,7 +116,7 @@ package body inverter_model_pkg is
     procedure request_inverter_calculation
     (
         signal inverter_model : out inverter_model_record;
-        duty_ratio : in int18
+        duty_ratio : in int
     ) is
     begin
         inverter_model.grid_inverter_state_counter <= 0;
@@ -127,7 +127,7 @@ package body inverter_model_pkg is
     (
         inverter_model : inverter_model_record
     )
-    return int18
+    return int
     is
     begin
         return inverter_model.inverter_lc_filter.inductor_current.state;
@@ -137,7 +137,7 @@ package body inverter_model_pkg is
     (
         inverter_model : inverter_model_record
     )
-    return int18
+    return int
     is
     begin
         return inverter_model.dc_link_voltage.state;
@@ -147,7 +147,7 @@ package body inverter_model_pkg is
     (
         inverter_model : inverter_model_record
     )
-    return int18
+    return int
     is
     begin
         return inverter_model.inverter_lc_filter.capacitor_voltage.state;
@@ -155,9 +155,9 @@ package body inverter_model_pkg is
 ------------------------------------------------------------------------
     function init_inverter_state_variable_gains
     (
-        inductor_integrator_gain : int18;
-        ac_capacitor_integrator_gain : int18;
-        dc_link_integrator_gain : int18
+        inductor_integrator_gain : int;
+        ac_capacitor_integrator_gain : int;
+        dc_link_integrator_gain : int
     )
     return inverter_model_record
     is
@@ -170,10 +170,10 @@ package body inverter_model_pkg is
 ------------------------------------------------------------------------
     function init_inverter_state_and_gains
     (
-        dc_link_voltage_init : int18;
-        inductor_integrator_gain : int18;
-        ac_capacitor_integrator_gain : int18;
-        dc_link_integrator_gain : int18
+        dc_link_voltage_init : int;
+        inductor_integrator_gain : int;
+        ac_capacitor_integrator_gain : int;
+        dc_link_integrator_gain : int
     )
     return inverter_model_record
     is
@@ -187,7 +187,7 @@ package body inverter_model_pkg is
     procedure set_dc_link_voltage
     (
         signal inverter_model : out inverter_model_record;
-        set_value_for_dc_link : int18
+        set_value_for_dc_link : int
     ) is
     begin
         inverter_model.dc_link_voltage.state <= set_value_for_dc_link;

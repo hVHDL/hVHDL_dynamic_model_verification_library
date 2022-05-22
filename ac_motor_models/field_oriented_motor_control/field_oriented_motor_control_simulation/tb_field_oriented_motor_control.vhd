@@ -44,8 +44,8 @@ architecture vunit_simulation of tb_field_oriented_motor_control is
 
     signal dq_to_ab_transform : dq_to_ab_record := init_dq_to_ab_transform;
     signal ab_to_dq_transform : ab_to_dq_record := init_ab_to_dq_transform;
-    signal d_reference : int18 := 15000;
-    signal square_sum : int18 := 0;
+    signal d_reference : int := 15000;
+    signal square_sum : int := 0;
 
     --------------------------------------------------
     -- motor electrical simulation signals --
@@ -67,7 +67,7 @@ architecture vunit_simulation of tb_field_oriented_motor_control is
     signal speed_control_multiplier : multiplier_record := init_multiplier;
     signal speed_controller : pi_controller_record := init_pi_controller;
 
-    signal speed_reference : int18 := 15e3;
+    signal speed_reference : int := 15e3;
 
 begin
 

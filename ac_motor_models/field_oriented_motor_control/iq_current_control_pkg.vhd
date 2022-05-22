@@ -18,12 +18,12 @@ package body iq_current_control_pkg is
     (
         signal control_multiplier     : inout multiplier_record;
         signal current_control_object : inout motor_current_control_record;
-        q_inductance                  : int18;
-        angular_speed                 : int18;
-        stator_resistance             : int18;
-        feedback_current              : int18;
-        feedforward_current           : int18;
-        permanent_magnet_flux         : int18
+        q_inductance                  : int;
+        angular_speed                 : int;
+        stator_resistance             : int;
+        feedback_current              : int;
+        feedforward_current           : int;
+        permanent_magnet_flux         : int
     )is
         alias vd_control_process_counter  is current_control_object.vd_control_process_counter   ;
         alias vd_control_process_counter2 is current_control_object.vd_control_process_counter2 ;

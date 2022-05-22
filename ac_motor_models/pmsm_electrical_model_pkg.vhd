@@ -10,7 +10,7 @@ package pmsm_electrical_model_pkg is
     type id_current_model_record is record
         id_calculation_counter : natural range 0 to 15;
         id_current        : state_variable_record;
-        id_state_equation : int18;
+        id_state_equation : int;
         calculation_is_ready : boolean;
     end record;
 
@@ -18,7 +18,7 @@ package pmsm_electrical_model_pkg is
 
 ------------------------------------------------------------------------
     function get_d_component ( id_current_object : id_current_model_record)
-        return int18;
+        return int;
 ------------------------------------------------------------------------
     function id_calculation_is_ready ( id_current_object : id_current_model_record)
         return boolean;
@@ -31,13 +31,13 @@ package pmsm_electrical_model_pkg is
         signal iq_current_object : inout id_current_model_record;
         signal id_multiplier     : inout multiplier_record;
         signal iq_multiplier     : inout multiplier_record;
-        angular_speed            : in int18;
-        vd_input_voltage         : in int18;
-        vq_input_voltage         : in int18;
-        permanent_magnet_flux    : in int18;
-        Ld                       : in int18;
-        Lq                       : in int18;
-        rotor_resistance         : in int18);
+        angular_speed            : in int;
+        vd_input_voltage         : in int;
+        vq_input_voltage         : in int;
+        permanent_magnet_flux    : in int;
+        Ld                       : in int;
+        Lq                       : in int;
+        rotor_resistance         : in int);
 ------------------------------------------------------------------------
 
 end package pmsm_electrical_model_pkg;
@@ -49,7 +49,7 @@ package body pmsm_electrical_model_pkg is
     (
         id_current_object : id_current_model_record
     )
-    return int18
+    return int
     is
     begin
         return id_current_object.id_current.state;
@@ -84,13 +84,13 @@ package body pmsm_electrical_model_pkg is
         signal iq_current_object : inout id_current_model_record;
         signal id_multiplier     : inout multiplier_record;
         signal iq_multiplier     : inout multiplier_record;
-        angular_speed            : in int18;
-        vd_input_voltage         : in int18;
-        vq_input_voltage         : in int18;
-        permanent_magnet_flux    : in int18;
-        Ld                       : in int18;
-        Lq                       : in int18;
-        rotor_resistance         : in int18
+        angular_speed            : in int;
+        vd_input_voltage         : in int;
+        vq_input_voltage         : in int;
+        permanent_magnet_flux    : in int;
+        Ld                       : in int;
+        Lq                       : in int;
+        rotor_resistance         : in int
     ) is
         alias id_calculation_counter is id_current_object.id_calculation_counter;
         alias id_state_equation      is id_current_object.id_state_equation     ;

@@ -11,12 +11,12 @@ package permanent_magnet_motor_model_pkg is
 
 ------------------------------------------------------------------------
     type motor_parameter_record is record
-        Ld                    : int18;
-        Lq                    : int18;
-        permanent_magnet_flux : int18;
-        intertial_mass        : int18;
-        pole_pairs            : int18;
-        rotor_resistance      : int18;
+        Ld                    : int;
+        Lq                    : int;
+        permanent_magnet_flux : int;
+        intertial_mass        : int;
+        pole_pairs            : int;
+        rotor_resistance      : int;
     end record;
 
     constant default_motor_parameters : motor_parameter_record := (5e3, 25e3, 25e3, 5000, 1, 100);
@@ -26,8 +26,8 @@ package permanent_magnet_motor_model_pkg is
         iq_current_model    : id_current_model_record ;
         angular_speed_model : angular_speed_record    ;
         electrical_angle    : state_variable_record   ;
-        vd_input_voltage    : int18                   ;
-        vq_input_voltage    : int18                   ;
+        vd_input_voltage    : int                   ;
+        vq_input_voltage    : int                   ;
     end record                                        ;
 
     constant init_permanent_magnet_motor_model : permanent_magnet_motor_model_record := 
@@ -39,13 +39,13 @@ package permanent_magnet_motor_model_pkg is
 
 ------------------------------------------------------------------------
     function get_electrical_angle ( pmsm_model_object : permanent_magnet_motor_model_record)
-        return int18;
+        return int;
 ------------------------------------------------------------------------
     function get_d_component ( pmsm_model_object : permanent_magnet_motor_model_record)
-        return int18;
+        return int;
 ------------------------------------------------------------------------
     function get_q_component ( pmsm_model_object : permanent_magnet_motor_model_record)
-        return int18;
+        return int;
 ------------------------------------------------------------------------
     procedure request_electrical_angle_calculation (
         signal pmsm_model_object : inout permanent_magnet_motor_model_record);
@@ -54,15 +54,15 @@ package permanent_magnet_motor_model_pkg is
         return boolean;
 ------------------------------------------------------------------------
     function get_angular_speed ( pmsm_model_object : permanent_magnet_motor_model_record)
-        return int18;
+        return int;
 ------------------------------------------------------------------------
     procedure request_id_calculation (
         signal pmsm_model_object : out permanent_magnet_motor_model_record;
-        vd_voltage : in int18);
+        vd_voltage : in int);
 ------------------------------------------------------------------------
     procedure request_iq_calculation (
         signal pmsm_model_object : out permanent_magnet_motor_model_record;
-        vq_voltage : in int18);
+        vq_voltage : in int);
 ------------------------------------------------------------------------
     procedure request_angular_speed_calculation (
         signal pmsm_model_object : out permanent_magnet_motor_model_record);
@@ -80,7 +80,7 @@ package permanent_magnet_motor_model_pkg is
 ------------------------------------------------------------------------
     procedure set_load_torque (
         signal pmsm_model_object : out permanent_magnet_motor_model_record;
-        load_torque : in int18);
+        load_torque : in int);
 ------------------------------------------------------------------------
 
 end package permanent_magnet_motor_model_pkg;
@@ -90,7 +90,7 @@ package body permanent_magnet_motor_model_pkg is
 ------------------------------------------------------------------------
     function get_16_bits
     (
-        number : int18
+        number : int
     )
     return integer
     is
@@ -115,7 +115,7 @@ package body permanent_magnet_motor_model_pkg is
     (
         pmsm_model_object : permanent_magnet_motor_model_record
     )
-    return int18
+    return int
     is
     begin
         return get_16_bits(pmsm_model_object.electrical_angle.state);
@@ -125,7 +125,7 @@ package body permanent_magnet_motor_model_pkg is
     (
         pmsm_model_object : permanent_magnet_motor_model_record
     )
-    return int18
+    return int
     is
     begin
         return get_d_component(pmsm_model_object.id_current_model);
@@ -135,7 +135,7 @@ package body permanent_magnet_motor_model_pkg is
     (
         pmsm_model_object : permanent_magnet_motor_model_record
     )
-    return int18
+    return int
     is
     begin
         return get_d_component(pmsm_model_object.iq_current_model);
@@ -153,7 +153,7 @@ package body permanent_magnet_motor_model_pkg is
     procedure set_load_torque
     (
         signal pmsm_model_object : out permanent_magnet_motor_model_record;
-        load_torque : in int18
+        load_torque : in int
     ) is
     begin
         set_load_torque(pmsm_model_object.angular_speed_model, load_torque);
@@ -164,7 +164,7 @@ package body permanent_magnet_motor_model_pkg is
     (
         pmsm_model_object : permanent_magnet_motor_model_record
     )
-    return int18
+    return int
     is
     begin
         return get_angular_speed(pmsm_model_object.angular_speed_model);
@@ -202,7 +202,7 @@ package body permanent_magnet_motor_model_pkg is
     procedure request_id_calculation
     (
         signal pmsm_model_object : out permanent_magnet_motor_model_record;
-        vd_voltage : in int18
+        vd_voltage : in int
     )
     is
     begin
@@ -213,7 +213,7 @@ package body permanent_magnet_motor_model_pkg is
     procedure request_iq_calculation
     (
         signal pmsm_model_object : out permanent_magnet_motor_model_record;
-        vq_voltage : in int18
+        vq_voltage : in int
     )
     is
     begin
@@ -223,7 +223,7 @@ package body permanent_magnet_motor_model_pkg is
 ------------------------------------------------------------------------
     function get_17_bits
     (
-        number : int18
+        number : int
     )
     return integer
     is

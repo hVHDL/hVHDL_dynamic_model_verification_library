@@ -24,13 +24,13 @@ package power_supply_simulation_model_pkg is
     --------------------------------------------------
     procedure create_power_supply_simulation_model (
         signal power_supply_simulation : inout power_supply_model_record;
-        grid_voltage : int18;
-        output_inverter_load_current : int18);
+        grid_voltage : int;
+        output_inverter_load_current : int);
     --------------------------------------------------
     procedure request_power_supply_calculation (
         signal power_supply_simulation : inout power_supply_model_record;
-        grid_inverter_duty_ratio       : int18;
-        output_inverter_duty_ratio     : int18);
+        grid_inverter_duty_ratio       : int;
+        output_inverter_duty_ratio     : int);
 ------------------------------------------------------------------------
 
 end package power_supply_simulation_model_pkg;
@@ -42,8 +42,8 @@ package body power_supply_simulation_model_pkg is
     procedure create_power_supply_simulation_model
     (
         signal power_supply_simulation : inout power_supply_model_record;
-        grid_voltage : int18;
-        output_inverter_load_current : int18
+        grid_voltage : int;
+        output_inverter_load_current : int
     ) is
         alias grid_inverter_simulation is power_supply_simulation.grid_inverter_simulation;
         alias output_inverter_simulation is power_supply_simulation.output_inverter_simulation;
@@ -67,8 +67,8 @@ package body power_supply_simulation_model_pkg is
     procedure request_power_supply_calculation
     (
         signal power_supply_simulation : inout power_supply_model_record;
-        grid_inverter_duty_ratio : int18;
-        output_inverter_duty_ratio : int18
+        grid_inverter_duty_ratio : int;
+        output_inverter_duty_ratio : int
     ) is
         alias grid_inverter_simulation is power_supply_simulation.grid_inverter_simulation;
         alias output_inverter_simulation is power_supply_simulation.output_inverter_simulation;

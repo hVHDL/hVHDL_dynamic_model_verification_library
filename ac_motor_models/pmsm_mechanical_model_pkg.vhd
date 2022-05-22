@@ -11,11 +11,11 @@ package pmsm_mechanical_model_pkg is
     type angular_speed_record is record
         angular_speed                     : state_variable_record;
         angular_speed_calculation_counter : natural range 0 to 15;
-        load_torque                       : int18                ;
-        w_state_equation                  : int18                ;
-        permanent_magnet_torque           : int18                ;
-        reluctance_torque                 : int18                ;
-        friction                          : int18                ;
+        load_torque                       : int                ;
+        w_state_equation                  : int                ;
+        permanent_magnet_torque           : int                ;
+        reluctance_torque                 : int                ;
+        friction                          : int                ;
     end record;
 
     constant init_angular_speed_model : angular_speed_record :=(
@@ -29,10 +29,10 @@ package pmsm_mechanical_model_pkg is
 ------------------------------------------------------------------------
     procedure set_load_torque (
         signal angular_speed_object : out angular_speed_record;
-        load_torque : in int18);
+        load_torque : in int);
 ------------------------------------------------------------------------
     function get_angular_speed ( angular_speed_object : angular_speed_record)
-        return int18;
+        return int;
 ------------------------------------------------------------------------
     function angular_speed_calculation_is_ready ( angular_speed_object : angular_speed_record)
         return boolean;
@@ -43,11 +43,11 @@ package pmsm_mechanical_model_pkg is
     procedure create_angular_speed_model (
         signal angular_speed_object : inout angular_speed_record;
         signal w_multiplier         : inout multiplier_record;
-        Ld                          : int18;
-        Lq                          : int18;
-        id_current                  : int18;
-        iq_current                  : int18;
-        permanent_magnet_flux       : int18);
+        Ld                          : int;
+        Lq                          : int;
+        id_current                  : int;
+        iq_current                  : int;
+        permanent_magnet_flux       : int);
     --------------------------------------------------
 
 ------------------------------------------------------------------------
@@ -59,7 +59,7 @@ package body pmsm_mechanical_model_pkg is
     procedure set_load_torque
     (
         signal angular_speed_object : out angular_speed_record;
-        load_torque : in int18
+        load_torque : in int
     ) is
     begin
         angular_speed_object.load_torque <= load_torque;
@@ -70,7 +70,7 @@ package body pmsm_mechanical_model_pkg is
     (
         angular_speed_object : angular_speed_record
     )
-    return int18
+    return int
     is
     begin
         return angular_speed_object.angular_speed.state;
@@ -98,11 +98,11 @@ package body pmsm_mechanical_model_pkg is
     (
         signal angular_speed_object : inout angular_speed_record;
         signal w_multiplier         : inout multiplier_record;
-        Ld                          : int18;
-        Lq                          : int18;
-        id_current                  : int18;
-        iq_current                  : int18;
-        permanent_magnet_flux       : int18
+        Ld                          : int;
+        Lq                          : int;
+        id_current                  : int;
+        iq_current                  : int;
+        permanent_magnet_flux       : int
     ) is
         alias angular_speed                     is angular_speed_object.angular_speed                     ;
         alias angular_speed_calculation_counter is angular_speed_object.angular_speed_calculation_counter ;

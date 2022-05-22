@@ -32,18 +32,18 @@ architecture sim of tb_inverter_model is
 
 ------------------------------------------------------------------------
     -- inverter model signals
-    signal duty_ratio : int18 := 15e3;
-    signal input_voltage : int18 := 0;
-    signal dc_link_voltage : int18 := 0;
+    signal duty_ratio : int := 15e3;
+    signal input_voltage : int := 0;
+    signal dc_link_voltage : int := 0;
 
-    signal dc_link_current : int18 := 0;
-    signal dc_link_load_current : int18 := 0;
-    signal output_dc_link_load_current : int18 := 0;
-    signal output_inverter_load_current : int18 := 0;
-    signal output_voltage : int18 := 0;
+    signal dc_link_current : int := 0;
+    signal dc_link_load_current : int := 0;
+    signal output_dc_link_load_current : int := 0;
+    signal output_inverter_load_current : int := 0;
+    signal output_voltage : int := 0;
 
-    signal output_dc_link_voltage : int18 := 0;
-    signal output_dc_link_current : int18 := 0;
+    signal output_dc_link_voltage : int := 0;
+    signal output_dc_link_current : int := 0;
 
     signal grid_inverter : inverter_model_record := init_inverter_model;
     signal output_inverter : inverter_model_record := init_inverter_model;
@@ -53,9 +53,9 @@ architecture sim of tb_inverter_model is
     signal inverter_multiplier3 : multiplier_record := multiplier_init_values;
 
     signal inverter_simulation_trigger_counter : natural := 0;
-    signal inverter_voltage : int18 := 0;
+    signal inverter_voltage : int := 0;
 
-    signal load_resistor_current : int18 := 0;
+    signal load_resistor_current : int := 0;
 
 begin
 
@@ -89,8 +89,8 @@ begin
 
     clocked_reset_generator : process(simulator_clock, rstn)
     --------------------------------------------------
-        impure function "*" ( left, right : int18)
-        return int18
+        impure function "*" ( left, right : int)
+        return int
         is
         begin
             sequential_multiply(inverter_multiplier, left, right);

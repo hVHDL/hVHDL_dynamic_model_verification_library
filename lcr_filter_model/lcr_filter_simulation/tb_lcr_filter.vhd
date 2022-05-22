@@ -33,9 +33,9 @@ architecture vunit_simulation of tb_lcr_filter is
     signal simulation_trigger_counter : natural := 0;
 ------------------------------------------------------------------------
     -- lrc model signals
-    signal input_voltage   : int18 := 3000;
-    signal load_resistance : int18 := 100;
-    signal load_current    : int18 := 3000;
+    signal input_voltage   : int := 3000;
+    signal load_resistance : int := 100;
+    signal load_current    : int := 3000;
 
     signal lcr_filter : lcr_model_record := init_lcr_model_integrator_gains(25e3, 2e3);
     signal lcr_filter2 : lcr_model_record := init_lcr_model_integrator_gains(25e3, 2e3);
@@ -81,8 +81,8 @@ begin
 
     clocked_reset_generator : process(simulator_clock)
     --------------------------------------------------
-        impure function "*" ( left, right : int18)
-        return int18
+        impure function "*" ( left, right : int)
+        return int
         is
         begin
             sequential_multiply(hw_multiplier2, left, right);

@@ -30,21 +30,21 @@ package psu_inverter_simulation_models_pkg is
 ------------------------------------------------------------------------ 
     procedure create_grid_inverter (
         signal grid_inverter : inout grid_inverter_record;
-        dc_link_load_current : in int18;
-        ac_load_current : in int18);
+        dc_link_load_current : in int;
+        ac_load_current : in int);
 
     procedure request_grid_inverter_calculation (
         signal grid_inverter : inout grid_inverter_record;
-        duty_ratio : in int18);
+        duty_ratio : in int);
 ------------------------------------------------------------------------
     procedure create_output_inverter (
         signal output_inverter : inout output_inverter_record;
-        output_dc_link_load_current : in int18;
-        ac_load_current : in int18);
+        output_dc_link_load_current : in int;
+        ac_load_current : in int);
 
     procedure request_output_inverter_calculation (
         signal output_inverter : inout output_inverter_record;
-        duty_ratio : in int18);
+        duty_ratio : in int);
 ------------------------------------------------------------------------
 
 end package psu_inverter_simulation_models_pkg;
@@ -55,8 +55,8 @@ package body psu_inverter_simulation_models_pkg is
     procedure create_grid_inverter
     (
         signal grid_inverter : inout grid_inverter_record;
-        dc_link_load_current : in int18;
-        ac_load_current : in int18
+        dc_link_load_current : in int;
+        ac_load_current : in int
     ) is
         alias emi_filter1 is grid_inverter.grid_emi_filter_1;
         alias emi_filter2 is grid_inverter.grid_emi_filter_2;
@@ -73,7 +73,7 @@ package body psu_inverter_simulation_models_pkg is
     procedure request_grid_inverter_calculation
     (
         signal grid_inverter : inout grid_inverter_record;
-        duty_ratio : in int18
+        duty_ratio : in int
     ) is
     begin
         request_inverter_calculation(grid_inverter.grid_inverter, duty_ratio);
@@ -85,8 +85,8 @@ package body psu_inverter_simulation_models_pkg is
     procedure create_output_inverter
     (
         signal output_inverter : inout output_inverter_record;
-        output_dc_link_load_current : in int18;
-        ac_load_current : in int18
+        output_dc_link_load_current : in int;
+        ac_load_current : in int
     ) is
         alias emi_filter is output_inverter.output_emi_filter;
         alias inverter is output_inverter.output_inverter;
@@ -100,7 +100,7 @@ package body psu_inverter_simulation_models_pkg is
     procedure request_output_inverter_calculation
     (
         signal output_inverter : inout output_inverter_record;
-        duty_ratio : in int18
+        duty_ratio : in int
     ) is
     begin
         request_inverter_calculation(output_inverter.output_inverter, duty_ratio);

@@ -29,7 +29,7 @@ architecture sim of tb_state_variable is
     signal simulation_counter : natural := 0;
     signal multiplier_output : signed(35 downto 0);
     signal multiplier_is_ready_when_1 : std_logic;
-    signal int18_multiplier_output : int18 := 0;
+    signal int_multiplier_output : int := 0;
 
     signal hw_multiplier : multiplier_record := multiplier_init_values;
     signal hw_multiplier2 : multiplier_record := multiplier_init_values;
@@ -37,16 +37,16 @@ architecture sim of tb_state_variable is
     signal simulation_trigger_counter : natural := 0;
 ------------------------------------------------------------------------
     -- lrc model signals
-    signal input_voltage : int18     := 0;
-    signal capacitor_delta : int18   := 0;
+    signal input_voltage : int     := 0;
+    signal capacitor_delta : int   := 0;
 
-    signal inductor_current_delta    : int18 := 0;
-    signal inductor_integrator_gain  : int18 := 25e3;
-    signal capacitor_integrator_gain : int18 := 2000;
-    signal load_resistance           : int18 := 10; 
-    signal inductor_series_resistance : int18 := 950;
+    signal inductor_current_delta    : int := 0;
+    signal inductor_integrator_gain  : int := 25e3;
+    signal capacitor_integrator_gain : int := 2000;
+    signal load_resistance           : int := 10; 
+    signal inductor_series_resistance : int := 950;
 
-    signal load_current : int18 := 0;
+    signal load_current : int := 0;
 
     signal process_counter : natural := 0;
 
@@ -56,8 +56,8 @@ architecture sim of tb_state_variable is
     signal inductor2_current  : state_variable_record := init_state_variable_gain(inductor_integrator_gain);
     signal capacitor2_voltage : state_variable_record := init_state_variable_gain(capacitor_integrator_gain);
 
-    signal int18_inductor_current  : int18;
-    signal int18_capacitor_voltage : int18;
+    signal int_inductor_current  : int;
+    signal int_capacitor_voltage : int;
 begin
 
 ------------------------------------------------------------------------
@@ -89,8 +89,8 @@ begin
 
     clocked_reset_generator : process(simulator_clock)
     --------------------------------------------------
-        impure function "*" ( left, right : int18)
-        return int18
+        impure function "*" ( left, right : int)
+        return int
         is
         begin
             sequential_multiply(hw_multiplier, left, right);
@@ -139,8 +139,8 @@ begin
         end if; -- rstn
     end process clocked_reset_generator;	
 
-    int18_inductor_current <= inductor_current.state;
-    int18_capacitor_voltage <= capacitor_voltage.state;
+    int_inductor_current <= inductor_current.state;
+    int_capacitor_voltage <= capacitor_voltage.state;
 
 ------------------------------------------------------------------------
 end sim;
