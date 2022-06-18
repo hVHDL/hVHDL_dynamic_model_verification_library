@@ -43,4 +43,8 @@ mathlib.add_source_files(ROOT / "power_supply_model/power_supply_model_simulatio
 
 mathlib.add_source_files(ROOT / "state_variable/simulation/tb_state_variable.vhd")
 
+simulation = VU.add_library("real_simulation")
+simulation.add_source_files(ROOT / "simulation/testi" / "*.vhd")
+
+
 VU.main()
