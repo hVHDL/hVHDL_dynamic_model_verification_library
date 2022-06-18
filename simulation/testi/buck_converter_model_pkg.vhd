@@ -16,6 +16,7 @@ package buck_converter_model_pkg is
 
     procedure create_buck_converter (
         signal buck_converter_object : inout buck_converter_record;
+        dc_link_voltage : in real;
         pwm : in std_logic);
 ------------------------------------------------------------------------
     function get_voltage ( buck_converter_object : buck_converter_record)
@@ -48,16 +49,17 @@ package body buck_converter_model_pkg is
     begin
         return init_buck_converter;
     end init_buck_converter;
-
+------------------------------------------------------------------------
     procedure create_buck_converter
     (
         signal buck_converter_object : inout buck_converter_record;
+        dc_link_voltage : in real;
         pwm : in std_logic
     ) is
         alias m is buck_converter_object;
     begin
         if pwm = '1' then
-            m.current <= m.current + (m.dc_link_voltage - m.voltage)*m.current_integrator_gain;
+            m.current <= m.current + (dc_link_voltage - m.voltage)*m.current_integrator_gain;
         else
             m.current <= m.current - m.voltage*m.current_integrator_gain;
         end if;

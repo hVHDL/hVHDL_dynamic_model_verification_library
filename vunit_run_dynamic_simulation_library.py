@@ -45,6 +45,8 @@ mathlib.add_source_files(ROOT / "state_variable/simulation/tb_state_variable.vhd
 
 simulation = VU.add_library("real_simulation")
 simulation.add_source_files(ROOT / "simulation/testi" / "*.vhd")
+simulation.add_source_files(ROOT / "../math_library/multiplier/multiplier_base_types_22bit_pkg.vhd") 
+simulation.add_source_files(ROOT / "../math_library/multiplier/multiplier_pkg.vhd") 
 
 
 VU.main()
