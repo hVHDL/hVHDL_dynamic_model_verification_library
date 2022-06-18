@@ -30,6 +30,12 @@ architecture vunit_simulation of test_tb is
 
     signal pwm_carrier : integer := 0;
 
+    signal carrier_max : integer := 500;
+
+    signal sampled_current : integer := 0;
+    signal sampled_voltage : integer := 0;
+    signal duty_ratio : integer := 150;
+
 begin
 
 ------------------------------------------------------------------------
@@ -50,8 +56,8 @@ begin
         if rising_edge(simulator_clock) then
             simulation_counter <= simulation_counter + 1;
 
-            pwm_carrier <= (pwm_carrier + 1) mod 500;
-            if pwm_carrier < 150 then
+            pwm_carrier <= (pwm_carrier + 1) mod carrier_max;
+            if pwm_carrier < duty_ratio then
                 pwm_out <= '1';
             else
                 pwm_out <= '0';
@@ -61,6 +67,11 @@ begin
 
             if simulation_counter > 176900 and simulation_counter < 183000 then
                 buck_converter.voltage <= 0.0;
+            end if;
+
+            if pwm_carrier = duty_ratio/2 or pwm_carrier = carrier_max - (carrier_max - duty_ratio)/2 then
+                sampled_voltage <= integer(get_voltage(buck_converter)/256.0*32768.0);
+                sampled_current <= integer(get_current(buck_converter)/256.0*32768.0);
             end if;
 
             voltage <= get_voltage(buck_converter);
