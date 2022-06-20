@@ -74,6 +74,23 @@ architecture vunit_simulation of test_tb is
 
     signal request_pi_control_calculation : boolean := false;
 ------------------------------------------------------------------------
+    signal dc_current : real := 0.0;
+
+    function get_dc_current
+    (
+        buck_converter_object : buck_converter_record;
+        pwm : std_logic
+    )
+    return real
+    is
+    begin
+        if pwm = '1' then
+            return get_current(buck_converter_object);
+        else
+            return 0.0;
+        end if;
+        
+    end get_dc_current;
 
 begin
 
@@ -113,7 +130,6 @@ begin
                 sampled_voltage <= integer(get_voltage(buck_converter)/256.0*32768.0);
                 sampled_current <= integer(get_current(buck_converter)/256.0*32768.0);
                 request_pi_control_calculation <= true;
-
             end if;
 
             if request_pi_control_calculation then
@@ -130,6 +146,7 @@ begin
 
             voltage <= get_voltage(buck_converter);
             current <= get_current(buck_converter);
+            dc_current <= get_dc_current(buck_converter, pwm_out);
 
         end if; -- rising_edge
     end process stimulus;	
