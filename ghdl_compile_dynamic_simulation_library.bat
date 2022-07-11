@@ -13,6 +13,7 @@ ghdl -a --ieee=synopsys --std=08 %source%/dynamic_simulation_library/power_suppl
 ghdl -a --ieee=synopsys --std=08 %source%/dynamic_simulation_library/power_supply_model/power_supply_simulation_model_pkg.vhd
 
 ghdl -a --ieee=synopsys --std=08 %source%/dynamic_simulation_library/simulation/testi/buck_converter_model_pkg.vhd
+ghdl -a --ieee=synopsys --std=08 %source%/dynamic_simulation_library/simulation/full_bridge_model_pkg.vhd
 
 ghdl -a --ieee=synopsys --std=08 %source%/dynamic_simulation_library/ac_motor_models/pmsm_electrical_model_pkg.vhd
 ghdl -a --ieee=synopsys --std=08 %source%/dynamic_simulation_library/ac_motor_models/pmsm_mechanical_model_pkg.vhd
