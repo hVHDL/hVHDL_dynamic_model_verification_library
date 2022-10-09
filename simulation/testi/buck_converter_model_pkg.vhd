@@ -45,9 +45,11 @@ package body buck_converter_model_pkg is
     )
     return buck_converter_record
     is
-        constant init_buck_converter : buck_converter_record := ( 0.0 , 0.0 , 100.0 , simulation_time_step_in_seconds/inductance , simulation_time_step_in_seconds/capacitance , 10.0);
+        variable reuturn_values : buck_converter_record;
     begin
-        return init_buck_converter;
+        reuturn_values := ( 0.0 , 0.0 , 100.0 , simulation_time_step_in_seconds/inductance , simulation_time_step_in_seconds/capacitance , 10.0); 
+
+        return reuturn_values;
     end init_buck_converter;
 ------------------------------------------------------------------------
     procedure create_buck_converter
