@@ -1,0 +1,3 @@
+[submodule "hVHDL_math_library"]
+	path = hVHDL_math_library
+	url = https://github.com/hVHDL/hVHDL_math_library.git
