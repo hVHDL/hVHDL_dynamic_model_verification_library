@@ -21,7 +21,7 @@ package inverter_model_pkg is
         grid_inverter_state_counter : natural range 0 to 7;
     end record;
 
-    constant init_inverter_model : inverter_model_record := (multiplier_init_values, init_lcr_model_integrator_gains(5e3, 1000), init_state_variable_gain(500), 0, 0, 0, 0, 0, 4);
+    function init_inverter_model return inverter_model_record;
 
 ------------------------------------------------------------------------
     function init_inverter_state_variable_gains (
@@ -64,6 +64,14 @@ end package inverter_model_pkg;
 
 package body inverter_model_pkg is
 
+------------------------------------------------------------------------
+    function init_inverter_model return inverter_model_record
+    is
+        constant returned_values : inverter_model_record := (multiplier_init_values, init_lcr_model_integrator_gains(5e3, 1000), init_state_variable_gain(500), 0, 0, 0, 0, 0, 4);
+    begin
+        return returned_values;
+        
+    end init_inverter_model;
 ------------------------------------------------------------------------
     procedure create_inverter_model
     (

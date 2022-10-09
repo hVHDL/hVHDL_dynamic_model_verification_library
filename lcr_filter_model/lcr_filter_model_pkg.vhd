@@ -24,17 +24,7 @@ package lcr_filter_model_pkg is
         lcr_filter_is_ready : boolean;
     end record;
 
-    constant init_lcr_filter : lcr_model_record := 
-            (inductor_current           => init_state_variable ,
-            capacitor_voltage           => init_state_variable ,
-            process_counter             => 7                   ,
-            process_counter2            => 7                   ,
-            current_state_equation      => 0                   ,
-            voltage_state_equation      => 0                   ,
-            inductor_current_delta      => 0                   ,
-            inductor_series_resistance  => 625                 ,
-            capacitor_series_resistance => 0                ,
-            lcr_filter_is_ready         => false);
+    function init_lcr_filter return lcr_model_record;
 
 ------------------------------------------------------------------------
     procedure create_test_lcr_filter (
@@ -86,6 +76,27 @@ end package lcr_filter_model_pkg;
 
 
 package body lcr_filter_model_pkg is
+
+------------------------------------------------------------------------
+    constant defaut_values_for_lcr_filter : lcr_model_record := 
+            (inductor_current           => init_state_variable ,
+            capacitor_voltage           => init_state_variable ,
+            process_counter             => 7                   ,
+            process_counter2            => 7                   ,
+            current_state_equation      => 0                   ,
+            voltage_state_equation      => 0                   ,
+            inductor_current_delta      => 0                   ,
+            inductor_series_resistance  => 625                 ,
+            capacitor_series_resistance => 0                ,
+            lcr_filter_is_ready         => false);
+
+    function init_lcr_filter return lcr_model_record
+    is
+    begin
+
+        return defaut_values_for_lcr_filter;
+        
+    end init_lcr_filter;
 
 ------------------------------------------------------------------------
     procedure create_test_lcr_filter
