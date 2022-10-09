@@ -29,6 +29,11 @@ package lcr_filter_model_pkg is
         inductor_integrator_gain : integer; 
         capacitor_integrator_gain : integer)
         return lcr_model_record;
+    function init_lcr_filter (
+        inductor_integrator_gain : integer;
+        capacitor_integrator_gain : integer;
+        inductor_series_resistance : integer)
+        return lcr_model_record;
 
 ------------------------------------------------------------------------
     procedure create_test_lcr_filter (
@@ -94,6 +99,7 @@ package body lcr_filter_model_pkg is
             capacitor_series_resistance => 0                ,
             lcr_filter_is_ready         => false);
 
+    --
     function init_lcr_filter return lcr_model_record
     is
     begin
@@ -102,6 +108,7 @@ package body lcr_filter_model_pkg is
         
     end init_lcr_filter;
 
+    --
     function init_lcr_filter
     (
         inductor_integrator_gain : integer;
@@ -119,6 +126,24 @@ package body lcr_filter_model_pkg is
 
     end init_lcr_filter;
 
+    function init_lcr_filter
+    (
+        inductor_integrator_gain : integer;
+        capacitor_integrator_gain : integer;
+        inductor_series_resistance : integer
+    )
+    return lcr_model_record
+    is
+        variable returned_value : lcr_model_record;
+    begin
+        returned_value := init_lcr_filter(inductor_integrator_gain, capacitor_integrator_gain);
+        returned_value.inductor_series_resistance := inductor_series_resistance;
+
+        return returned_value;
+
+    end init_lcr_filter;
+
+    --
     function init_lcr_model_integrator_gains
     (
         inductor_integrator_gain : integer;
