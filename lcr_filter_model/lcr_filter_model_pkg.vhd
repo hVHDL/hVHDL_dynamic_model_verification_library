@@ -25,6 +25,10 @@ package lcr_filter_model_pkg is
     end record;
 
     function init_lcr_filter return lcr_model_record;
+    function init_lcr_filter ( 
+        inductor_integrator_gain : integer; 
+        capacitor_integrator_gain : integer)
+        return lcr_model_record;
 
 ------------------------------------------------------------------------
     procedure create_test_lcr_filter (
@@ -97,6 +101,41 @@ package body lcr_filter_model_pkg is
         return defaut_values_for_lcr_filter;
         
     end init_lcr_filter;
+
+    function init_lcr_filter
+    (
+        inductor_integrator_gain : integer;
+        capacitor_integrator_gain : integer
+    )
+    return lcr_model_record
+    is
+        variable returned_value : lcr_model_record;
+    begin
+        returned_value := defaut_values_for_lcr_filter;
+        returned_value.inductor_current := init_state_variable_gain(inductor_integrator_gain);
+        returned_value.capacitor_voltage := init_state_variable_gain(capacitor_integrator_gain);
+
+        return returned_value;
+
+    end init_lcr_filter;
+
+    function init_lcr_model_integrator_gains
+    (
+        inductor_integrator_gain : integer;
+        capacitor_integrator_gain : integer
+    )
+    return lcr_model_record
+    is
+        variable lcr_filter_init : lcr_model_record := init_lcr_filter;
+    begin
+
+        lcr_filter_init.inductor_current := init_state_variable_gain(inductor_integrator_gain);
+        lcr_filter_init.capacitor_voltage := init_state_variable_gain(capacitor_integrator_gain);
+        return lcr_filter_init;
+        
+    end init_lcr_model_integrator_gains;
+
+------------------------------------------------------------------------
 
 ------------------------------------------------------------------------
     procedure create_test_lcr_filter
@@ -214,23 +253,6 @@ package body lcr_filter_model_pkg is
     begin
         request_lcr_filter_calculation(lcr_filter);
     end calculate_lcr_filter;
-
-------------------------------------------------------------------------
-    function init_lcr_model_integrator_gains
-    (
-        inductor_integrator_gain : integer;
-        capacitor_integrator_gain : integer
-    )
-    return lcr_model_record
-    is
-        variable lcr_filter_init : lcr_model_record := init_lcr_filter;
-    begin
-
-        lcr_filter_init.inductor_current := init_state_variable_gain(inductor_integrator_gain);
-        lcr_filter_init.capacitor_voltage := init_state_variable_gain(capacitor_integrator_gain);
-        return lcr_filter_init;
-        
-    end init_lcr_model_integrator_gains;
 
 ------------------------------------------------------------------------
     function get_capacitor_voltage
