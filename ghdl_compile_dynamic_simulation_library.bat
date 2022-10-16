@@ -39,4 +39,5 @@ ghdl -a --ieee=synopsys --std=08 %source%/hVHDL_dynamic_model_verification_libra
 ghdl -a --ieee=synopsys --std=08 %source%/hVHDL_dynamic_model_verification_library/ac_motor_models/permanent_magnet_motor_model_pkg.vhd
 ghdl -a --ieee=synopsys --std=08 %source%/hVHDL_dynamic_model_verification_library/ac_motor_models/field_oriented_motor_control/field_oriented_motor_control_pkg.vhd
 
+ghdl -a --ieee=synopsys --std=08 %source%/hVHDL_dynamic_model_verification_library/simulator_engine/simulation_configuration_pkg.vhd
 ghdl -a --ieee=synopsys --std=08 %source%/hVHDL_dynamic_model_verification_library/simulator_engine/simulation_pkg.vhd

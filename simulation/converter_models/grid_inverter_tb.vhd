@@ -23,11 +23,11 @@ architecture vunit_simulation of grid_inverter_tb is
     -----------------------------------
     -- simulation specific signals ----
 
-    -- these are to be fed from a package
     signal simulation_time : real := 0.0;
 
-    signal lcr_model  : lcr_model_record  := init_lcr_filter(inductance_is(470.0e-6), capacitance_is(20.0e-6), resistance_is(0.9));
     signal multiplier : multiplier_record := init_multiplier;
+    signal lcr_model  : lcr_model_record  := init_lcr_filter(inductance_is(470.0e-6), capacitance_is(20.0e-6), resistance_is(0.9));
+
     signal output_voltage   : real := 0.0;
     signal input_voltage    : real := 325.0;
     signal inductor_current : real := 0.0;
@@ -38,7 +38,7 @@ begin
     simtime : process
     begin
         test_runner_setup(runner, runner_cfg);
-        wait until simulation_time > stoptime;
+        wait until simulation_time > stoptime_in_seconds;
         check(abs(output_voltage - input_voltage) < 50.0, "error in input and output voltages too high");
         test_runner_cleanup(runner); -- Simulation ends here
         wait;
@@ -55,6 +55,7 @@ begin
     begin
         if rising_edge(simulator_clock) then
             simulation_counter <= simulation_counter + 1;
+
             create_multiplier(multiplier);
             create_test_lcr_filter(
                 hw_multiplier     => multiplier,
