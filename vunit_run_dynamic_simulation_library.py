@@ -54,6 +54,8 @@ math_library_22x22.add_source_files(ROOT / "state_variable/state_variable_pkg.vh
 math_library_22x22.add_source_files(ROOT / "lcr_filter_model/lcr_filter_model_pkg.vhd")
 math_library_22x22.add_source_files(ROOT / "simulation/converter_models/grid_inverter_tb.vhd")
 math_library_22x22.add_source_files(ROOT / "simulation/converter_models/grid_inverter_current_step_tb.vhd")
-math_library_22x22.add_source_files(ROOT / "simulation/converter_models/simulation_pkg.vhd")
+math_library_22x22.add_source_files(ROOT / "simulator_engine/simulation_pkg.vhd")
 
 VU.main()
+
+from plot_simulation_data import *

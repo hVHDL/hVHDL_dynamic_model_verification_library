@@ -7,10 +7,9 @@ LIBRARY ieee, std  ;
 library vunit_lib;
 context vunit_lib.vunit_context;
 
-library math_library_22x22;
-    use math_library_22x22.multiplier_pkg.all;
-    use math_library_22x22.lcr_filter_model_pkg.all;
-    use math_library_22x22.simulation_pkg.all;
+    use work.multiplier_pkg.all;
+    use work.lcr_filter_model_pkg.all;
+    use work.simulation_pkg.all;
 
 entity grid_inverter_tb is
   generic (runner_cfg : string);
@@ -27,7 +26,7 @@ architecture vunit_simulation of grid_inverter_tb is
     -- these are to be fed from a package
     signal simulation_time : real := 0.0;
 
-    signal lcr_model  : lcr_model_record  := init_lcr_filter(inductance_is(470.0e-6), capacitance_is(20.0e-6), resistance_is(0.01));
+    signal lcr_model  : lcr_model_record  := init_lcr_filter(inductance_is(470.0e-6), capacitance_is(20.0e-6), resistance_is(0.9));
     signal multiplier : multiplier_record := init_multiplier;
     signal output_voltage   : real := 0.0;
     signal input_voltage    : real := 325.0;
