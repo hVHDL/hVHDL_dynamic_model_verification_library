@@ -44,10 +44,16 @@ mathlib.add_source_files(ROOT / "power_supply_model/power_supply_model_simulatio
 mathlib.add_source_files(ROOT / "state_variable/simulation/tb_state_variable.vhd")
 
 simulation = VU.add_library("real_simulation")
-# simulation.add_source_files(ROOT / "simulation/testi" / "*.vhd")
-# simulation.add_source_files(ROOT / "simulation" / "*.vhd")
 simulation.add_source_files(ROOT / "hVHDL_math_library/multiplier/multiplier_base_types_22bit_pkg.vhd") 
 simulation.add_source_files(ROOT / "hVHDL_math_library/multiplier/multiplier_pkg.vhd") 
 
+math_library_22x22 = VU.add_library("math_library_22x22")
+math_library_22x22.add_source_files(ROOT / "hVHDL_math_library/multiplier/multiplier_base_types_22bit_pkg.vhd")
+math_library_22x22.add_source_files(ROOT / "hVHDL_math_library/multiplier/multiplier_pkg.vhd")
+math_library_22x22.add_source_files(ROOT / "state_variable/state_variable_pkg.vhd")
+math_library_22x22.add_source_files(ROOT / "lcr_filter_model/lcr_filter_model_pkg.vhd")
+math_library_22x22.add_source_files(ROOT / "simulation/converter_models/grid_inverter_tb.vhd")
+math_library_22x22.add_source_files(ROOT / "simulation/converter_models/grid_inverter_current_step_tb.vhd")
+math_library_22x22.add_source_files(ROOT / "simulation/converter_models/simulation_pkg.vhd")
 
 VU.main()
