@@ -18,8 +18,7 @@ package field_oriented_motor_control_pkg is
         calculation_ready : boolean;
     end record;
 
-    constant init_motor_current_control : motor_current_control_record :=
-    (15 , 15 , 0 , 0 , 0 , 0 , 28000 , 4000, false);
+    function init_motor_current_control return motor_current_control_record;
 ------------------------------------------------------------------------
     function get_control_output ( current_control_object : motor_current_control_record)
         return int;
@@ -44,6 +43,16 @@ package field_oriented_motor_control_pkg is
 end package field_oriented_motor_control_pkg;
 
 package body field_oriented_motor_control_pkg is
+
+    constant initial_values_for : motor_current_control_record :=
+    (15 , 15 , 0 , 0 , 0 , 0 , 28000 , 4000, false);
+
+    function init_motor_current_control return motor_current_control_record
+    is
+    begin
+        return initial_values_for;
+        
+    end;
 
 ------------------------------------------------------------------------
     function get_control_output

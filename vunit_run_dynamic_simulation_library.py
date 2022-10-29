@@ -59,5 +59,3 @@ math_library_22x22.add_source_files(ROOT / "simulator_engine/simulation_configur
 math_library_22x22.add_source_files(ROOT / "simulator_engine/simulation_pkg.vhd")
 
 VU.main()
-
-from plot_simulation_data import *

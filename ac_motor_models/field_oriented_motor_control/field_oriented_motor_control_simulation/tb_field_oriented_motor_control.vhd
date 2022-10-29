@@ -69,6 +69,9 @@ architecture vunit_simulation of tb_field_oriented_motor_control is
 
     signal speed_reference : int := 15e3;
 
+    signal id_current : integer := 0;
+    signal iq_current : integer := 0;
+
 begin
 
 ------------------------------------------------------------------------
@@ -164,7 +167,6 @@ begin
                 request_electrical_angle_calculation(pmsm_model);
                 request_id_calculation(pmsm_model , -get_control_output(id_current_control));
                 request_iq_calculation(pmsm_model , -get_control_output(iq_current_control) + get_angular_speed(pmsm_model)*default_motor_parameters.permanent_magnet_flux );
-                d_reference <= d_reference - 50;
 
                 request_dq_to_ab_transform(
                     dq_to_ab_transform          ,
@@ -180,14 +182,15 @@ begin
 
             CASE simulation_counter is
                 -- WHEN 0 => set_load_torque(pmsm_model, 500);
-                WHEN 0 => set_load_torque(pmsm_model, -10e3);
+                -- WHEN 0 => set_load_torque(pmsm_model, -10e3);
                 -- WHEN 5e3 => set_load_torque(pmsm_model, 16e3);
                 -- WHEN 7e3 => speed_reference <=  0;
                 --             set_load_torque(pmsm_model, -16e3);
                 when others => -- do nothing
             end case;
             square_sum <= get_q_component(pmsm_model) * get_q_component(pmsm_model) + get_d_component(pmsm_model) * get_d_component(pmsm_model);
-
+            id_current <= get_d_component(pmsm_model);
+            iq_current <= get_q_component(pmsm_model);
         end if; -- rising_edge
     end process stimulus;	
 ------------------------------------------------------------------------
