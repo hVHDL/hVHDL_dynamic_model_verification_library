@@ -51,7 +51,6 @@ package body field_oriented_motor_control_pkg is
     is
     begin
         return initial_values_for;
-        
     end;
 
 ------------------------------------------------------------------------

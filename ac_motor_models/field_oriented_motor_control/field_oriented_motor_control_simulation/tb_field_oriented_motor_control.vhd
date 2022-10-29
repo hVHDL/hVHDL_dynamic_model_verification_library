@@ -25,8 +25,7 @@ architecture vunit_simulation of tb_field_oriented_motor_control is
 
     signal simulation_running  : boolean    := false  ;
     signal simulator_clock     : std_logic  := '0'    ;
-    constant clock_per         : time       := 1 ns   ;
-    constant clock_half_per    : time       := 0.5 ns ;
+    constant clock_period      : time       := 1 ns   ;
     constant simtime_in_clocks : integer    := 10e3   ;
 
     signal simulation_counter : natural := 0;
@@ -78,24 +77,12 @@ begin
     simtime : process
     begin
         test_runner_setup(runner, runner_cfg);
-        simulation_running <= true;
-        wait for simtime_in_clocks*clock_per;
-        simulation_running <= false;
+        wait for simtime_in_clocks*clock_period;
         test_runner_cleanup(runner); -- Simulation ends here
         wait;
     end process simtime;	
 
-------------------------------------------------------------------------
-    sim_clock_gen : process
-    begin
-        simulator_clock <= '0';
-        wait for clock_half_per;
-        while simulation_running loop
-            wait for clock_half_per;
-                simulator_clock <= not simulator_clock;
-            end loop;
-        wait;
-    end process;
+    simulator_clock <= not simulator_clock after clock_period/2.0;
 ------------------------------------------------------------------------
 
     stimulus : process(simulator_clock)

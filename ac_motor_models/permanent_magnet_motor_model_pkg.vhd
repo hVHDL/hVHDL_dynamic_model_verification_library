@@ -30,12 +30,7 @@ package permanent_magnet_motor_model_pkg is
         vq_input_voltage    : int                   ;
     end record                                        ;
 
-    constant init_permanent_magnet_motor_model : permanent_magnet_motor_model_record := 
-        (init_id_current_model          ,
-         init_id_current_model          ,
-         init_angular_speed_model       ,
-         init_state_variable_gain(3000) ,
-         0, 0);
+    function init_permanent_magnet_motor_model return permanent_magnet_motor_model_record;
 
 ------------------------------------------------------------------------
     function get_electrical_angle ( pmsm_model_object : permanent_magnet_motor_model_record)
@@ -86,6 +81,19 @@ package permanent_magnet_motor_model_pkg is
 end package permanent_magnet_motor_model_pkg;
 
 package body permanent_magnet_motor_model_pkg is
+
+    constant initial_values_for : permanent_magnet_motor_model_record := 
+        (init_id_current_model          ,
+         init_id_current_model          ,
+         init_angular_speed_model       ,
+         init_state_variable_gain(3000) ,
+         0, 0);
+
+    function init_permanent_magnet_motor_model return permanent_magnet_motor_model_record
+    is
+    begin
+        return initial_values_for;
+    end init_permanent_magnet_motor_model;
 
 ------------------------------------------------------------------------
     function get_16_bits
