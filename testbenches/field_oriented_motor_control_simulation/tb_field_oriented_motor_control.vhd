@@ -34,10 +34,10 @@ architecture vunit_simulation of tb_field_oriented_motor_control is
     type abc is (vd, vq, phase_a, phase_b, phase_c, id, iq, w, angle);
 
     type multiplier_array is array (abc range abc'left to abc'right) of multiplier_record;
-    signal multiplier : multiplier_array := (init_multiplier, init_multiplier,init_multiplier, init_multiplier, init_multiplier, init_multiplier, init_multiplier, init_multiplier, init_multiplier);
+    signal multiplier : multiplier_array := (others => init_multiplier);
 
     type sincos_array is array (abc range abc'left to abc'right) of sincos_record;
-    signal sincos : sincos_array := (init_sincos, init_sincos, init_sincos, init_sincos, init_sincos, init_sincos, init_sincos, init_sincos, init_sincos);
+    signal sincos : sincos_array := (others => init_sincos);
 
     signal angle_rad16 : unsigned(15 downto 0) := to_unsigned(10e3, 16);
 
