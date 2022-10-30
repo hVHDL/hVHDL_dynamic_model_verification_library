@@ -47,8 +47,8 @@ architecture vunit_simulation of tb_permanent_magnet_synchronous_machine_model i
     -- motor electrical simulation signals --
 
 
-    signal vd_input_voltage : int18 := 300;
-    signal vq_input_voltage : int18 := -300;
+    signal vd_input_voltage : int := 300;
+    signal vq_input_voltage : int := -300;
 
     signal pmsm_model : permanent_magnet_motor_model_record := init_permanent_magnet_motor_model;
 
@@ -60,7 +60,7 @@ architecture vunit_simulation of tb_permanent_magnet_synchronous_machine_model i
     -- mechanical model
 
     signal process_counter : natural range 0 to 15 := 15;
-    signal rotor_angle : int18 := 0;
+    signal rotor_angle : int := 0;
 
 begin
 
