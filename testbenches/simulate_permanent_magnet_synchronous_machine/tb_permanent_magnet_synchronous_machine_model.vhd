@@ -7,13 +7,7 @@ library vunit_lib;
     use vunit_lib.run_pkg.all;
 
     use work.multiplier_pkg.all;
-    use work.sincos_pkg.all;
-    use work.abc_to_ab_transform_pkg.all;
-    use work.ab_to_abc_transform_pkg.all;
-    use work.dq_to_ab_transform_pkg.all;
-    use work.ab_to_dq_transform_pkg.all;
     use work.permanent_magnet_motor_model_pkg.all;
-    use work.state_variable_pkg.all;
 
 entity tb_permanent_magnet_synchronous_machine_model is
   generic (runner_cfg : string);
@@ -34,17 +28,10 @@ architecture vunit_simulation of tb_permanent_magnet_synchronous_machine_model i
     type multiplier_array is array (abc range abc'left to abc'right) of multiplier_record;
     signal multiplier : multiplier_array := (others => init_multiplier);
 
-    type sincos_array is array (abc range abc'left to abc'right) of sincos_record;
-    signal sincos : sincos_array := (others => init_sincos);
-
     signal angle_rad16 : unsigned(15 downto 0) := to_unsigned(10e3, 16);
-
-    signal dq_to_ab_transform : dq_to_ab_record := init_dq_to_ab_transform;
-    signal ab_to_dq_transform : ab_to_dq_record := init_ab_to_dq_transform;
 
     --------------------------------------------------
     -- motor electrical simulation signals --
-
 
     signal vd_input_voltage : int := 300;
     signal vq_input_voltage : int := -300;
@@ -88,14 +75,6 @@ begin
             create_multiplier(multiplier(w));
             create_multiplier(multiplier(angle));
 
-            create_multiplier(multiplier(phase_a));
-            create_sincos(multiplier(phase_a) , sincos(phase_a));
-
-            create_multiplier(multiplier(phase_b));
-            create_dq_to_ab_transform(multiplier(phase_b), dq_to_ab_transform);
-
-            request_sincos(sincos(phase_a), get_electrical_angle(pmsm_model));
-
             --------------------------------------------------
             create_pmsm_model(
                 pmsm_model        ,
@@ -111,13 +90,6 @@ begin
                 request_electrical_angle_calculation(pmsm_model);
                 request_id_calculation(pmsm_model , vd_input_voltage);
                 request_iq_calculation(pmsm_model , vq_input_voltage );
-
-                request_dq_to_ab_transform(
-                    dq_to_ab_transform          ,
-                    get_sine(sincos(phase_a))   ,
-                    get_cosine(sincos(phase_a)) ,
-                    get_d_component(pmsm_model) , get_q_component(pmsm_model));
-
             end if;
 
             CASE simulation_counter is
