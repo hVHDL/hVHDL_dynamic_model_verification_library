@@ -24,7 +24,6 @@ architecture vunit_simulation of tb_permanent_magnet_synchronous_machine_model i
     signal simulation_running  : boolean    := false  ;
     signal simulator_clock     : std_logic  := '0'    ;
     constant clock_per         : time       := 1 ns   ;
-    constant clock_half_per    : time       := 0.5 ns ;
     constant simtime_in_clocks : integer    := 15e3   ;
 
     signal simulation_counter : natural := 0;
@@ -33,10 +32,10 @@ architecture vunit_simulation of tb_permanent_magnet_synchronous_machine_model i
     type abc is (phase_a, phase_b, phase_c, id, iq, w, angle);
 
     type multiplier_array is array (abc range abc'left to abc'right) of multiplier_record;
-    signal multiplier : multiplier_array := (init_multiplier,init_multiplier, init_multiplier, init_multiplier, init_multiplier, init_multiplier, init_multiplier);
+    signal multiplier : multiplier_array := (others => init_multiplier);
 
     type sincos_array is array (abc range abc'left to abc'right) of sincos_record;
-    signal sincos : sincos_array := (init_sincos, init_sincos, init_sincos, init_sincos, init_sincos, init_sincos, init_sincos);
+    signal sincos : sincos_array := (others => init_sincos);
 
     signal angle_rad16 : unsigned(15 downto 0) := to_unsigned(10e3, 16);
 
@@ -75,17 +74,7 @@ begin
         wait;
     end process simtime;	
 
-------------------------------------------------------------------------
-    sim_clock_gen : process
-    begin
-        simulator_clock <= '0';
-        wait for clock_half_per;
-        while simulation_running loop
-            wait for clock_half_per;
-                simulator_clock <= not simulator_clock;
-            end loop;
-        wait;
-    end process;
+    simulator_clock <= not simulator_clock after clock_per/2.0;
 ------------------------------------------------------------------------
 
     stimulus : process(simulator_clock)

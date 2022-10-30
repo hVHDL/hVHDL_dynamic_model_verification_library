@@ -18,9 +18,7 @@ architecture vunit_simulation of tb_lcr_filter is
 
     signal simulation_running : boolean;
     signal simulator_clock : std_logic;
-    signal clocked_reset : std_logic;
     constant clock_per : time := 8.4 ns;
-    constant clock_half_per : time := 4.2 ns;
     constant simtime_in_clocks : integer := 25e3;
 
     signal simulation_counter : natural := 0;
@@ -62,21 +60,7 @@ begin
         wait;
     end process simtime;	
 
-
-------------------------------------------------------------------------
-    sim_clock_gen : process
-    begin
-        simulator_clock <= '0';
-        rstn <= '0';
-        simulator_clock <= '0';
-        wait for clock_half_per;
-        while simulation_running loop
-            wait for clock_half_per;
-                rstn <= '1';
-                simulator_clock <= not simulator_clock;
-            end loop;
-        wait;
-    end process;
+    simulator_clock <= not simulator_clock after clock_per/2.0;
 ------------------------------------------------------------------------
 
     clocked_reset_generator : process(simulator_clock)
