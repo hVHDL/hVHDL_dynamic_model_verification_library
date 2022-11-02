@@ -26,9 +26,9 @@ package permanent_magnet_motor_model_pkg is
         iq_current_model    : id_current_model_record ;
         angular_speed_model : angular_speed_record    ;
         electrical_angle    : state_variable_record   ;
-        vd_input_voltage    : int                   ;
-        vq_input_voltage    : int                   ;
-    end record                                        ;
+        vd_input_voltage    : int                     ;
+        vq_input_voltage    : int                     ;
+    end record;
 
     function init_permanent_magnet_motor_model return permanent_magnet_motor_model_record;
 
@@ -251,47 +251,34 @@ package body permanent_magnet_motor_model_pkg is
         signal angle_multiplier : inout multiplier_record;
         motor_parameters        : in motor_parameter_record
     ) is
-        alias id_current_model    is pmsm_model_object.id_current_model    ;
-        alias iq_current_model    is pmsm_model_object.iq_current_model    ;
-        alias angular_speed_model is pmsm_model_object.angular_speed_model ;
-        alias electrical_angle    is pmsm_model_object.electrical_angle    ;
-        alias vd_input_voltage    is pmsm_model_object.vd_input_voltage    ;
-        alias vq_input_voltage    is pmsm_model_object.vq_input_voltage    ;
-
-        alias Ld                    is motor_parameters.Ld                    ;
-        alias Lq                    is motor_parameters.Lq                    ;
-        alias permanent_magnet_flux is motor_parameters.permanent_magnet_flux ;
-        alias intertial_mass        is motor_parameters.intertial_mass        ;
-        alias pole_pairs            is motor_parameters.pole_pairs            ;
-        alias rotor_resistance      is motor_parameters.rotor_resistance      ;
-
+        alias m    is pmsm_model_object;
     begin
         
         --------------------------------------------------
         create_pmsm_electrical_model(
-            id_current_model                        ,
-            iq_current_model                        ,
-            id_multiplier                           ,
-            iq_multiplier                           ,
-            angular_speed_model.angular_speed.state ,
-            vd_input_voltage                        ,
-            vq_input_voltage                        ,
-            permanent_magnet_flux                   ,
-            Ld                                      ,
-            Lq                                      ,
-            rotor_resistance);
+            m.id_current_model                        ,
+            m.iq_current_model                        ,
+            id_multiplier                             ,
+            iq_multiplier                             ,
+            m.angular_speed_model.angular_speed.state ,
+            m.vd_input_voltage                        ,
+            m.vq_input_voltage                        ,
+            motor_parameters.permanent_magnet_flux    ,
+            motor_parameters.Ld                       ,
+            motor_parameters.Lq                       ,
+            motor_parameters.rotor_resistance);
 
         --------------------------------------------------
         create_angular_speed_model(
-            angular_speed_model               ,
-            w_multiplier                      ,
-            Ld                                ,
-            Lq                                ,
-            id_current_model.id_current.state ,
-            iq_current_model.id_current.state ,
-            permanent_magnet_flux);
+            m.angular_speed_model               ,
+            w_multiplier                        ,
+            motor_parameters.Ld                 ,
+            motor_parameters.Lq                 ,
+            m.id_current_model.id_current.state ,
+            m.iq_current_model.id_current.state ,
+            motor_parameters.permanent_magnet_flux);
         --------------------------------------------------
-        create_state_variable(electrical_angle,angle_multiplier, to_signed(get_angular_speed(angular_speed_model),18));
+        create_state_variable(m.electrical_angle,angle_multiplier, to_signed(get_angular_speed(m.angular_speed_model),18));
 
     end create_pmsm_model;
 

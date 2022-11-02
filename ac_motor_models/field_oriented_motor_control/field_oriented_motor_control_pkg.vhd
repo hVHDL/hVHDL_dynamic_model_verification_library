@@ -92,12 +92,12 @@ package body field_oriented_motor_control_pkg is
         q_inductance                  : int;
         angular_speed                 : int;
         stator_resistance             : int;
-        feedback_current                    : int;
-        feedforward_current                    : int
+        feedback_current              : int;
+        feedforward_current           : int
     ) is
 
-        alias vd_control_process_counter    is current_control_object.vd_control_process_counter   ;
-        alias vd_control_process_counter2    is current_control_object.vd_control_process_counter2 ;
+        alias vd_control_process_counter  is current_control_object.vd_control_process_counter   ;
+        alias vd_control_process_counter2 is current_control_object.vd_control_process_counter2 ;
 
         alias control_input    is feedback_current    ;
         alias integrator       is current_control_object.integrator       ;
