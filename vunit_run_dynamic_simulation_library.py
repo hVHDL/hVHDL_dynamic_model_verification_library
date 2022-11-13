@@ -47,12 +47,7 @@ math_library_22x22.add_source_files(ROOT / "lcr_filter_model/lcr_filter_model_pk
 math_library_22x22.add_source_files(ROOT / "simulator_engine/simulation_configuration_pkg.vhd")
 math_library_22x22.add_source_files(ROOT / "simulator_engine/simulation_pkg.vhd")
 
-mathlib.add_source_files(ROOT / "hVHDL_math_library/multiplier/simulation/tb_multiplier.vhd") 
-
 # testbenches
-mathlib.add_source_files(            ROOT / "hVHDL_math_library/coordinate_transforms/abc_to_ab_transform/abc_to_ab_transform_simulation/tb_abc_to_ab_transform.vhd")
-mathlib.add_source_files(            ROOT / "hVHDL_math_library/coordinate_transforms/ab_to_dq_transform/ab_to_dq_simulation/tb_ab_to_dq_transforms.vhd")
-
 mathlib.add_source_files(            ROOT / "testbenches/state_variable_simulation/tb_state_variable.vhd")
 math_library_22x22.add_source_files( ROOT / "testbenches/converter_models/grid_inverter_tb.vhd")
 math_library_22x22.add_source_files( ROOT / "testbenches/converter_models/grid_inverter_current_step_tb.vhd")

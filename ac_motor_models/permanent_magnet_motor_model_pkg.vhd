@@ -14,7 +14,7 @@ package permanent_magnet_motor_model_pkg is
         Ld                    : int;
         Lq                    : int;
         permanent_magnet_flux : int;
-        intertial_mass        : int;
+        inertial_mass         : int;
         pole_pairs            : int;
         rotor_resistance      : int;
     end record;
@@ -89,6 +89,7 @@ package body permanent_magnet_motor_model_pkg is
          init_state_variable_gain(3000) ,
          0, 0);
 
+    ------------------------------
     function init_permanent_magnet_motor_model return permanent_magnet_motor_model_record
     is
     begin

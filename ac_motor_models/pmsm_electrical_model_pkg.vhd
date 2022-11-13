@@ -9,12 +9,15 @@ package pmsm_electrical_model_pkg is
 
     type id_current_model_record is record
         id_calculation_counter : natural range 0 to 15;
-        id_current        : state_variable_record;
-        id_state_equation : int;
-        calculation_is_ready : boolean;
+        id_current             : state_variable_record;
+        id_state_equation      : int;
+        calculation_is_ready   : boolean;
     end record;
 
-    constant init_id_current_model : id_current_model_record := (15, init_state_variable_gain(15000), 0, false);
+    function init_id_current_model return id_current_model_record;
+
+    function init_id_current_model ( inductor_value : int)
+        return id_current_model_record;
 
 ------------------------------------------------------------------------
     function get_d_component ( id_current_object : id_current_model_record)
@@ -43,6 +46,30 @@ package pmsm_electrical_model_pkg is
 end package pmsm_electrical_model_pkg;
 
 package body pmsm_electrical_model_pkg is
+
+    constant initial_values_for_id_current_model : id_current_model_record := (15, init_state_variable_gain(15000), 0, false);
+
+    --------------------
+    function init_id_current_model return id_current_model_record
+    is
+    begin
+        return initial_values_for_id_current_model;
+    end init_id_current_model;
+
+    --------------------
+    function init_id_current_model
+    (
+        inductor_value : int
+    )
+    return id_current_model_record
+    is
+        variable returned_value : id_current_model_record;
+    begin
+        returned_value := (15, init_state_variable_gain(inductor_value), 0, false);
+
+        return returned_value;
+    end init_id_current_model;
+    --------------------
 
 ------------------------------------------------------------------------
     function get_d_component

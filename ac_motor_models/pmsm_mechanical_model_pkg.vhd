@@ -18,14 +18,8 @@ package pmsm_mechanical_model_pkg is
         friction                          : int                ;
     end record;
 
-    constant init_angular_speed_model : angular_speed_record :=(
-        angular_speed                     => init_state_variable_gain(500) ,
-        angular_speed_calculation_counter => 15                            ,
-        load_torque                       => 0                             ,
-        w_state_equation                  => 0                             ,
-        permanent_magnet_torque           => 0                             ,
-        reluctance_torque                 => 0                             ,
-        friction                          => 0                             );
+    function init_angular_speed_model return angular_speed_record;
+
 ------------------------------------------------------------------------
     procedure set_load_torque (
         signal angular_speed_object : out angular_speed_record;
@@ -54,6 +48,43 @@ package pmsm_mechanical_model_pkg is
 end package pmsm_mechanical_model_pkg;
 
 package body pmsm_mechanical_model_pkg is
+
+    constant initial_values_for_angular_speed_model : angular_speed_record :=(
+        angular_speed                     => init_state_variable_gain(500) ,
+        angular_speed_calculation_counter => 15                            ,
+        load_torque                       => 0                             ,
+        w_state_equation                  => 0                             ,
+        permanent_magnet_torque           => 0                             ,
+        reluctance_torque                 => 0                             ,
+        friction                          => 0                             );
+    ------------------------------
+
+    function init_angular_speed_model return angular_speed_record
+    is
+    begin
+        return initial_values_for_angular_speed_model;
+    end init_angular_speed_model;
+    ------------------------------
+    function init_angular_speed_model
+    (
+        angular_speed_integrator_gain : int
+    )
+    return angular_speed_record
+    is
+        variable returned_value : angular_speed_record;
+    begin
+        returned_value := (
+            angular_speed                     => init_state_variable_gain(angular_speed_integrator_gain) ,
+            angular_speed_calculation_counter => 15                            ,
+            load_torque                       => 0                             ,
+            w_state_equation                  => 0                             ,
+            permanent_magnet_torque           => 0                             ,
+            reluctance_torque                 => 0                             ,
+            friction                          => 0                             );
+
+        return returned_value;
+        
+    end init_angular_speed_model;
 
 ------------------------------------------------------------------------
     procedure set_load_torque
@@ -104,46 +135,40 @@ package body pmsm_mechanical_model_pkg is
         iq_current                  : int;
         permanent_magnet_flux       : int
     ) is
-        alias angular_speed                     is angular_speed_object.angular_speed                     ;
-        alias angular_speed_calculation_counter is angular_speed_object.angular_speed_calculation_counter ;
-        alias load_torque                       is angular_speed_object.load_torque                       ;
-        alias w_state_equation                  is angular_speed_object.w_state_equation                  ;
-        alias permanent_magnet_torque           is angular_speed_object.permanent_magnet_torque           ;
-        alias reluctance_torque                 is angular_speed_object.reluctance_torque                 ;
-        alias friction                          is angular_speed_object.friction                          ;
+        alias m is angular_speed_object;
     begin
-        create_state_variable(angular_speed , w_multiplier  , w_state_equation);
+        create_state_variable(m.angular_speed , w_multiplier  , m.w_state_equation);
 
-        CASE angular_speed_calculation_counter is
+        CASE m.angular_speed_calculation_counter is
             WHEN 0 =>
                 multiply(w_multiplier, id_current, iq_current);
-                increment(angular_speed_calculation_counter);
+                increment(m.angular_speed_calculation_counter);
             WHEN 1 =>
                 multiply(w_multiplier, permanent_magnet_flux, iq_current);
-                increment(angular_speed_calculation_counter);
+                increment(m.angular_speed_calculation_counter);
             WHEN 2 =>
                 if multiplier_is_ready(w_multiplier) then
                     multiply(w_multiplier, (Ld-Lq), get_multiplier_result(w_multiplier, 15));
-                    increment(angular_speed_calculation_counter);
+                    increment(m.angular_speed_calculation_counter);
                 end if;
             WHEN 3 =>
-                multiply(w_multiplier, angular_speed.state, 10e3);
-                permanent_magnet_torque <= get_multiplier_result(w_multiplier, 15);
-                w_state_equation        <= get_multiplier_result(w_multiplier, 15) - load_torque;
-                increment(angular_speed_calculation_counter);
+                multiply(w_multiplier, m.angular_speed.state, 10e3);
+                m.permanent_magnet_torque <= get_multiplier_result(w_multiplier, 15);
+                m.w_state_equation        <= get_multiplier_result(w_multiplier, 15) - m.load_torque;
+                increment(m.angular_speed_calculation_counter);
             WHEN 4 =>
                 if multiplier_is_ready(w_multiplier) then
-                    reluctance_torque <= get_multiplier_result(w_multiplier, 15);
-                    w_state_equation <= w_state_equation + get_multiplier_result(w_multiplier, 15);
-                    increment(angular_speed_calculation_counter);
+                    m.reluctance_torque <= get_multiplier_result(w_multiplier, 15);
+                    m.w_state_equation <= m.w_state_equation + get_multiplier_result(w_multiplier, 15);
+                    increment(m.angular_speed_calculation_counter);
                 end if;
             WHEN 5 =>
-                friction <= - get_multiplier_result(w_multiplier, 15);
-                w_state_equation <= w_state_equation - get_multiplier_result(w_multiplier, 15);
-                increment(angular_speed_calculation_counter);
+                m.friction <= - get_multiplier_result(w_multiplier, 15);
+                m.w_state_equation <= m.w_state_equation - get_multiplier_result(w_multiplier, 15);
+                increment(m.angular_speed_calculation_counter);
             WHEN 6 =>
-                request_state_variable_calculation(angular_speed);
-                increment(angular_speed_calculation_counter);
+                request_state_variable_calculation(m.angular_speed);
+                increment(m.angular_speed_calculation_counter);
             WHEN others =>
         end CASE;
         
