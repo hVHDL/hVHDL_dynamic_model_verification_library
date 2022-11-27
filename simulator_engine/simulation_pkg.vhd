@@ -10,9 +10,7 @@ library ieee;
 package simulation_pkg is
 
     -- publish configurations from configuration package
-    alias stoptime_in_seconds is stoptime_in_seconds;
     alias simulation_time_step is simulation_time_step;
-    alias calculation_step is simulation_time_step;
 
     type real_array is array (integer range <>) of real;
 
@@ -83,7 +81,7 @@ package body simulation_pkg is
     return integer
     is
     begin
-        return integer(1.0/capacitance_value*calculation_step*integrator_gain);
+        return integer(1.0/capacitance_value*simulation_time_step*integrator_gain);
     end capacitance_is;
     ----
     function inductance_is

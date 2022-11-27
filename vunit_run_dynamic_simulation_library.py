@@ -47,14 +47,27 @@ math_library_22x22.add_source_files(ROOT / "lcr_filter_model/lcr_filter_model_pk
 math_library_22x22.add_source_files(ROOT / "simulator_engine/simulation_configuration_pkg.vhd")
 math_library_22x22.add_source_files(ROOT / "simulator_engine/simulation_pkg.vhd")
 
+math_library_26x26 = VU.add_library("math_library_26x26")
+math_library_26x26.add_source_files(ROOT / "hVHDL_math_library/multiplier/multiplier_base_types_26bit_pkg.vhd")
+math_library_26x26.add_source_files(ROOT / "hVHDL_math_library/multiplier/multiplier_pkg.vhd")
+math_library_26x26.add_source_files(ROOT / "state_variable/state_variable_pkg.vhd")
+math_library_26x26.add_source_files(ROOT / "lcr_filter_model/lcr_filter_model_pkg.vhd")
+
+math_library_26x26.add_source_files(ROOT / "simulator_engine/simulation_configuration_pkg.vhd")
+math_library_26x26.add_source_files(ROOT / "simulator_engine/simulation_pkg.vhd")
+
 # testbenches
 mathlib.add_source_files(            ROOT / "testbenches/state_variable_simulation/tb_state_variable.vhd")
 math_library_22x22.add_source_files( ROOT / "testbenches/converter_models/grid_inverter_tb.vhd")
-math_library_22x22.add_source_files( ROOT / "testbenches/converter_models/grid_inverter_current_step_tb.vhd")
+math_library_26x26.add_source_files( ROOT / "testbenches/converter_models/grid_inverter_current_step_tb.vhd")
 mathlib.add_source_files(            ROOT / "testbenches/lcr_filter_simulation/tb_lcr_filter.vhd")
 mathlib.add_source_files(            ROOT / "testbenches/simulate_permanent_magnet_synchronous_machine/tb_permanent_magnet_synchronous_machine_model.vhd")
 mathlib.add_source_files(            ROOT / "testbenches/field_oriented_motor_control_simulation/tb_field_oriented_motor_control.vhd")
 mathlib.add_source_files(            ROOT / "testbenches/inverter_model_simulation/tb_inverter_model.vhd")
 mathlib.add_source_files(            ROOT / "testbenches/power_supply_model_simulation/tb_power_supply_model.vhd")
+
+
+mathlib.add_source_files(            ROOT / "testbenches/test_tb.vhd")
+
 
 VU.main()

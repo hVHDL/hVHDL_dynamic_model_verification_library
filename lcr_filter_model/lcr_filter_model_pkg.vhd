@@ -25,10 +25,12 @@ package lcr_filter_model_pkg is
     end record;
 
     function init_lcr_filter return lcr_model_record;
+
     function init_lcr_filter ( 
         inductor_integrator_gain : integer; 
         capacitor_integrator_gain : integer)
         return lcr_model_record;
+
     function init_lcr_filter (
         inductor_integrator_gain : integer;
         capacitor_integrator_gain : integer;

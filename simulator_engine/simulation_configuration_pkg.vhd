@@ -6,11 +6,9 @@ library ieee;
 
 package simulation_configuration_pkg is
 
-    constant number_of_calculation_cycles : real := 3000.0;
-    constant stoptime_in_seconds          : real := 10.0e-3;
-    constant simulation_time_step         : real := stoptime_in_seconds/number_of_calculation_cycles;
+    constant simulation_time_step : real := 1.0e-6;
 
-    constant max_voltage         : real    := 150.0;
+    constant max_voltage         : real    := 50.0;
     constant word_length         : integer := int_word_length-1;
     --
     constant voltage_transform_ratio   : real := (max_voltage/2.0**word_length);

@@ -23,6 +23,7 @@ architecture vunit_simulation of grid_inverter_tb is
     -----------------------------------
     -- simulation specific signals ----
 
+    constant stoptime_in_seconds : real := 10.0e-3;
     signal simulation_time : real := 0.0;
 
     signal multiplier : multiplier_record := init_multiplier;
