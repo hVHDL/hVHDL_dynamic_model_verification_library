@@ -1,5 +1,8 @@
 library ieee;
     use ieee.std_logic_1164.all;
+    use ieee.math_real.all;
+    use std.textio.all;
+    use ieee.numeric_std.all;
 
     use work.multiplier_pkg.all;
     use work.simulation_configuration_pkg.all;
@@ -9,6 +12,13 @@ package simulation_pkg is
     -- publish configurations from configuration package
     alias stoptime_in_seconds is stoptime_in_seconds;
     alias simulation_time_step is simulation_time_step;
+    alias calculation_step is simulation_time_step;
+
+    type real_array is array (integer range <>) of real;
+
+    procedure write_to (
+        file filee : text;
+        data_to_be_written : real_array);
 
     function real_voltage ( integer_voltage : integer)
         return real;
@@ -73,7 +83,7 @@ package body simulation_pkg is
     return integer
     is
     begin
-        return integer(1.0/capacitance_value*simulation_time_step*integrator_gain);
+        return integer(1.0/capacitance_value*calculation_step*integrator_gain);
     end capacitance_is;
     ----
     function inductance_is
@@ -106,5 +116,21 @@ package body simulation_pkg is
         return resistance_is(real(resistance));
     end resistance_is;
     ----
+
+    procedure write_to
+    (
+        file filee : text;
+        data_to_be_written : real_array
+        
+    ) is
+        variable row : line;
+    begin
+        
+        for i in data_to_be_written'range loop
+            write(row , data_to_be_written(i) , left , 30);
+        end loop;
+
+        writeline(filee , row);
+    end write_to;
 
 end package body simulation_pkg;

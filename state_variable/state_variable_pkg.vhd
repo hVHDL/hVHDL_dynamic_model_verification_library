@@ -14,7 +14,7 @@ package state_variable_pkg is
         state_counter : natural range 0 to 7;
     end record;
 
-    constant init_state_variable : state_variable_record := (false, 0, 0, 7);
+    function init_state_variable return state_variable_record;
 
 --------------------------------------------------
     procedure create_state_variable (
@@ -83,6 +83,16 @@ end package state_variable_pkg;
 ------------------------------------------------------------------------
 ------------------------------------------------------------------------
 package body state_variable_pkg is
+
+
+    constant initial_values_for_state_variable : state_variable_record := (false, 0, 0, 7);
+
+    function init_state_variable return state_variable_record
+    is
+    begin
+        return initial_values_for_state_variable;
+        
+    end init_state_variable;
 
 --------------------------------------------------
     function state_variable_calculation_is_ready

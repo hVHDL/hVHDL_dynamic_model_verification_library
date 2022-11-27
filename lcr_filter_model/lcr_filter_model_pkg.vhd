@@ -165,10 +165,11 @@ package body lcr_filter_model_pkg is
 ------------------------------------------------------------------------
     procedure create_test_lcr_filter
     (
-        signal hw_multiplier : inout multiplier_record;
+        signal hw_multiplier     : inout multiplier_record;
         signal lcr_filter_object : inout lcr_model_record;
         load_current             : in int;
-        u_in : in int
+        u_in                     : in int;
+        radix                    : integer
     ) is
         alias m is lcr_filter_object;
     begin
@@ -187,17 +188,17 @@ package body lcr_filter_model_pkg is
         CASE m.process_counter2 is
             WHEN 0 => 
                 if multiplier_is_ready(hw_multiplier) then
-                    m.current_state_equation <= m.current_state_equation - get_multiplier_result(hw_multiplier, 15);
+                    m.current_state_equation <= m.current_state_equation - get_multiplier_result(hw_multiplier, radix);
                     increment(m.process_counter2);
                 end if;
             WHEN 1 => 
                 if multiplier_is_ready(hw_multiplier) then
-                    m.current_state_equation <= m.current_state_equation - get_multiplier_result(hw_multiplier, 15);
+                    m.current_state_equation <= m.current_state_equation - get_multiplier_result(hw_multiplier, radix);
                     increment(m.process_counter2);
                 end if;
             WHEN 2 => 
                 if multiplier_is_ready(hw_multiplier) then
-                    m.current_state_equation <= m.current_state_equation + get_multiplier_result(hw_multiplier, 15);
+                    m.current_state_equation <= m.current_state_equation + get_multiplier_result(hw_multiplier, radix);
                     increment(m.process_counter2);
                 end if;
 
@@ -218,6 +219,17 @@ package body lcr_filter_model_pkg is
         end CASE;
 
     end create_test_lcr_filter;
+
+    procedure create_test_lcr_filter
+    (
+        signal hw_multiplier     : inout multiplier_record;
+        signal lcr_filter_object : inout lcr_model_record;
+        load_current             : in int;
+        u_in                     : in int
+    ) is
+    begin
+        create_test_lcr_filter(hw_multiplier, lcr_filter_object, load_current, u_in, 15);
+    end procedure create_test_lcr_filter;
 ------------------------------------------------------------------------
     procedure create_lcr_filter
     (

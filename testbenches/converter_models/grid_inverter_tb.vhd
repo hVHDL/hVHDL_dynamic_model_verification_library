@@ -29,7 +29,7 @@ architecture vunit_simulation of grid_inverter_tb is
     signal lcr_model  : lcr_model_record  := init_lcr_filter(inductance_is(470.0e-6), capacitance_is(20.0e-6), resistance_is(0.9));
 
     signal output_voltage   : real := 0.0;
-    signal input_voltage    : real := 325.0;
+    signal input_voltage    : real := 10.0;
     signal inductor_current : real := 0.0;
 
 begin
@@ -50,7 +50,6 @@ begin
     stimulus : process(simulator_clock)
 
         file file_handler : text open write_mode is "inverter_simulation_results.dat";
-        Variable row      : line;
 
     begin
         if rising_edge(simulator_clock) then
@@ -67,11 +66,9 @@ begin
                 request_lcr_filter_calculation(lcr_model);
 
                 simulation_time <= simulation_time + simulation_time_step;
-                write(row , simulation_time + simulation_time_step         , left , 30);
-                write(row , real_voltage(get_inductor_current(lcr_model))  , left , 30);
-                write(row , real_voltage(get_capacitor_voltage(lcr_model)) , left , 30);
-
-                writeline(file_handler , row);
+                write_to(file_handler,(0 => simulation_time+simulation_time_step,
+                                       1 => real_voltage(get_inductor_current(lcr_model)),
+                                       2 => real_voltage(get_capacitor_voltage(lcr_model))));
             end if;
 
             output_voltage   <= real_voltage(get_capacitor_voltage(lcr_model));

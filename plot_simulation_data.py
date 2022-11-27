@@ -13,7 +13,7 @@ SimCommander.setLTspiceRunCommand(SimCommander,"c:/Programs/LTC/LTspiceXVII/XVII
 # lcr.run()
 # lcr.wait_completion()
 
-d = LTSpiceRawRead(abs_path + "./simulation/converter_models/spice_reference_models/lcr_filter.raw")
+d = LTSpiceRawRead(abs_path + "./testbenches/converter_models/spice_reference_models/lcr_filter.raw")
 
 simulation_time   = []
 inductor_current  = []
@@ -30,14 +30,12 @@ with open('inverter_simulation_results.dat') as f:
 pyplot.subplot(2, 1, 1)
 pyplot.plot(simulation_time, inductor_current)
 pyplot.plot(d.get_trace("time"), d.get_trace("I(L1)"))
-pyplot.title('inductor current')
 pyplot.ylabel('current(A)')
 pyplot.legend(['current from VHDL', 'current from LTSpice'])
 
 pyplot.subplot(2, 1, 2)
 pyplot.plot(simulation_time, capacitor_voltage)
 pyplot.plot(d.get_trace("time"), d.get_trace("V(capacitor_voltage)"))
-pyplot.title('capacitor voltage')
 pyplot.legend(['voltage from VHDL', 'voltage from LTSpice'])
 
 pyplot.xlabel('time (s)')
