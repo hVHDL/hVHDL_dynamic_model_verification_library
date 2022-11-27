@@ -66,8 +66,4 @@ mathlib.add_source_files(            ROOT / "testbenches/field_oriented_motor_co
 mathlib.add_source_files(            ROOT / "testbenches/inverter_model_simulation/tb_inverter_model.vhd")
 mathlib.add_source_files(            ROOT / "testbenches/power_supply_model_simulation/tb_power_supply_model.vhd")
 
-
-mathlib.add_source_files(            ROOT / "testbenches/test_tb.vhd")
-
-
 VU.main()
