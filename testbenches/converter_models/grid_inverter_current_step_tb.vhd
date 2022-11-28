@@ -25,7 +25,7 @@ architecture vunit_simulation of grid_inverter_current_step_tb is
 
     -- these are to be fed from a package
 
-    constant stoptime             : real := 10.0e-3;
+    constant stoptime             : real := 2.0e-3;
 
     signal simulation_time : real := 0.0;
     ----

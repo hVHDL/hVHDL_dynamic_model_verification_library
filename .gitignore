@@ -9,3 +9,6 @@ vunit_out
 *.log
 *.net
 *.dat
+*.log
+__pycache__
+*.plt

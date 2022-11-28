@@ -43,6 +43,11 @@ end package simulation_pkg;
 
 package body simulation_pkg is
 
+    constant word_length               : integer := int_word_length-1;
+    constant voltage_transform_ratio   : real := (max_voltage/2.0**word_length);
+    constant real_to_int_voltage_ratio : real := (2.0**word_length/max_voltage);
+    constant integrator_gain           : real := 2.0**integrator_radix;
+
     ----
     function real_voltage
     (
@@ -122,10 +127,11 @@ package body simulation_pkg is
         
     ) is
         variable row : line;
+        constant number_of_characters_between_columns : integer := 30;
     begin
         
         for i in data_to_be_written'range loop
-            write(row , data_to_be_written(i) , left , 30);
+            write(row , data_to_be_written(i) , left , number_of_characters_between_columns);
         end loop;
 
         writeline(filee , row);
