@@ -4,7 +4,7 @@ library ieee;
     use std.textio.all;
     use ieee.numeric_std.all;
 
-    use work.multiplier_pkg.all;
+    use work.multiplier_pkg.int_word_length;
     use work.simulation_configuration_pkg.all;
 
 package simulation_pkg is
@@ -86,7 +86,7 @@ package body simulation_pkg is
     return integer
     is
     begin
-        return integer(1.0/capacitance_value*simulation_time_step*integrator_gain);
+        return integer(simulation_time_step*integrator_gain/capacitance_value);
     end capacitance_is;
     ----
     function inductance_is
