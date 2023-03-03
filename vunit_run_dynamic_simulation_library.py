@@ -56,6 +56,9 @@ math_library_26x26.add_source_files(ROOT / "lcr_filter_model/lcr_filter_model_pk
 math_library_26x26.add_source_files(ROOT / "simulator_engine/simulation_configuration_pkg.vhd")
 math_library_26x26.add_source_files(ROOT / "simulator_engine/simulation_pkg.vhd")
 
+math_library_26x26.add_source_files(ROOT / "testbenches/buck/buck_converter_tb.vhd")
+math_library_26x26.add_source_files(ROOT / "testbenches/buck/buck_with_input_and_output_filters_tb.vhd")
+
 # testbenches
 mathlib.add_source_files(            ROOT / "testbenches/state_variable_simulation/tb_state_variable.vhd")
 math_library_22x22.add_source_files( ROOT / "testbenches/converter_models/grid_inverter_tb.vhd")
