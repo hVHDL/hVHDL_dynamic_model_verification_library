@@ -40,6 +40,13 @@ architecture vunit_simulation of buck_with_input_and_output_filters_tb is
 
     signal current : real := 0.0;
     signal voltage : real := 0.0;
+
+    signal current_01 : real := 0.0;
+    signal voltage_01 : real := 0.0;
+
+    signal current_02 : real := 0.0;
+    signal voltage_02 : real := 0.0;
+
     signal counter : integer := 0;
     signal realtime : real := 0.0;
     signal duty : real := 0.5;
@@ -80,30 +87,33 @@ begin
             return return_value;
             
         end "=";
-
+------------------------------------------------------------------------
+        procedure create_lc_section
+        (
+            signal i, u        : inout real;
+            voltage_in, load_i : in real;
+            i_gain, u_gain     : in real
+        ) is
+        begin
+            CASE counter is
+                WHEN 0 => i <= i + i_gain*(voltage_in - u);
+                WHEN 1 => u <= u + u_gain*(i - load_i);
+                WHEN others => --do nothing
+            end CASE;
+            
+        end create_lc_section;
+------------------------------------------------------------------------
     begin
         if rising_edge(simulator_clock) then
             simulation_counter <= simulation_counter + 1;
 
             counter <= simulation_counter mod 2;
-            CASE counter is
-                WHEN 0 => current2 <= current2 + inductor2_gain*(-0.01*current2 + input_voltage - voltage2);
-                WHEN 1 => voltage2 <= voltage2 + capacitor2_gain*(current2 - current1);
-                WHEN others => --do nothing
-            end CASE;
 
-            CASE counter is
-                WHEN 0 => current1 <= current1 + inductor1_gain*(voltage2 - voltage1);
-                WHEN 1 => voltage1 <= voltage1 + capacitor1_gain*(current1 - current*duty);
-                WHEN others => --do nothing
-            end CASE;
-
-            CASE counter is
-                WHEN 0 => current <= current + inductor_gain*(-0.3*current + voltage1*duty - voltage);
-                WHEN 1 => voltage <= voltage + capacitor_gain*(current - load_current);
-                WHEN others => --do nothing
-            end CASE;
-
+            create_lc_section(current2   , voltage2   , input_voltage-0.01*current2 , current1     , timestep/10.0e-6   , timestep/10.0e-6  );
+            create_lc_section(current1   , voltage1   , voltage2                    , current*duty , timestep/100.0e-6  , timestep/100.0e-6 );
+            create_lc_section(current    , voltage    , voltage1*duty-0.3*current   , current_01   , timestep/1000.0e-6 , timestep/20.0e-6  );
+            create_lc_section(current_01 , voltage_01 , voltage                     , current_02   , timestep/10.0e-6   , timestep/2.2e-6   );
+            create_lc_section(current_02 , voltage_02 , voltage_01                  , load_current , timestep/10.0e-6   , timestep/20.0e-6  );
 
             if counter = 1 then
                 realtime <= realtime + timestep;
