@@ -1,5 +1,7 @@
 # VHDL library for synthesizable real-time simulation tools of dynamic systems.
-needs to be compiled to math_library and require math_library for multiplier and int18 types
+<p align="center">
+  <img width="550px" src="doc/buck_simulation_results.png"/></a>
+</p>
 
 Library is based on state-variable type that has integration method for simulating differential equations in real time on FPGA. Different applications include LCR filters and power electronics converters
 
@@ -12,3 +14,7 @@ https://hardwaredescriptions.com/real-time-dynamic-simulation-with-fpga-vol-1-th
 power supply simulation : 
 
 https://hardwaredescriptions.com/real-time-dynamic-simulation-with-fpga-vol-2-differential-equations-on-a-chip/
+
+permanent magnet motor modeling and control
+
+https://hardwaredescriptions.com/field-oriented-motor-control-with-vhdl/
