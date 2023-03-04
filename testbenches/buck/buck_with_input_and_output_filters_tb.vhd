@@ -1,7 +1,8 @@
-LIBRARY ieee  ; 
+LIBRARY ieee, std  ; 
     USE ieee.NUMERIC_STD.all  ; 
     USE ieee.std_logic_1164.all  ; 
     use ieee.math_real.all;
+    use std.textio.all;
 
 library vunit_lib;
 context vunit_lib.vunit_context;
@@ -53,6 +54,24 @@ architecture vunit_simulation of buck_with_input_and_output_filters_tb is
     signal input_voltage : real := 400.0;
     signal load_current : real := 0.0;
 
+    type real_array is array (integer range <>) of real;
+    procedure write_to
+    (
+        file filee : text;
+        data_to_be_written : real_array
+        
+    ) is
+        variable row : line;
+        constant number_of_characters_between_columns : integer := 30;
+    begin
+        
+        for i in data_to_be_written'range loop
+            write(row , data_to_be_written(i) , left , number_of_characters_between_columns);
+        end loop;
+
+        writeline(filee , row);
+    end write_to;
+
 begin
 
 ------------------------------------------------------------------------
@@ -103,6 +122,8 @@ begin
             
         end create_lc_section;
 ------------------------------------------------------------------------
+        file file_handler : text open write_mode is "buck_with_input_and_output_filters.dat";
+------------------------------------------------------------------------
     begin
         if rising_edge(simulator_clock) then
             simulation_counter <= simulation_counter + 1;
@@ -117,6 +138,19 @@ begin
 
             if counter = 1 then
                 realtime <= realtime + timestep;
+
+                write_to(file_handler,(0  => realtime,
+                                       1  => current2,
+                                       2  => voltage2,
+                                       3  => current1,
+                                       4  => voltage1,
+                                       5  => current,
+                                       6  => voltage,
+                                       7  => current_01,
+                                       8  => voltage_01,
+                                       9  => current_02,
+                                       10 => voltage_02
+                                   ));
             end if;
             
             if (realtime = 10.0e-3) then
