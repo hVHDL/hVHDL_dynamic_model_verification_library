@@ -1,6 +1,6 @@
 # VHDL library for synthesizable real-time simulation tools of dynamic systems.
 <p align="center">
-  <img width="550px" src="doc/buck_simulation_results.png"/></a>
+  <img width="550px" src="docs/buck_simulation_results.png"/></a>
 </p>
 
 Library is based on state-variable type that has integration method for simulating differential equations in real time on FPGA. Different applications include LCR filters and power electronics converters
