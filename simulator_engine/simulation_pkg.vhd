@@ -14,10 +14,6 @@ package simulation_pkg is
 
     type real_array is array (integer range <>) of real;
 
-    procedure write_to (
-        file filee : text;
-        data_to_be_written : real_array);
-
     function real_voltage ( integer_voltage : integer)
         return real;
 
@@ -118,22 +114,4 @@ package body simulation_pkg is
         return resistance_is(real(resistance));
     end resistance_is;
     ----
-
-    procedure write_to
-    (
-        file filee : text;
-        data_to_be_written : real_array
-        
-    ) is
-        variable row : line;
-        constant number_of_characters_between_columns : integer := 30;
-    begin
-        
-        for i in data_to_be_written'range loop
-            write(row , data_to_be_written(i) , left , number_of_characters_between_columns);
-        end loop;
-
-        writeline(filee , row);
-    end write_to;
-
 end package body simulation_pkg;

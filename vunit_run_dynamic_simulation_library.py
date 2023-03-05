@@ -39,6 +39,7 @@ simulation.add_source_files(ROOT / "hVHDL_math_library/multiplier/multiplier_bas
 simulation.add_source_files(ROOT / "hVHDL_math_library/multiplier/multiplier_pkg.vhd") 
 
 math_library_22x22 = VU.add_library("math_library_22x22")
+math_library_22x22.add_source_files( ROOT / "simulator_utilities/write_pkg.vhd")
 math_library_22x22.add_source_files(ROOT / "hVHDL_math_library/multiplier/multiplier_base_types_22bit_pkg.vhd")
 math_library_22x22.add_source_files(ROOT / "hVHDL_math_library/multiplier/multiplier_pkg.vhd")
 math_library_22x22.add_source_files(ROOT / "state_variable/state_variable_pkg.vhd")
@@ -48,6 +49,7 @@ math_library_22x22.add_source_files(ROOT / "simulator_engine/simulation_configur
 math_library_22x22.add_source_files(ROOT / "simulator_engine/simulation_pkg.vhd")
 
 math_library_26x26 = VU.add_library("math_library_26x26")
+math_library_26x26.add_source_files( ROOT / "simulator_utilities/write_pkg.vhd")
 math_library_26x26.add_source_files(ROOT / "hVHDL_math_library/multiplier/multiplier_base_types_26bit_pkg.vhd")
 math_library_26x26.add_source_files(ROOT / "hVHDL_math_library/multiplier/multiplier_pkg.vhd")
 math_library_26x26.add_source_files(ROOT / "state_variable/state_variable_pkg.vhd")
@@ -61,6 +63,7 @@ math_library_26x26.add_source_files(ROOT / "testbenches/buck/buck_with_input_and
 
 # testbenches
 mathlib.add_source_files(            ROOT / "testbenches/state_variable_simulation/tb_state_variable.vhd")
+
 math_library_22x22.add_source_files( ROOT / "testbenches/converter_models/grid_inverter_tb.vhd")
 math_library_26x26.add_source_files( ROOT / "testbenches/converter_models/grid_inverter_current_step_tb.vhd")
 mathlib.add_source_files(            ROOT / "testbenches/lcr_filter_simulation/tb_lcr_filter.vhd")

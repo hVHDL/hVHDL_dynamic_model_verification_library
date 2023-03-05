@@ -10,6 +10,7 @@ context vunit_lib.vunit_context;
     use work.multiplier_pkg.all;
     use work.lcr_filter_model_pkg.all;
     use work.simulation_pkg.all;
+    use work.write_pkg.all;
 
 entity grid_inverter_tb is
   generic (runner_cfg : string);
@@ -23,7 +24,7 @@ architecture vunit_simulation of grid_inverter_tb is
     -----------------------------------
     -- simulation specific signals ----
 
-    constant stoptime_in_seconds : real := 10.0e-3;
+    constant stoptime_in_seconds : real := 1.0e-3;
     signal simulation_time : real := 0.0;
 
     signal multiplier : multiplier_record := init_multiplier;

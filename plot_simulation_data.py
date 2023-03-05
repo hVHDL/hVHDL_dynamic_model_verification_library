@@ -13,7 +13,7 @@ SimCommander.setLTspiceRunCommand(SimCommander,"c:/Programs/LTC/LTspiceXVII/XVII
 # lcr.run()
 # lcr.wait_completion()
 
-d = LTSpiceRawRead(abs_path + "./testbenches/converter_models/spice_reference_models/lcr_filter.raw")
+d = LTSpiceRawRead(abs_path + "./ltspice_circuits/lcr_filter/lcr_filter.raw")
 
 simulation_time   = []
 inductor_current  = []

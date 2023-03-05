@@ -13,7 +13,7 @@ SimCommander.setLTspiceRunCommand(SimCommander,"c:/Programs/LTC/LTspiceXVII/XVII
 # lcr.run()
 # lcr.wait_completion()
 
-d = LTSpiceRawRead(abs_path + "./testbenches/converter_models/spice_reference_models/grid_inverter_transient.raw")
+d = LTSpiceRawRead(abs_path + "./ltspice_circuits/lcr_filter/grid_inverter_transient.raw")
 
 simulation_time   = []
 
@@ -40,35 +40,35 @@ with open('grid_inverter_inductor_step.dat') as f:
 
 pyplot.subplot(2, 3, 1)
 pyplot.plot(simulation_time, i3)
-pyplot.plot(d.get_trace("time").get_time_axis(), d.get_trace("I(L3)"))
+# pyplot.plot(d.get_trace("time").get_time_axis(), d.get_trace("I(L3)"))
 pyplot.ylabel('current(A)')
 pyplot.legend(['current from VHDL', 'current from LTSpice'])
 
 pyplot.subplot(2, 3, 4)
 pyplot.plot(simulation_time, c3)
-pyplot.plot(d.get_trace("time").get_time_axis(), d.get_trace("V(VC3)"))
+# pyplot.plot(d.get_trace("time").get_time_axis(), d.get_trace("V(VC3)"))
 pyplot.legend(['voltage from VHDL', 'voltage from LTSpice'])
 
 pyplot.subplot(2, 3, 2)
 pyplot.plot(simulation_time, i2)
-pyplot.plot(d.get_trace("time").get_time_axis(), d.get_trace("I(L2)"))
+# pyplot.plot(d.get_trace("time").get_time_axis(), d.get_trace("I(L2)"))
 pyplot.ylabel('current(A)')
 pyplot.legend(['current from VHDL', 'current from LTSpice'])
 
 pyplot.subplot(2, 3, 5)
 pyplot.plot(simulation_time, c2)
-pyplot.plot(d.get_trace("time").get_time_axis(), d.get_trace("V(VC2)"))
+# pyplot.plot(d.get_trace("time").get_time_axis(), d.get_trace("V(VC2)"))
 pyplot.legend(['voltage from VHDL', 'voltage from LTSpice'])
 
 pyplot.subplot(2, 3, 3)
 pyplot.plot(simulation_time, i1)
-pyplot.plot(d.get_trace("time").get_time_axis(), d.get_trace("I(L1)"))
+# pyplot.plot(d.get_trace("time").get_time_axis(), d.get_trace("I(L1)"))
 pyplot.ylabel('current(A)')
 pyplot.legend(['current from VHDL', 'current from LTSpice'])
 
 pyplot.subplot(2, 3, 6)
 pyplot.plot(simulation_time, c1)
-pyplot.plot(d.get_trace("time").get_time_axis(), d.get_trace("V(VC1)"))
+# pyplot.plot(d.get_trace("time").get_time_axis(), d.get_trace("V(VC1)"))
 pyplot.legend(['voltage from VHDL', 'voltage from LTSpice'])
 
 
