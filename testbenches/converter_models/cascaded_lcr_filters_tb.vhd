@@ -12,11 +12,11 @@ context vunit_lib.vunit_context;
     use work.write_pkg.all;
     use work.real_to_fixed_pkg.all;
 
-entity grid_inverter_current_step_tb is
+entity cascaded_lc_filters_tb is
   generic (runner_cfg : string);
 end;
 
-architecture vunit_simulation of grid_inverter_current_step_tb is
+architecture vunit_simulation of cascaded_lc_filters_tb is
 
     constant clock_period      : time    := 1 ns;
     signal simulator_clock     : std_logic := '0';
@@ -33,9 +33,10 @@ architecture vunit_simulation of grid_inverter_current_step_tb is
     constant C3_capacitance : real := 7.0e-6;
 
     constant simulation_time_step : real := 0.3e-6;
-    constant stoptime         : real := 2.0e-3;
-    signal simulation_time    : real := 0.0;
-    constant int_radix : integer := int_word_length-1;
+    constant stoptime             : real := 2.0e-3;
+    signal simulation_time        : real := 0.0;
+
+    constant int_radix            : integer := int_word_length-1;
     ----
 
     signal primary_lc : lcr_model_record := init_lcr_filter(L1_inductance , C1_capacitance , 200.0e-3 , simulation_time_step , int_radix);
@@ -64,7 +65,6 @@ begin
 
     stimulus : process(simulator_clock)
 
-        file file_handler : text open write_mode is "grid_inverter_inductor_step.dat";
         constant scale_value : real := 2.0**10;
 
         impure function to_real
@@ -77,6 +77,7 @@ begin
             return to_real(number , int_radix)*scale_value;
         end to_real;
 
+        file file_handler : text open write_mode is "grid_inverter_inductor_step.dat";
     begin
         if rising_edge(simulator_clock) then
             simulation_counter <= simulation_counter + 1;
@@ -104,8 +105,8 @@ begin
                                    ));
             end if;
 
-            -- inductor_current <= to_real(get_inductor_current(emi_lc_1));
-            -- output_voltage   <= to_real(get_capacitor_voltage(emi_lc_1));
+            inductor_current <= to_real(get_inductor_current(emi_lc_1));
+            output_voltage   <= to_real(get_capacitor_voltage(emi_lc_1));
 
         end if; -- rising_edge
     end process stimulus;	

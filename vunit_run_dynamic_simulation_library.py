@@ -57,9 +57,10 @@ math_library_26x26.add_source_files(ROOT / "hVHDL_math_library/multiplier/multip
 math_library_26x26.add_source_files(ROOT / "hVHDL_math_library/multiplier/multiplier_pkg.vhd")
 math_library_26x26.add_source_files(ROOT / "state_variable/state_variable_pkg.vhd")
 math_library_26x26.add_source_files(ROOT / "lcr_filter_model/lcr_filter_model_pkg.vhd")
-math_library_26x26.add_source_files(ROOT / "testbenches/buck/buck_converter_tb.vhd")
 #26x26 testbenches
 math_library_26x26.add_source_files(ROOT / "testbenches/buck/buck_with_input_and_output_filters_tb.vhd")
 math_library_26x26.add_source_files(ROOT / "testbenches/converter_models/cascaded_lcr_filters_tb.vhd")
+math_library_26x26.add_source_files(ROOT / "testbenches/buck/buck_converter_tb.vhd")
+math_library_26x26.add_source_files(ROOT / "testbenches/buck/filtered_buck_synthesizable_tb.vhd")
 
 VU.main()

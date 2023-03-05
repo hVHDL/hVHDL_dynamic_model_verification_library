@@ -12,11 +12,11 @@ context vunit_lib.vunit_context;
     use work.write_pkg.all;
     use work.real_to_fixed_pkg.all;
 
-entity grid_inverter_tb is
+entity lc_filter_tb is
   generic (runner_cfg : string);
 end;
 
-architecture vunit_simulation of grid_inverter_tb is
+architecture vunit_simulation of lc_filter_tb is
 
     constant clock_period      : time    := 1 ns;
     signal simulator_clock     : std_logic := '0';
