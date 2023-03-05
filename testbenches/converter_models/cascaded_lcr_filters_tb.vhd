@@ -72,9 +72,9 @@ begin
             create_multiplier(multiplier_2);
             create_multiplier(multiplier_3);
 
-            create_test_lcr_filter( multiplier_1 , primary_lc , get_inductor_current(emi_lc_0) , 0);
-            create_test_lcr_filter( multiplier_2 , emi_lc_0   , get_inductor_current(emi_lc_1) , get_capacitor_voltage(primary_lc));
-            create_test_lcr_filter( multiplier_3 , emi_lc_1   , 0                              , get_capacitor_voltage(emi_lc_0));
+            create_lcr_filter(primary_lc , multiplier_1 ,  get_inductor_current(emi_lc_0) , 0);
+            create_lcr_filter(emi_lc_0   , multiplier_2 ,  get_inductor_current(emi_lc_1) , get_capacitor_voltage(primary_lc));
+            create_lcr_filter(emi_lc_1   , multiplier_3 ,  0                              , get_capacitor_voltage(emi_lc_0));
 
             if lcr_filter_calculation_is_ready(primary_lc) or simulation_counter = 0 then
                 request_lcr_filter_calculation(primary_lc);

@@ -58,9 +58,9 @@ begin
             simulation_counter <= simulation_counter + 1;
 
             create_multiplier(multiplier);
-            create_test_lcr_filter(
-                hw_multiplier    => multiplier,
+            create_lcr_filter(
                 self             => lcr_model,
+                hw_multiplier    => multiplier,
                 load_current     => 0,
                 u_in             => int_voltage(input_voltage),
                 integrator_radix => work.simulation_configuration_pkg.integrator_radix);

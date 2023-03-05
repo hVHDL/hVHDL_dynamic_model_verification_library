@@ -82,8 +82,8 @@ begin
             create_multiplier(hw_multiplier3); 
             create_multiplier(hw_multiplier4); 
 
-            create_test_lcr_filter(hw_multiplier4 , lcr_filter4 , 0  , 1500);
-            create_test_lcr_filter(hw_multiplier4 , lcr_filter5 , -get_capacitor_voltage(lcr_filter5)  , get_capacitor_voltage(lcr_filter4));
+            create_lcr_filter(lcr_filter4 , hw_multiplier4 , 0  , 1500);
+            create_lcr_filter(lcr_filter5 , hw_multiplier4 , -get_capacitor_voltage(lcr_filter5)  , get_capacitor_voltage(lcr_filter4));
             -- create_test_lcr_filter(hw_multiplier4 , lcr_filter6 , get_capacitor_voltage(lcr_filter6)/2 , get_capacitor_voltage(lcr_filter5));
 
             create_lcr_filter(lcr_filter  , hw_multiplier  , input_voltage - lcr_filter.capacitor_voltage.state                        , lcr_filter.inductor_current.state - lcr_filter2.inductor_current.state);
