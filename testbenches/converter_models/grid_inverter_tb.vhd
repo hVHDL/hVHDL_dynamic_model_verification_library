@@ -24,7 +24,7 @@ architecture vunit_simulation of grid_inverter_tb is
     -----------------------------------
     -- simulation specific signals ----
 
-    constant stoptime_in_seconds : real := 1.0e-3;
+    constant stoptime_in_seconds : real := 3.0e-3;
     signal simulation_time : real := 0.0;
 
     signal multiplier : multiplier_record := init_multiplier;
@@ -59,10 +59,11 @@ begin
 
             create_multiplier(multiplier);
             create_test_lcr_filter(
-                hw_multiplier     => multiplier,
-                lcr_filter_object => lcr_model,
-                load_current      => 0,
-                u_in              => int_voltage(input_voltage));
+                hw_multiplier    => multiplier,
+                self             => lcr_model,
+                load_current     => 0,
+                u_in             => int_voltage(input_voltage),
+                integrator_radix => work.simulation_configuration_pkg.integrator_radix);
 
             if lcr_filter_calculation_is_ready(lcr_model) or simulation_counter = 0 then
                 request_lcr_filter_calculation(lcr_model);

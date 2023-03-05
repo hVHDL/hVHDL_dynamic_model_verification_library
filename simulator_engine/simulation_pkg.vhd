@@ -41,7 +41,7 @@ package body simulation_pkg is
     constant word_length               : integer := int_word_length-1;
     constant voltage_transform_ratio   : real := max_voltage/2.0**word_length;
     constant real_to_int_voltage_ratio : real := 2.0**word_length/max_voltage;
-    constant integrator_gain           : real := 2.0**integrator_radix;
+    constant integrator_gain           : real := 2.0**work.simulation_configuration_pkg.integrator_radix;
 
     ----
     function real_voltage

@@ -40,9 +40,16 @@ package lcr_filter_model_pkg is
 ------------------------------------------------------------------------
     procedure create_test_lcr_filter (
         signal hw_multiplier : inout multiplier_record;
-        signal lcr_filter_object : inout lcr_model_record;
+        signal self : inout lcr_model_record;
         load_current             : in int;
         u_in : in int);
+
+    procedure create_test_lcr_filter (
+        signal hw_multiplier : inout multiplier_record;
+        signal self          : inout lcr_model_record;
+        load_current         : in int;
+        u_in                 : in int;
+        integrator_radix     : integer);
 
 ------------------------------------------------------------------------
     function get_capacitor_voltage ( lcr_filter_object : lcr_model_record)
@@ -61,7 +68,7 @@ package lcr_filter_model_pkg is
 
 ------------------------------------------------------------------------
     procedure create_lcr_filter (
-        signal lcr_filter : inout lcr_model_record;
+        signal self : inout lcr_model_record;
         signal multiplier : inout multiplier_record;
         inductor_current_state_equation : in integer;
         capacitor_voltage_state_equation : in integer );
@@ -167,55 +174,54 @@ package body lcr_filter_model_pkg is
 ------------------------------------------------------------------------
     procedure create_test_lcr_filter
     (
-        signal hw_multiplier     : inout multiplier_record;
-        signal lcr_filter_object : inout lcr_model_record;
-        load_current             : in int;
-        u_in                     : in int;
-        radix                    : integer
+        signal hw_multiplier : inout multiplier_record;
+        signal self          : inout lcr_model_record;
+        load_current         : in int;
+        u_in                 : in int;
+        integrator_radix     : integer
     ) is
-        alias m is lcr_filter_object;
     begin
 
-        create_state_variable(m.inductor_current  , hw_multiplier , m.current_state_equation);
-        create_state_variable(m.capacitor_voltage , hw_multiplier , m.voltage_state_equation);
+        create_state_variable(self.inductor_current  , hw_multiplier, integrator_radix , self.current_state_equation);
+        create_state_variable(self.capacitor_voltage , hw_multiplier, integrator_radix , self.voltage_state_equation);
         
-        CASE m.process_counter is
-            WHEN 0 => multiply_and_increment_counter(hw_multiplier , m.process_counter , get_state(m.inductor_current) , m.inductor_series_resistance);
-                      m.current_state_equation <= u_in - m.capacitor_voltage;
-            WHEN 1 => multiply_and_increment_counter(hw_multiplier , m.process_counter , get_state(m.inductor_current) , m.capacitor_series_resistance) ;
-            WHEN 2 => multiply_and_increment_counter(hw_multiplier , m.process_counter , load_current                , m.capacitor_series_resistance) ;
+        CASE self.process_counter is
+            WHEN 0 => multiply_and_increment_counter(hw_multiplier , self.process_counter , get_state(self.inductor_current) , self.inductor_series_resistance);
+                      self.current_state_equation <= u_in - self.capacitor_voltage;
+            WHEN 1 => multiply_and_increment_counter(hw_multiplier , self.process_counter , get_state(self.inductor_current) , self.capacitor_series_resistance) ;
+            WHEN 2 => multiply_and_increment_counter(hw_multiplier , self.process_counter , load_current                , self.capacitor_series_resistance) ;
             WHEN others =>  -- do nothing
         end CASE;
 
-        CASE m.process_counter2 is
+        CASE self.process_counter2 is
             WHEN 0 => 
                 if multiplier_is_ready(hw_multiplier) then
-                    m.current_state_equation <= m.current_state_equation - get_multiplier_result(hw_multiplier, radix);
-                    increment(m.process_counter2);
+                    self.current_state_equation <= self.current_state_equation - get_multiplier_result(hw_multiplier, integrator_radix);
+                    increment(self.process_counter2);
                 end if;
             WHEN 1 => 
                 if multiplier_is_ready(hw_multiplier) then
-                    m.current_state_equation <= m.current_state_equation - get_multiplier_result(hw_multiplier, radix);
-                    increment(m.process_counter2);
+                    self.current_state_equation <= self.current_state_equation - get_multiplier_result(hw_multiplier, integrator_radix);
+                    increment(self.process_counter2);
                 end if;
             WHEN 2 => 
                 if multiplier_is_ready(hw_multiplier) then
-                    m.current_state_equation <= m.current_state_equation + get_multiplier_result(hw_multiplier, radix);
-                    increment(m.process_counter2);
+                    self.current_state_equation <= self.current_state_equation + get_multiplier_result(hw_multiplier, integrator_radix);
+                    increment(self.process_counter2);
                 end if;
 
             WHEN 3 => 
-                request_state_variable_calculation(m.inductor_current);
-                increment(m.process_counter2);
+                request_state_variable_calculation(self.inductor_current);
+                increment(self.process_counter2);
                       
             WHEN 4 => 
-                if state_variable_calculation_is_ready(m.inductor_current) then
-                    m.voltage_state_equation <= get_state(m.inductor_current) - load_current;
-                    increment(m.process_counter2);
+                if state_variable_calculation_is_ready(self.inductor_current) then
+                    self.voltage_state_equation <= get_state(self.inductor_current) - load_current;
+                    increment(self.process_counter2);
                 end if;
             WHEN 5 => 
-                    request_state_variable_calculation(m.capacitor_voltage);
-                    increment(m.process_counter2);
+                    request_state_variable_calculation(self.capacitor_voltage);
+                    increment(self.process_counter2);
 
             WHEN others =>  -- do nothing
         end CASE;
@@ -225,38 +231,37 @@ package body lcr_filter_model_pkg is
     procedure create_test_lcr_filter
     (
         signal hw_multiplier     : inout multiplier_record;
-        signal lcr_filter_object : inout lcr_model_record;
+        signal self : inout lcr_model_record;
         load_current             : in int;
         u_in                     : in int
     ) is
     begin
-        create_test_lcr_filter(hw_multiplier, lcr_filter_object, load_current, u_in, 15);
+        create_test_lcr_filter(hw_multiplier, self, load_current, u_in, 15);
     end procedure create_test_lcr_filter;
 ------------------------------------------------------------------------
     procedure create_lcr_filter
     (
-        signal lcr_filter : inout lcr_model_record;
+        signal self : inout lcr_model_record;
         signal multiplier : inout multiplier_record;
         inductor_current_state_equation : in integer;
         capacitor_voltage_state_equation : in integer
 
     ) is
         alias hw_multiplier is multiplier;
-        alias m is lcr_filter;
     --------------------------------------------------
     begin
-        CASE m.process_counter is 
+        CASE self.process_counter is 
             WHEN 0 => 
-                sequential_multiply(hw_multiplier, m.inductor_series_resistance, m.inductor_current.state);
-                increment_counter_when_ready(hw_multiplier, m.process_counter);
+                sequential_multiply(hw_multiplier, self.inductor_series_resistance, self.inductor_current.state);
+                increment_counter_when_ready(hw_multiplier, self.process_counter);
 
             WHEN 1 => 
-                integrate_state(m.inductor_current, hw_multiplier, 15, inductor_current_state_equation - m.inductor_current_delta);
-                increment_counter_when_ready(hw_multiplier, m.process_counter);
+                integrate_state(self.inductor_current, hw_multiplier, 15, inductor_current_state_equation - self.inductor_current_delta);
+                increment_counter_when_ready(hw_multiplier, self.process_counter);
 
             WHEN 2 =>
-                integrate_state(m.capacitor_voltage, hw_multiplier, 15, capacitor_voltage_state_equation);
-                increment_counter_when_ready(hw_multiplier, m.process_counter);
+                integrate_state(self.capacitor_voltage, hw_multiplier, 15, capacitor_voltage_state_equation);
+                increment_counter_when_ready(hw_multiplier, self.process_counter);
             WHEN others => -- do nothing
 
         end CASE; 

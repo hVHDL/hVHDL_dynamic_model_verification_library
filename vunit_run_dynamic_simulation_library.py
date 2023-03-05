@@ -64,7 +64,7 @@ math_library_26x26.add_source_files(ROOT / "testbenches/buck/buck_with_input_and
 # testbenches
 mathlib.add_source_files(            ROOT / "testbenches/state_variable_simulation/tb_state_variable.vhd")
 
-math_library_22x22.add_source_files( ROOT / "testbenches/converter_models/grid_inverter_tb.vhd")
+math_library_26x26.add_source_files( ROOT / "testbenches/converter_models/grid_inverter_tb.vhd")
 math_library_26x26.add_source_files( ROOT / "testbenches/converter_models/grid_inverter_current_step_tb.vhd")
 mathlib.add_source_files(            ROOT / "testbenches/lcr_filter_simulation/tb_lcr_filter.vhd")
 mathlib.add_source_files(            ROOT / "testbenches/simulate_permanent_magnet_synchronous_machine/tb_permanent_magnet_synchronous_machine_model.vhd")
