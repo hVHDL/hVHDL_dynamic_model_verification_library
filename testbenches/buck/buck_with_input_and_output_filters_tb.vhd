@@ -24,14 +24,6 @@ architecture vunit_simulation of buck_with_input_and_output_filters_tb is
     constant timestep : real := 1.0e-6; --seconds
     constant inductor : real := 1000.0e-6;
     constant capacitor : real := 42.2e-6;
-    constant inductor_gain : real := timestep/inductor;
-    constant capacitor_gain : real := timestep/capacitor;
-
-    constant inductor1_gain : real := timestep/100.0e-6;
-    constant capacitor1_gain : real := timestep/100.0e-6;
-
-    constant inductor2_gain : real := timestep/10.0e-6;
-    constant capacitor2_gain : real := timestep/10.0e-6;
 
     signal current1 : real := 0.0;
     signal voltage1 : real := 400.0;

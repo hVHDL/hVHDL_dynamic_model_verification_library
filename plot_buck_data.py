@@ -19,6 +19,9 @@ simulation_time   = []
 inductor_current  = []
 capacitor_voltage = []
 
+input_current  = []
+input_voltage = []
+
 with open('buck_with_input_and_output_filters.dat') as f:
     for line in f.readlines():
         line_with_ends_removed       = line.strip()
@@ -27,16 +30,28 @@ with open('buck_with_input_and_output_filters.dat') as f:
         simulation_time.append(float(line_with_separated_contents[0]))
         inductor_current.append(float(line_with_separated_contents[5]))
         capacitor_voltage.append(float(line_with_separated_contents[6]))
+        input_current.append(float(line_with_separated_contents[3]))
+        input_voltage.append(float(line_with_separated_contents[4]))
 
-pyplot.subplot(2, 1, 1)
+pyplot.subplot(2, 2, 1)
 pyplot.plot(simulation_time, inductor_current)
 pyplot.plot(d.get_trace("time").get_time_axis(), d.get_trace("I(L1)"))
 pyplot.ylabel('current(A)')
 pyplot.legend(['current from VHDL', 'current from LTSpice'])
 
-pyplot.subplot(2, 1, 2)
+pyplot.subplot(2, 2, 3)
 pyplot.plot(simulation_time, capacitor_voltage)
 pyplot.plot(d.get_trace("time").get_time_axis(), d.get_trace("V(output_voltage)"))
+pyplot.legend(['voltage from VHDL', 'voltage from LTSpice'])
+
+pyplot.subplot(2, 2, 2)
+pyplot.plot(simulation_time, input_current)
+pyplot.plot(d.get_trace("time").get_time_axis(), d.get_trace("I(L3)"))
+pyplot.legend(['voltage from VHDL', 'voltage from LTSpice'])
+
+pyplot.subplot(2, 2, 4)
+pyplot.plot(simulation_time, input_voltage)
+pyplot.plot(d.get_trace("time").get_time_axis(), d.get_trace("v(input_voltage)"))
 pyplot.legend(['voltage from VHDL', 'voltage from LTSpice'])
 
 pyplot.xlabel('time (s)')
