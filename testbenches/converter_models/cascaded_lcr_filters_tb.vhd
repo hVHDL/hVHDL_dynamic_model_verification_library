@@ -9,7 +9,6 @@ context vunit_lib.vunit_context;
 
     use work.multiplier_pkg.all;
     use work.lcr_filter_model_pkg.all;
-    use work.simulation_pkg.all;
     use work.write_pkg.all;
     use work.real_to_fixed_pkg.all;
 
