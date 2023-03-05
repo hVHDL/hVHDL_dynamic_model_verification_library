@@ -47,10 +47,13 @@ math_library_22x22.add_source_files(ROOT / "state_variable/state_variable_pkg.vh
 math_library_22x22.add_source_files(ROOT / "lcr_filter_model/lcr_filter_model_pkg.vhd")
 math_library_22x22.add_source_files(ROOT / "simulator_engine/simulation_configuration_pkg.vhd")
 math_library_22x22.add_source_files(ROOT / "simulator_engine/simulation_pkg.vhd")
+
+math_library_22x22.add_source_files(ROOT / "hVHDL_math_library/real_to_fixed/real_to_fixed_pkg.vhd")
 #22x22 testbenches
 math_library_22x22.add_source_files(ROOT / "testbenches/converter_models/lcr_filter_tb.vhd")
 
 math_library_26x26 = VU.add_library("math_library_26x26")
+math_library_26x26.add_source_files(ROOT / "hVHDL_math_library/real_to_fixed/real_to_fixed_pkg.vhd")
 math_library_26x26.add_source_files( ROOT / "simulator_utilities/write_pkg.vhd")
 math_library_26x26.add_source_files(ROOT / "hVHDL_math_library/multiplier/multiplier_base_types_26bit_pkg.vhd")
 math_library_26x26.add_source_files(ROOT / "hVHDL_math_library/multiplier/multiplier_pkg.vhd")

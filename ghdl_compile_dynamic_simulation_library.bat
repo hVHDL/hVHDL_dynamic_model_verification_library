@@ -7,6 +7,7 @@ SET source=%project_root%/
 rem call %source%/hVHDL_math_library/ghdl_compile_math_library.bat
 
 ghdl -a --ieee=synopsys --std=08 %source%/simulator_utilities/write_pkg.vhd
+ghdl -a --ieee=synopsys --std=08 %source%/hVHDL_math_library/real_to_fixed/real_to_fixed_pkg.vhd
 
 ghdl -a --ieee=synopsys --std=08 %source%/hVHDL_math_library/multiplier/multiplier_base_types_18bit_pkg.vhd
 ghdl -a --ieee=synopsys --std=08 %source%/hVHDL_math_library/multiplier/multiplier_pkg.vhd

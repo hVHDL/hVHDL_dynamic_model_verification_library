@@ -4,6 +4,7 @@ library ieee;
 
     use work.multiplier_pkg.all;
     use work.state_variable_pkg.all;
+    use work.real_to_fixed_pkg.all;
 
 package lcr_filter_model_pkg is
 
@@ -26,6 +27,11 @@ package lcr_filter_model_pkg is
 
     function init_lcr_filter return lcr_model_record;
 
+    function init_lcr_filter (
+        inductor, capacitor, resistor, time_step : real;
+        radix : integer)
+    return lcr_model_record;
+
     function init_lcr_filter ( 
         inductor_integrator_gain : integer; 
         capacitor_integrator_gain : integer)
@@ -36,6 +42,17 @@ package lcr_filter_model_pkg is
         capacitor_integrator_gain : integer;
         inductor_series_resistance : integer)
         return lcr_model_record;
+
+    function set_integrator_gain (
+        time_step : real;
+        integrator_radix : integer;
+        inductor_or_capacitor : real)
+    return integer;
+
+    function set_resistor_value (
+        resistor : real;
+        radix : integer)
+    return integer;
 
 ------------------------------------------------------------------------
     procedure create_lcr_filter (
@@ -102,6 +119,19 @@ package body lcr_filter_model_pkg is
 
         return defaut_values_for_lcr_filter;
         
+    end init_lcr_filter;
+    --
+    function init_lcr_filter
+    (
+        inductor, capacitor, resistor, time_step : real;
+        radix : integer
+    )
+    return lcr_model_record
+    is
+    begin
+        return init_lcr_filter(set_integrator_gain(time_step, radix, inductor),
+                               set_integrator_gain(time_step, radix, capacitor),
+                               to_fixed(resistor, radix));
     end init_lcr_filter;
 
     --
@@ -272,5 +302,28 @@ package body lcr_filter_model_pkg is
     begin
         return state_variable_calculation_is_ready(lcr_filter_object.capacitor_voltage);
     end lcr_filter_calculation_is_ready;
+------------------------------------------------------------------------
+    function set_integrator_gain
+    (
+        time_step : real;
+        integrator_radix : integer;
+        inductor_or_capacitor : real
+    )
+    return integer
+    is
+    begin
+        return integer(time_step/inductor_or_capacitor*2.0**integrator_radix);
+    end set_integrator_gain;
+------------------------------------------------------------------------
+    function set_resistor_value
+    (
+        resistor : real;
+        radix : integer
+    )
+    return integer
+    is
+    begin
+        return to_fixed(resistor, radix);
+    end set_resistor_value;
 ------------------------------------------------------------------------
 end package body lcr_filter_model_pkg; 
