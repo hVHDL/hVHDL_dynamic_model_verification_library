@@ -53,10 +53,10 @@ package body filtered_buck_model_pkg is
 
     constant filtered_buck_init_values : filtered_buck_record :=(
         init_lcr_filter(L2_inductance , C2_capacitance , 10.0e-3  , simulation_time_step , int_radix),
-        init_lcr_filter(L3_inductance , C3_capacitance , 0.0      , simulation_time_step , int_radix),
+        init_lcr_filter(L3_inductance , C3_capacitance , 0.01     , simulation_time_step , int_radix),
         init_lcr_filter(L1_inductance , C1_capacitance , 300.0e-3 , simulation_time_step , int_radix),
-        init_lcr_filter(L4_inductance , C4_capacitance , 0.0      , simulation_time_step , int_radix),
-        init_lcr_filter(L5_inductance , C5_capacitance , 0.0      , simulation_time_step , int_radix),
+        init_lcr_filter(L4_inductance , C4_capacitance , 0.01      , simulation_time_step , int_radix),
+        init_lcr_filter(L5_inductance , C5_capacitance , 0.01      , simulation_time_step , int_radix),
         init_multiplier,
         init_multiplier,
         init_multiplier,
