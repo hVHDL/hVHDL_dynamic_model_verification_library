@@ -26,6 +26,8 @@ ghdl -a --ieee=synopsys --std=08 %source%/hVHDL_math_library/coordinate_transfor
 
 ghdl -a --ieee=synopsys --std=08 %source%/state_variable/state_variable_pkg.vhd
 ghdl -a --ieee=synopsys --std=08 %source%/lcr_filter_model/lcr_filter_model_pkg.vhd
+ghdl -a --ieee=synopsys --std=08 %source%/buck_simulation_model/filtered_buck_model_pkg.vhd
+
 ghdl -a --ieee=synopsys --std=08 %source%/inverter_model/inverter_model_pkg.vhd
 ghdl -a --ieee=synopsys --std=08 %source%/power_supply_model/psu_inverter_simulation_models_pkg.vhd
 ghdl -a --ieee=synopsys --std=08 %source%/power_supply_model/power_supply_simulation_model_pkg.vhd
@@ -34,6 +36,3 @@ ghdl -a --ieee=synopsys --std=08 %source%/ac_motor_models/pmsm_electrical_model_
 ghdl -a --ieee=synopsys --std=08 %source%/ac_motor_models/pmsm_mechanical_model_pkg.vhd
 ghdl -a --ieee=synopsys --std=08 %source%/ac_motor_models/permanent_magnet_motor_model_pkg.vhd
 ghdl -a --ieee=synopsys --std=08 %source%/ac_motor_models/field_oriented_motor_control/field_oriented_motor_control_pkg.vhd
-
-ghdl -a --ieee=synopsys --std=08 %source%/simulator_engine/simulation_configuration_pkg.vhd
-ghdl -a --ieee=synopsys --std=08 %source%/simulator_engine/simulation_pkg.vhd
