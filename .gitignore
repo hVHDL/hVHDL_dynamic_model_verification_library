@@ -12,3 +12,5 @@ vunit_out
 *.log
 __pycache__
 *.plt
+
+*.o

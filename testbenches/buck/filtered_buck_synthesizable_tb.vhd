@@ -106,7 +106,7 @@ begin
         if rising_edge(simulator_clock) then
             simulation_counter <= simulation_counter + 1;
 
-            create_filtered_buck(filtered_buck, input_voltage, load_current);
+            create_filtered_buck(filtered_buck, to_fixed(0.5, 15), input_voltage, load_current);
 
             if simulation_counter = 0 then
                 filtered_buck.input_lc1.capacitor_voltage.state <= to_fixed(400.0);
