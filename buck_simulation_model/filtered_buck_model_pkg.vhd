@@ -37,6 +37,9 @@ package filtered_buck_model_pkg is
     procedure request_filtered_buck_calculation (
         signal filtered_buck : out filtered_buck_record);
 
+    function get_dc_link_current ( filtered_buck : filtered_buck_record)
+        return int;
+
 end package filtered_buck_model_pkg;
 
 
@@ -134,5 +137,15 @@ package body filtered_buck_model_pkg is
         filtered_buck.result_counter <= 0;
         
     end request_filtered_buck_calculation;
+
+    function get_dc_link_current
+    (
+        filtered_buck : filtered_buck_record
+    )
+    return int
+    is
+    begin
+        return filtered_buck.dc_link_current;
+    end get_dc_link_current;
 
 end package body filtered_buck_model_pkg;
