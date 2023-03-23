@@ -57,6 +57,7 @@ math_library_26x26.add_source_files(ROOT / "hVHDL_math_library/multiplier/multip
 math_library_26x26.add_source_files(ROOT / "hVHDL_math_library/multiplier/multiplier_pkg.vhd")
 math_library_26x26.add_source_files(ROOT / "state_variable/state_variable_pkg.vhd")
 math_library_26x26.add_source_files(ROOT / "lcr_filter_model/lcr_filter_model_pkg.vhd")
+math_library_26x26.add_source_files(ROOT / "half_bridge_model/half_bridge_pkg.vhd")
 math_library_26x26.add_source_files(ROOT / "buck_simulation_model/filtered_buck_model_pkg.vhd")
 
 #26x26 testbenches

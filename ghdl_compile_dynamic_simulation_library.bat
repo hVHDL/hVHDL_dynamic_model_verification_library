@@ -24,9 +24,12 @@ ghdl -a --ieee=synopsys --std=08 %source%/hVHDL_math_library/coordinate_transfor
 ghdl -a --ieee=synopsys --std=08 %source%/hVHDL_math_library/coordinate_transforms/ab_to_dq_transform/dq_to_ab_transform_pkg.vhd
 ghdl -a --ieee=synopsys --std=08 %source%/hVHDL_math_library/coordinate_transforms/ab_to_dq_transform/ab_to_dq_transform_pkg.vhd
 
+ghdl -a --ieee=synopsys --std=08 %source%/half_bridge_model/half_bridge_pkg.vhd
+
 ghdl -a --ieee=synopsys --std=08 %source%/state_variable/state_variable_pkg.vhd
 ghdl -a --ieee=synopsys --std=08 %source%/lcr_filter_model/lcr_filter_model_pkg.vhd
 ghdl -a --ieee=synopsys --std=08 %source%/buck_simulation_model/filtered_buck_model_pkg.vhd
+
 
 ghdl -a --ieee=synopsys --std=08 %source%/inverter_model/inverter_model_pkg.vhd
 ghdl -a --ieee=synopsys --std=08 %source%/power_supply_model/psu_inverter_simulation_models_pkg.vhd
