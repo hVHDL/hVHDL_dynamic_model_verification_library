@@ -15,12 +15,12 @@ package lcr_filter_model_pkg is
         process_counter   : natural range 0 to 7;
         process_counter2  : natural range 0 to 7;
 
-        current_state_equation : int;
-        voltage_state_equation : int;
+        current_state_equation : s_int;
+        voltage_state_equation : s_int;
 
-        inductor_current_delta      : int;
-        inductor_series_resistance  : int;
-        capacitor_series_resistance : int;
+        inductor_current_delta      : s_int;
+        inductor_series_resistance  : s_int;
+        capacitor_series_resistance : s_int;
 
         lcr_filter_is_ready : boolean;
     end record;
@@ -33,26 +33,26 @@ package lcr_filter_model_pkg is
     return lcr_model_record;
 
     function init_lcr_filter ( 
-        inductor_integrator_gain : integer; 
-        capacitor_integrator_gain : integer)
+        inductor_integrator_gain : signed; 
+        capacitor_integrator_gain : signed)
         return lcr_model_record;
 
     function init_lcr_filter (
-        inductor_integrator_gain : integer;
-        capacitor_integrator_gain : integer;
-        inductor_series_resistance : integer)
+        inductor_integrator_gain : signed;
+        capacitor_integrator_gain : signed;
+        inductor_series_resistance : signed)
         return lcr_model_record;
 
     function set_integrator_gain (
         time_step : real;
         integrator_radix : integer;
         inductor_or_capacitor : real)
-    return integer;
+    return signed;
 
     function set_resistor_value (
         resistor : real;
         radix : integer)
-    return integer;
+    return signed;
 
 ------------------------------------------------------------------------
     procedure create_lcr_filter (
@@ -70,11 +70,11 @@ package lcr_filter_model_pkg is
 
 ------------------------------------------------------------------------
     function get_capacitor_voltage ( lcr_filter_object : lcr_model_record)
-        return integer;
+        return signed;
 
 ------------------------------------------------------------------------
     function get_inductor_current ( lcr_filter_object : lcr_model_record)
-        return integer;
+        return signed;
 ------------------------------------------------------------------------
     procedure request_lcr_filter_calculation (
         signal lcr_filter_object : out lcr_model_record);
@@ -89,8 +89,8 @@ package lcr_filter_model_pkg is
 
 ------------------------------------------------------------------------
     function init_lcr_model_integrator_gains (
-        inductor_integrator_gain : integer;
-        capacitor_integrator_gain : integer)
+        inductor_integrator_gain  : signed;
+        capacitor_integrator_gain : signed)
         return lcr_model_record;
 
 ------------------------------------------------------------------------
@@ -105,11 +105,11 @@ package body lcr_filter_model_pkg is
             capacitor_voltage           => init_state_variable ,
             process_counter             => 7                   ,
             process_counter2            => 7                   ,
-            current_state_equation      => 0                   ,
-            voltage_state_equation      => 0                   ,
-            inductor_current_delta      => 0                   ,
-            inductor_series_resistance  => 625                 ,
-            capacitor_series_resistance => 0                ,
+            current_state_equation      => (others => '0')     ,
+            voltage_state_equation      => (others => '0')     ,
+            inductor_current_delta      => (others => '0')     ,
+            inductor_series_resistance  => to_signed(625       , int_word_length) ,
+            capacitor_series_resistance => (others => '0')     ,
             lcr_filter_is_ready         => false);
 
     --
@@ -131,14 +131,14 @@ package body lcr_filter_model_pkg is
     begin
         return init_lcr_filter(set_integrator_gain(time_step, radix, inductor),
                                set_integrator_gain(time_step, radix, capacitor),
-                               to_fixed(resistor, radix));
+                               to_fixed(resistor, radix, int_word_length));
     end init_lcr_filter;
 
     --
     function init_lcr_filter
     (
-        inductor_integrator_gain : integer;
-        capacitor_integrator_gain : integer
+        inductor_integrator_gain : signed;
+        capacitor_integrator_gain : signed
     )
     return lcr_model_record
     is
@@ -154,9 +154,9 @@ package body lcr_filter_model_pkg is
 
     function init_lcr_filter
     (
-        inductor_integrator_gain : integer;
-        capacitor_integrator_gain : integer;
-        inductor_series_resistance : integer
+        inductor_integrator_gain : signed;
+        capacitor_integrator_gain : signed;
+        inductor_series_resistance : signed
     )
     return lcr_model_record
     is
@@ -172,8 +172,8 @@ package body lcr_filter_model_pkg is
     --
     function init_lcr_model_integrator_gains
     (
-        inductor_integrator_gain : integer;
-        capacitor_integrator_gain : integer
+        inductor_integrator_gain : signed;
+        capacitor_integrator_gain : signed
     )
     return lcr_model_record
     is
@@ -195,6 +195,7 @@ package body lcr_filter_model_pkg is
         u_in                 : in int;
         integrator_radix     : integer
     ) is
+        variable mpy_result : s_int;
     begin
 
         create_state_variable(self.inductor_current  , hw_multiplier, integrator_radix , self.current_state_equation);
@@ -202,26 +203,29 @@ package body lcr_filter_model_pkg is
         
         CASE self.process_counter is
             WHEN 0 => multiply_and_increment_counter(hw_multiplier , self.process_counter , get_state(self.inductor_current) , self.inductor_series_resistance);
-                      self.current_state_equation <= u_in - self.capacitor_voltage;
+                      self.current_state_equation <= to_signed(u_in, int_word_length) - self.capacitor_voltage;
             WHEN 1 => multiply_and_increment_counter(hw_multiplier , self.process_counter , get_state(self.inductor_current) , self.capacitor_series_resistance) ;
-            WHEN 2 => multiply_and_increment_counter(hw_multiplier , self.process_counter , load_current                , self.capacitor_series_resistance) ;
+            WHEN 2 => multiply_and_increment_counter(hw_multiplier , self.process_counter , to_signed(load_current, int_word_length)                , self.capacitor_series_resistance) ;
             WHEN others =>  -- do nothing
         end CASE;
 
         CASE self.process_counter2 is
             WHEN 0 => 
                 if multiplier_is_ready(hw_multiplier) then
-                    self.current_state_equation <= self.current_state_equation - get_multiplier_result(hw_multiplier, integrator_radix);
+                    mpy_result := get_multiplier_result(hw_multiplier, integrator_radix);
+                    self.current_state_equation <= self.current_state_equation - mpy_result;
                     increment(self.process_counter2);
                 end if;
             WHEN 1 => 
                 if multiplier_is_ready(hw_multiplier) then
-                    self.current_state_equation <= self.current_state_equation - get_multiplier_result(hw_multiplier, integrator_radix);
+                    mpy_result := get_multiplier_result(hw_multiplier, integrator_radix);
+                    self.current_state_equation <= self.current_state_equation - mpy_result;
                     increment(self.process_counter2);
                 end if;
             WHEN 2 => 
                 if multiplier_is_ready(hw_multiplier) then
-                    self.current_state_equation <= self.current_state_equation + get_multiplier_result(hw_multiplier, integrator_radix);
+                    mpy_result := get_multiplier_result(hw_multiplier, integrator_radix);
+                    self.current_state_equation <= self.current_state_equation + mpy_result;
                     increment(self.process_counter2);
                 end if;
 
@@ -276,7 +280,7 @@ package body lcr_filter_model_pkg is
     (
         lcr_filter_object : lcr_model_record
     )
-    return integer
+    return signed
     is
     begin
         return get_state(lcr_filter_object.capacitor_voltage);
@@ -287,7 +291,7 @@ package body lcr_filter_model_pkg is
     (
         lcr_filter_object : lcr_model_record
     )
-    return integer
+    return signed
     is
     begin
         return get_state(lcr_filter_object.inductor_current);
@@ -309,10 +313,10 @@ package body lcr_filter_model_pkg is
         integrator_radix : integer;
         inductor_or_capacitor : real
     )
-    return integer
+    return signed
     is
     begin
-        return integer(time_step/inductor_or_capacitor*2.0**integrator_radix);
+        return to_fixed(time_step/inductor_or_capacitor,int_word_length, integrator_radix);
     end set_integrator_gain;
 ------------------------------------------------------------------------
     function set_resistor_value
@@ -320,10 +324,10 @@ package body lcr_filter_model_pkg is
         resistor : real;
         radix : integer
     )
-    return integer
+    return signed
     is
     begin
-        return to_fixed(resistor, radix);
+        return to_fixed(resistor, radix, int_word_length);
     end set_resistor_value;
 ------------------------------------------------------------------------
 end package body lcr_filter_model_pkg; 

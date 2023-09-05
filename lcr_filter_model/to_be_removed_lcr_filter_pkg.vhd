@@ -14,12 +14,12 @@ package lcr_filter_model_pkg is
         process_counter   : natural range 0 to 7;
         process_counter2  : natural range 0 to 7;
 
-        current_state_equation : int;
-        voltage_state_equation : int;
+        current_state_equation : s_int;
+        voltage_state_equation : s_int;
 
-        inductor_current_delta      : int;
-        inductor_series_resistance  : int;
-        capacitor_series_resistance : int;
+        inductor_current_delta      : s_int;
+        inductor_series_resistance  : s_int;
+        capacitor_series_resistance : s_int;
 
         lcr_filter_is_ready : boolean;
     end record;

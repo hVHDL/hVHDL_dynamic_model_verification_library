@@ -1,32 +1,13 @@
 echo off
-FOR /F "tokens=* USEBACKQ" %%F IN (`git rev-parse --show-toplevel`) DO (
-SET project_root=%%F
-)
-SET source=%project_root%/
+SET source=%1
 
-rem call %source%/hVHDL_math_library/ghdl_compile_math_library.bat
+call %source%/hVHDL_math_library/ghdl_compile_math_library.bat %source%/hVHDL_math_library
 
 ghdl -a --ieee=synopsys --std=08 %source%/simulator_utilities/write_pkg.vhd
-ghdl -a --ieee=synopsys --std=08 %source%/hVHDL_math_library/real_to_fixed/real_to_fixed_pkg.vhd
-
-ghdl -a --ieee=synopsys --std=08 %source%/hVHDL_math_library/multiplier/multiplier_base_types_18bit_pkg.vhd
-ghdl -a --ieee=synopsys --std=08 %source%/hVHDL_math_library/multiplier/multiplier_pkg.vhd
-ghdl -a --ieee=synopsys --std=08 %source%/hVHDL_math_library/sincos/sincos_pkg.vhd
-
-
-ghdl -a --ieee=synopsys --std=08 %source%/hVHDL_math_library/division/division_internal_pkg.vhd
-ghdl -a --ieee=synopsys --std=08 %source%/hVHDL_math_library/division/division_pkg.vhd
-ghdl -a --ieee=synopsys --std=08 %source%/hVHDL_math_library/first_order_filter/first_order_filter_pkg.vhd
-ghdl -a --ieee=synopsys --std=08 %source%/hVHDL_math_library/pi_controller/pi_controller_pkg.vhd
-
-ghdl -a --ieee=synopsys --std=08 %source%/hVHDL_math_library/coordinate_transforms/abc_to_ab_transform/abc_to_ab_transform_pkg.vhd
-ghdl -a --ieee=synopsys --std=08 %source%/hVHDL_math_library/coordinate_transforms/abc_to_ab_transform/ab_to_abc_transform_pkg.vhd
-ghdl -a --ieee=synopsys --std=08 %source%/hVHDL_math_library/coordinate_transforms/ab_to_dq_transform/dq_to_ab_transform_pkg.vhd
-ghdl -a --ieee=synopsys --std=08 %source%/hVHDL_math_library/coordinate_transforms/ab_to_dq_transform/ab_to_dq_transform_pkg.vhd
-
-ghdl -a --ieee=synopsys --std=08 %source%/half_bridge_model/half_bridge_pkg.vhd
 
 ghdl -a --ieee=synopsys --std=08 %source%/state_variable/state_variable_pkg.vhd
+ghdl -a --ieee=synopsys --std=08 %source%/half_bridge_model/half_bridge_pkg.vhd
+
 ghdl -a --ieee=synopsys --std=08 %source%/lcr_filter_model/lcr_filter_model_pkg.vhd
 ghdl -a --ieee=synopsys --std=08 %source%/buck_simulation_model/filtered_buck_model_pkg.vhd
 
