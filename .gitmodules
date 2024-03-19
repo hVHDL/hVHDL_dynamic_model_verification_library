@@ -1,3 +1,6 @@
 [submodule "hVHDL_math_library"]
 	path = hVHDL_math_library
 	url = https://github.com/hVHDL/hVHDL_math_library.git
+[submodule "source/hVHDL_microprogam_processor"]
+	path = source/hVHDL_microprogam_processor
+	url = https://github.com/hVHDL/hVHDL_microprogam_processor.git

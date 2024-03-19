@@ -9,6 +9,7 @@ VU = VUnit.from_argv()
 
 #this is obsolete and will be rewritten
 power_supply_lib = VU.add_library("power_supply_lib")
+power_supply_lib.add_source_files(ROOT / "hVHDL_math_library/multiplier/configuration/multiply_with_1_input_and_output_registers_pkg.vhd")
 power_supply_lib.add_source_files(ROOT / "hVHDL_math_library/multiplier/multiplier_base_types_22bit_pkg.vhd") 
 power_supply_lib.add_source_files(ROOT / "hVHDL_math_library/multiplier/multiplier_pkg.vhd") 
 power_supply_lib.add_source_files(ROOT / "state_variable/state_variable_pkg.vhd")
@@ -22,6 +23,7 @@ power_supply_lib.add_source_files(ROOT / "testbenches/inverter_model_simulation/
 power_supply_lib.add_source_files(ROOT / "testbenches/power_supply_model_simulation/tb_power_supply_model.vhd")
 
 motor_control_library = VU.add_library("motor_control_library")
+motor_control_library.add_source_files(ROOT / "hVHDL_math_library/multiplier/configuration/multiply_with_1_input_and_output_registers_pkg.vhd")
 motor_control_library.add_source_files(ROOT / "hVHDL_math_library/multiplier/multiplier_base_types_22bit_pkg.vhd") 
 motor_control_library.add_source_files(ROOT / "hVHDL_math_library/multiplier/multiplier_pkg.vhd") 
 motor_control_library.add_source_files(ROOT / "hVHDL_math_library/sincos/sincos_pkg.vhd") 
@@ -40,6 +42,7 @@ motor_control_library.add_source_files(ROOT / "testbenches/simulate_permanent_ma
 motor_control_library.add_source_files(ROOT / "testbenches/field_oriented_motor_control_simulation/tb_field_oriented_motor_control.vhd")
 
 math_library_22x22 = VU.add_library("math_library_22x22")
+math_library_22x22.add_source_files(ROOT / "hVHDL_math_library/multiplier/configuration/multiply_with_1_input_and_output_registers_pkg.vhd")
 math_library_22x22.add_source_files(ROOT / "simulator_utilities/write_pkg.vhd")
 math_library_22x22.add_source_files(ROOT / "hVHDL_math_library/multiplier/multiplier_base_types_22bit_pkg.vhd")
 math_library_22x22.add_source_files(ROOT / "hVHDL_math_library/multiplier/multiplier_pkg.vhd")
@@ -51,6 +54,7 @@ math_library_22x22.add_source_files(ROOT / "hVHDL_math_library/real_to_fixed/rea
 math_library_22x22.add_source_files(ROOT / "testbenches/converter_models/lcr_filter_tb.vhd")
 
 math_library_26x26 = VU.add_library("math_library_26x26")
+math_library_26x26.add_source_files(ROOT / "hVHDL_math_library/multiplier/configuration/multiply_with_1_input_and_output_registers_pkg.vhd")
 math_library_26x26.add_source_files(ROOT / "hVHDL_math_library/real_to_fixed/real_to_fixed_pkg.vhd")
 math_library_26x26.add_source_files( ROOT / "simulator_utilities/write_pkg.vhd")
 math_library_26x26.add_source_files(ROOT / "hVHDL_math_library/multiplier/multiplier_base_types_26bit_pkg.vhd")
