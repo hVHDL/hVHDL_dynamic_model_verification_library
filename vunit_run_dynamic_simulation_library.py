@@ -71,6 +71,8 @@ math_library_26x26.add_source_files(ROOT / "testbenches/converter_models/cascade
 math_library_26x26.add_source_files(ROOT / "testbenches/buck/buck_converter_tb.vhd")
 math_library_26x26.add_source_files(ROOT / "testbenches/buck/filtered_buck_synthesizable_tb.vhd")
 
+#floating point testbenches
+
 mcu = VU.add_library("mcu")
 mcu.add_source_files(ROOT / "source/hVHDL_microprogram_processor/source/hVHDL_floating_point/float_type_definitions/float_word_length_24_bit_pkg.vhd")
 mcu.add_source_files(ROOT / "source/hVHDL_microprogram_processor/source/hVHDL_floating_point/float_type_definitions/float_type_definitions_pkg.vhd")
