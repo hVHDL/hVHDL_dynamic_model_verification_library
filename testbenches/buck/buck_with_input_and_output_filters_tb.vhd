@@ -7,6 +7,8 @@ LIBRARY ieee, std  ;
 library vunit_lib;
 context vunit_lib.vunit_context;
 
+    use work.write_pkg.all;
+
 entity buck_with_input_and_output_filters_tb is
   generic (runner_cfg : string);
 end;
@@ -22,6 +24,8 @@ architecture vunit_simulation of buck_with_input_and_output_filters_tb is
     -- simulation specific signals ----
 
     constant timestep : real := 1.0e-6; --seconds
+    signal realtime   : real := 0.0;
+
     constant inductor : real := 1000.0e-6;
     constant capacitor : real := 42.2e-6;
 
@@ -41,28 +45,11 @@ architecture vunit_simulation of buck_with_input_and_output_filters_tb is
     signal voltage_02 : real := 0.0;
 
     signal counter : integer := 0;
-    signal realtime : real := 0.0;
     signal duty : real := 0.5;
     signal input_voltage : real := 400.0;
     signal load_current : real := 0.0;
 
-    type real_array is array (integer range <>) of real;
-    procedure write_to
-    (
-        file filee : text;
-        data_to_be_written : real_array
-        
-    ) is
-        variable row : line;
-        constant number_of_characters_between_columns : integer := 30;
-    begin
-        
-        for i in data_to_be_written'range loop
-            write(row , data_to_be_written(i) , left , number_of_characters_between_columns);
-        end loop;
-
-        writeline(filee , row);
-    end write_to;
+    alias real_array is real_number_array;
 
 begin
 
