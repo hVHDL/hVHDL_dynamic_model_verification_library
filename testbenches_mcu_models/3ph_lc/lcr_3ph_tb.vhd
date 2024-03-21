@@ -59,9 +59,10 @@ architecture vunit_simulation of lcr_3ph_tb is
     signal u3 : real := 0.0;
 
     signal simtime : real := 0.0;
-    constant timestep : real := 10.0e-6;
+    constant timestep : real := 20.0e-6;
+    constant korjauskerroin : real := 0.985;
 
-    signal r : real := 0.55;
+    signal r : real := 0.1;
     signal l : real := timestep/100.0e-6;
     signal c : real := timestep/100.0e-6;
     signal sequencer : natural := 1;
@@ -194,7 +195,7 @@ begin
 
             if simulation_counter = 0 then
                 -- init_simfile(file_handler, ("time", "vol1", "vol2", "vol3", "cur1", "cur2", "cur3"));
-                init_simfile(file_handler, ("time", "vol1", "vol2", "vol3"));
+                init_simfile(file_handler, ("time", "vol1", "vol2", "vol3", "vol4", "vol5", "vol6"));
             end if;
 
             i1k := (others => 0.0);
@@ -257,21 +258,19 @@ begin
                     uc2 <= uc2      + 1.0/6.0*(uc2k(0)*2.0 + 4.0*uc2k(1) + 2.0*uc2k(2) + uc2k(3));
                     uc3 <= -uc1-uc2 + 1.0/6.0*(uc3k(0)*2.0 + 4.0*uc3k(1) + 2.0*uc3k(2) + uc3k(3));
 
+                    uc1_ref <= ((+i1_ref-i2_ref-i3_ref ) )/2.0 * c*korjauskerroin + uc1_ref;
+                    uc2_ref <= ((-i1_ref+i2_ref-i3_ref ) )/2.0 * c*korjauskerroin + uc2_ref;
+                    uc3_ref <= ((-i1_ref-i2_ref+i3_ref ) )/2.0 * c*korjauskerroin  -uc1_ref - uc2_ref;
 
-                    i1_ref <= ((+u1-u2-u3) - (+i1_ref-i2_ref-i3_ref) * r - (+uc1_ref-uc2_ref-uc3_ref))/2.0 * l + i1_ref;
-                    i2_ref <= ((-u1+u2-u3) - (-i1_ref+i2_ref-i3_ref) * r - (-uc1_ref+uc2_ref-uc3_ref))/2.0 * l + i2_ref;
-                    i3_ref <= ((-u1-u2+u3) - (-i1_ref-i2_ref+i3_ref) * r - (-uc1_ref-uc2_ref+uc3_ref))/2.0 * l - i1_ref - i2_ref;
                     -- uc1   <= ((+i1-i2-i3 ) ) * c/2.0 + uc1;
                     -- uc2   <= ((-i1+i2-i3 ) ) * c/2.0 + uc2;
                     -- uc3   <= ((-i1-i2+i3 ) ) * c/2.0 + uc3;
 
                 WHEN 0 => 
                     
-
-                    uc1_ref <= ((+i1_ref-i2_ref-i3_ref ) )/2.0 * c + uc1_ref;
-                    uc2_ref <= ((-i1_ref+i2_ref-i3_ref ) )/2.0 * c + uc2_ref;
-                    uc3_ref <= ((-i1_ref-i2_ref+i3_ref ) )/2.0 * c  -uc1_ref - uc2_ref;
-
+                    i1_ref <= ((+u1-u2-u3) - (+i1_ref-i2_ref-i3_ref) * r - (+uc1_ref-uc2_ref-uc3_ref))/2.0 * l*korjauskerroin + i1_ref;
+                    i2_ref <= ((-u1+u2-u3) - (-i1_ref+i2_ref-i3_ref) * r - (-uc1_ref+uc2_ref-uc3_ref))/2.0 * l*korjauskerroin + i2_ref;
+                    i3_ref <= ((-u1-u2+u3) - (-i1_ref-i2_ref+i3_ref) * r - (-uc1_ref-uc2_ref+uc3_ref))/2.0 * l*korjauskerroin - i1_ref - i2_ref;
 
                     sequencer <= sequencer + 1;
 
@@ -281,19 +280,19 @@ begin
 
             CASE sequencer is
                 WHEN 0 =>
-                    if simulation_counter < 2 then
-                        phase <= (phase + 2.0*math_pi/250.0) mod (2.0*math_pi);
-                    end if;
+                    -- if simulation_counter < 2 then
+                    --     phase <= (phase + 2.0*math_pi/250.0) mod (2.0*math_pi);
+                    -- end if;
                 WHEN 1 =>
                     -- u1 <= sin((phase+2.0*math_pi/3.0) mod (2.0*math_pi));
                     -- u2 <= sin(phase);
                     -- u3 <= -u1-u2;
                     simtime <= simtime + timestep;
-                    write_to(file_handler,(simtime, uc1_ref, uc2_ref, uc3_ref));
+                    write_to(file_handler,(simtime, uc1, uc2, uc3, uc1_ref, uc2_ref, uc3_ref));
 
-                    u1 <= -0.95;
-                    u2 <= 0.23;
-                    u3 <= -u1-u2;
+                    u1 <= 4.151;
+                    u2 <= -8.2352;
+                    u3 <= 1.356;
 
                     usum_ref <= uc1_ref+uc2_ref+uc3_ref;
                 WHEN others => -- do nothing
