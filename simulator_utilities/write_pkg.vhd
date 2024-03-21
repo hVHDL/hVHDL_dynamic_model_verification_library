@@ -38,7 +38,7 @@ package body write_pkg is
 
         writeline(filee , row);
     end write_to;
-
+------------------------------------------------------------------------
     procedure init_simfile
     (
         file filee : text;

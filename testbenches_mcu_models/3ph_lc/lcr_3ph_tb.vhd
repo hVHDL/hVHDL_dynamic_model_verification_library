@@ -3,6 +3,7 @@ LIBRARY ieee  ;
     USE ieee.NUMERIC_STD.all  ; 
     USE ieee.std_logic_1164.all  ; 
     use ieee.math_real.all;
+    use std.textio.all;
 
 library vunit_lib;
 context vunit_lib.vunit_context;
@@ -18,6 +19,7 @@ context vunit_lib.vunit_context;
     use work.memory_processing_pkg.all;
     use work.float_assembler_pkg.all;
     use work.microinstruction_pkg.all;
+    use work.write_pkg.all;
 
 entity lcr_3ph_tb is
   generic (runner_cfg : string);
@@ -57,12 +59,12 @@ architecture vunit_simulation of lcr_3ph_tb is
     signal u3 : real := 0.0;
 
     signal simtime : real := 0.0;
-    constant timestep : real := 100.0e-6;
+    constant timestep : real := 10.0e-6;
 
     signal r : real := 0.55;
-    signal l : real := 0.1;
-    signal c : real := 0.1;
-    signal sequencer : natural := 0;
+    signal l : real := timestep/100.0e-6;
+    signal c : real := timestep/100.0e-6;
+    signal sequencer : natural := 1;
 
     constant input_voltage_addr : natural := 89;
     constant voltage_addr       : natural := 90;
@@ -150,7 +152,7 @@ begin
     process
     begin
         test_runner_setup(runner, runner_cfg);
-        wait for simtime_in_clocks*clock_period;
+        wait until simtime >= 10.0e-3;
         test_runner_cleanup(runner); -- Simulation ends here
         wait;
     end process;
@@ -184,9 +186,16 @@ begin
 
         variable i3k : realarray(0 to 3) := (others => 0.0);
         variable uc3k : realarray(0 to 3) := (others => 0.0);
+
+        file file_handler : text open write_mode is "lcr_3ph_tb.dat";
     begin
         if rising_edge(simulator_clock) then
             simulation_counter <= simulation_counter + 1;
+
+            if simulation_counter = 0 then
+                -- init_simfile(file_handler, ("time", "vol1", "vol2", "vol3", "cur1", "cur2", "cur3"));
+                init_simfile(file_handler, ("time", "vol1", "vol2", "vol3"));
+            end if;
 
             i1k := (others => 0.0);
             uc1k := (others => 0.0);
@@ -248,12 +257,10 @@ begin
                     uc2 <= uc2      + 1.0/6.0*(uc2k(0)*2.0 + 4.0*uc2k(1) + 2.0*uc2k(2) + uc2k(3));
                     uc3 <= -uc1-uc2 + 1.0/6.0*(uc3k(0)*2.0 + 4.0*uc3k(1) + 2.0*uc3k(2) + uc3k(3));
 
-                    usum <= uc1+uc2+uc3;
 
                     i1_ref <= ((+u1-u2-u3) - (+i1_ref-i2_ref-i3_ref) * r - (+uc1_ref-uc2_ref-uc3_ref))/2.0 * l + i1_ref;
                     i2_ref <= ((-u1+u2-u3) - (-i1_ref+i2_ref-i3_ref) * r - (-uc1_ref+uc2_ref-uc3_ref))/2.0 * l + i2_ref;
                     i3_ref <= ((-u1-u2+u3) - (-i1_ref-i2_ref+i3_ref) * r - (-uc1_ref-uc2_ref+uc3_ref))/2.0 * l - i1_ref - i2_ref;
-
                     -- uc1   <= ((+i1-i2-i3 ) ) * c/2.0 + uc1;
                     -- uc2   <= ((-i1+i2-i3 ) ) * c/2.0 + uc2;
                     -- uc3   <= ((-i1-i2+i3 ) ) * c/2.0 + uc3;
@@ -266,8 +273,9 @@ begin
                     uc3_ref <= ((-i1_ref-i2_ref+i3_ref ) )/2.0 * c  -uc1_ref - uc2_ref;
 
 
-                    simtime <= simtime + timestep;
                     sequencer <= sequencer + 1;
+
+                    -- write_to(file_handler,(simtime, uc1, uc2, uc3, i1, i2, i3));
                 WHEN others => -- do nothing
             end CASE;
 
@@ -277,8 +285,14 @@ begin
                         phase <= (phase + 2.0*math_pi/250.0) mod (2.0*math_pi);
                     end if;
                 WHEN 1 =>
-                    u1 <= sin((phase+2.0*math_pi/3.0) mod (2.0*math_pi));
-                    u2 <= sin(phase);
+                    -- u1 <= sin((phase+2.0*math_pi/3.0) mod (2.0*math_pi));
+                    -- u2 <= sin(phase);
+                    -- u3 <= -u1-u2;
+                    simtime <= simtime + timestep;
+                    write_to(file_handler,(simtime, uc1_ref, uc2_ref, uc3_ref));
+
+                    u1 <= -0.95;
+                    u2 <= 0.23;
                     u3 <= -u1-u2;
 
                     usum_ref <= uc1_ref+uc2_ref+uc3_ref;

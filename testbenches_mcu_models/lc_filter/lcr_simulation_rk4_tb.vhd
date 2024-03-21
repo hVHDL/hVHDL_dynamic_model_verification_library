@@ -24,18 +24,16 @@ architecture vunit_simulation of lcr_simulation_rk4_tb is
     -- simulation specific signals ----
 
     signal realtime : real := 0.0;
-    signal timestep : real := 10.0e-6;
+    signal timestep : real := 1.0e-6;
 
-    signal sequencer : natural := 0;
+    signal sequencer : natural := 1;
 
     signal current : real := 0.0;
     signal voltage : real := 0.0;
-    signal r : real := 100.0e-3;
-    signal c : real := timestep/100.0e-6;
-    signal l : real := timestep/100.0e-6;
-    -- signal c : real := 0.01;
-    -- signal l : real := 0.01;
-    signal uin : real := 1.0;
+    signal r       : real := 100.0e-3;
+    signal c       : real := timestep/100.0e-6;
+    signal l       : real := timestep/100.0e-6;
+    signal uin     : real := 1.0;
 
 begin
 

@@ -1,19 +1,26 @@
 import numpy as np
 from matplotlib import pyplot
 
-from PyLTSpice.LTSpiceBatch import SimCommander
-from PyLTSpice.LTSpice_RawRead import LTSpiceRawRead
+from PyLTSpice import SimRunner, SpiceEditor, LTspice
+from PyLTSpice import RawRead
 import os
-import ltspice
-abs_path = os.path.dirname(os.path.realpath(__file__))
-SimCommander.setLTspiceRunCommand(SimCommander,"c:/Programs/LTC/LTspiceXVII/XVIIx64.exe")
 
-# currently needs to have the lcr_filter.asc run manually since the lcr.run does not work right for some reason
-# lcr = SimCommander(abs_path + "./simulation/converter_models/lcr_filter.asc", timeout=8, verbose=False)
-# lcr.run()
-# lcr.wait_completion()
+# LTSpice needs to be installed in one of the locations specified in 
+# https://pyltspice.readthedocs.io/en/latest/_modules/PyLTSpice/sim/ltspice_simulator.html#LTspice
+# this was seen in https://github.com/nunobrum/PyLTSpice/blob/master/examples/sim_runner_example.py
+# example, but I do not know if it actually does something
+# simulator = r"C:\Program Files\LTC\LTspice\LTSpice.exe"
 
-d = LTSpiceRawRead(abs_path + "./ltspice_circuits/buck_converter/synch_buck_w_input_filter.raw")
+path_to_this_file = os.path.dirname(os.path.realpath(__file__))
+LTC = SimRunner(output_folder='./vunit_out', simulator=LTspice)
+
+LTC.create_netlist(path_to_this_file + '/ltspice_circuits/buck_converter/synch_buck_w_input_filter.asc')
+netlist = SpiceEditor(path_to_this_file + '/ltspice_circuits/buck_converter/synch_buck_w_input_filter.net')
+
+LTC.run(netlist)
+LTC.wait_completion()
+
+d = RawRead(path_to_this_file + '/vunit_out/synch_buck_w_input_filter_1.raw')
 
 simulation_time   = []
 inductor_current  = []
@@ -29,7 +36,7 @@ synth_capacitor_voltage = []
 synth_L3_current  = []
 synth_C3_voltage = []
 
-with open('buck_with_input_and_output_filters.dat') as f:
+with open('./vunit_out/buck_with_input_and_output_filters.dat') as f:
     for line in f.readlines():
         line_with_ends_removed       = line.strip()
         line_with_separated_contents = line.strip().strip()
@@ -40,7 +47,7 @@ with open('buck_with_input_and_output_filters.dat') as f:
         input_current.append(float(line_with_separated_contents[3]))
         input_voltage.append(float(line_with_separated_contents[4]))
 
-with open('filtered_buck.dat') as f:
+with open('./vunit_out/filtered_buck.dat') as f:
     for line in f.readlines():
         line_with_ends_removed       = line.strip()
         line_with_separated_contents = line.strip().strip()
