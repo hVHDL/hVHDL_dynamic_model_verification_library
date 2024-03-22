@@ -28,15 +28,14 @@ vhdl_data = pd.read_csv(path_to_this_file + '/../vunit_out/lcr_3ph_tb.dat', deli
 
 print(raw.get_trace_names())            # Get and print a list of all the traces
 
-pyplot.plot(raw.get_trace("time").get_time_axis(), raw.get_trace("v(uc1)"))
-pyplot.plot(raw.get_trace("time").get_time_axis(), raw.get_trace("v(uc2)"))
-pyplot.plot(raw.get_trace("time").get_time_axis(), raw.get_trace("v(uc3)"))
-pyplot.grid()
+# pyplot.plot(raw.get_trace("time").get_time_axis(), raw.get_trace("v(uc1)"))
+# pyplot.plot(raw.get_trace("time").get_time_axis(), raw.get_trace("v(uc2)"))
+# pyplot.plot(raw.get_trace("time").get_time_axis(), raw.get_trace("v(uc3)"))
 
 # pyplot.plot(vhdl_data[vhdl_data.columns[0]], vhdl_data[vhdl_data.columns[1]])
 # pyplot.plot(vhdl_data[vhdl_data.columns[0]], vhdl_data[vhdl_data.columns[2]])
 # pyplot.plot(vhdl_data[vhdl_data.columns[0]], vhdl_data[vhdl_data.columns[3]])
-
+# #
 pyplot.plot(vhdl_data[vhdl_data.columns[0]], vhdl_data[vhdl_data.columns[4]])
 pyplot.plot(vhdl_data[vhdl_data.columns[0]], vhdl_data[vhdl_data.columns[5]])
 pyplot.plot(vhdl_data[vhdl_data.columns[0]], vhdl_data[vhdl_data.columns[6]])
@@ -44,6 +43,7 @@ pyplot.plot(vhdl_data[vhdl_data.columns[0]], vhdl_data[vhdl_data.columns[6]])
 # pyplot.plot(raw.get_trace("time").get_time_axis(), raw.get_trace("v(uc1)"))
 # pyplot.plot(raw.get_trace("time").get_time_axis(), raw.get_trace("v(uc2)"))
 # pyplot.plot(raw.get_trace("time").get_time_axis(), raw.get_trace("v(uc3)"))
-#
 
+
+pyplot.grid()
 pyplot.show()                              # Show matplotlib's interactive window with the plots
