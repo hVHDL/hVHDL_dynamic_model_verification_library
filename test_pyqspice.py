@@ -16,10 +16,13 @@ run = pqs('3ph_lc.qsch')
 run.qsch2cir()
 run.cir2qraw()
 
+# no idea what this does
 run.setNline(4999)
 
+# run qspice simulation and load voltages and currents
 df = run.LoadQRAW(["V(uc1)", "V(uc2)","V(uc3)","I(L1)","I(L2)","I(L3)"])
 
+# load vhdl simulation data
 vhdl_data = pd.read_csv(path_to_this_file + '/vunit_out/lcr_3ph_tb.dat', delim_whitespace=True)
 
 fig1, (axT, axB) = plt.subplots(2,1,sharex=True,constrained_layout=True)

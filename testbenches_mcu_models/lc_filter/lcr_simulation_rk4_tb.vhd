@@ -31,8 +31,8 @@ architecture vunit_simulation of lcr_simulation_rk4_tb is
     signal current : real := 0.0;
     signal voltage : real := 0.0;
     signal r       : real := 100.0e-3;
+    signal l       : real := timestep/50.0e-6;
     signal c       : real := timestep/100.0e-6;
-    signal l       : real := timestep/100.0e-6;
     signal uin     : real := 1.0;
 
 begin
@@ -41,7 +41,7 @@ begin
     simtime : process
     begin
         test_runner_setup(runner, runner_cfg);
-        wait until realtime >= 15.0e-3;
+        wait until realtime >= 10.0e-3;
         test_runner_cleanup(runner); -- Simulation ends here
         wait;
     end process simtime;	
@@ -56,6 +56,27 @@ begin
         variable uk : realarray(1 to 4) := (others => 0.0);
 
         file file_handler : text open write_mode is "lcr_simulation_rk4_tb.dat";
+        -- ------------------------------     
+        -- function di
+        -- (
+        --     uin, uout, i, r, lgain : real
+        -- )
+        -- return real
+        -- is
+        -- begin
+        --     return (uin - uout - i*r)*lgain;
+        -- end di;
+        -- ------------------------------     
+        -- function du
+        -- (
+        --     ic, ugain : real
+        -- )
+        -- return real
+        -- is
+        -- begin
+        --     return ic*ugain;
+        -- end du;
+        -- ------------------------------     
     begin
         if rising_edge(simulator_clock) then
             simulation_counter <= simulation_counter + 1;

@@ -174,7 +174,7 @@ begin
         variable mac3 : real := 0.0;
         variable ul1  : real := 0.0;
 
-    type realarray is array (natural range <>) of real;
+        type realarray is array (natural range <>) of real;
 
         variable add      : realarray(0 to 15) := (others => 0.0);
         variable sub      : realarray(0 to 15) := (others => 0.0);
