@@ -19,24 +19,37 @@ LTC = SimRunner(output_folder='./vunit_out', simulator=LTspice)
 LTC.create_netlist(path_to_this_file + '/../testbenches_mcu_models/3ph_lc/3ph_lc.asc')
 netlist = SpiceEditor(path_to_this_file + '/../testbenches_mcu_models/3ph_lc/3ph_lc.net')
 
+netlist.set_component_value('L1', '39.23908520e-6')
+netlist.set_component_value('L2', '39.23908520e-6')
+netlist.set_component_value('L3', '39.23908520e-6')
+
+# dc, amplitude, frequency, 0, 0, phase
+netlist.set_component_value('V1', 'SINE(0 80 1k 0 0 0)')
+netlist.set_component_value('V2', 'SINE(0 80 1k 0 0 -120)')
+netlist.set_component_value('V3', 'SINE(0 80 1k 0 0 120)')
+
+netlist.set_component_value('R1', '0.08')
+netlist.set_component_value('R2', '0.08')
+netlist.set_component_value('R3', '0.08')
+
 LTC.run(netlist)
 LTC.wait_completion()
-
 
 raw = RawRead(path_to_this_file + '/../vunit_out/3ph_lc_1.raw')   # Read the RAW file contents from disk
 vhdl_data = pd.read_csv(path_to_this_file + '/../vunit_out/lcr_3ph_tb.dat', delim_whitespace=True)
 
 print(raw.get_trace_names())            # Get and print a list of all the traces
 
-pyplot.plot(raw.get_trace("time").get_time_axis(), raw.get_trace("v(uc1)"))
+pyplot.plot(raw.get_trace("time").get_time_axis(), raw.get_trace("v(uc3)"))
 pyplot.plot(vhdl_data[vhdl_data.columns[0]], vhdl_data[vhdl_data.columns[1]])
 pyplot.plot(vhdl_data[vhdl_data.columns[0]], vhdl_data[vhdl_data.columns[4]])
-pyplot.plot(raw.get_trace("time").get_time_axis(), raw.get_trace("v(uc2)"))
-pyplot.plot(raw.get_trace("time").get_time_axis(), raw.get_trace("v(uc3)"))
 
+#
+pyplot.plot(raw.get_trace("time").get_time_axis(), raw.get_trace("v(uc2)"))
 pyplot.plot(vhdl_data[vhdl_data.columns[0]], vhdl_data[vhdl_data.columns[2]])
 pyplot.plot(vhdl_data[vhdl_data.columns[0]], vhdl_data[vhdl_data.columns[3]])
-# #
+# # #
+pyplot.plot(raw.get_trace("time").get_time_axis(), raw.get_trace("v(uc1)"))
 pyplot.plot(vhdl_data[vhdl_data.columns[0]], vhdl_data[vhdl_data.columns[5]])
 pyplot.plot(vhdl_data[vhdl_data.columns[0]], vhdl_data[vhdl_data.columns[6]])
 # pyplot.plot(raw.get_trace("time").get_time_axis(), raw.get_trace("v(uc1)"))

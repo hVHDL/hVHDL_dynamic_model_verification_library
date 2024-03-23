@@ -63,9 +63,11 @@ architecture vunit_simulation of lcr_3ph_tb is
     constant stoptime : real := 25.0e-3;
     constant korjauskerroin : real := 0.985;
 
-    signal r : real := 0.1;
-    signal l : real := timestep/100.0e-6;
+    signal r : real := 0.08;
+    signal l : real := timestep/39.23908520e-6;
     signal c : real := timestep/100.0e-6;
+
+    signal sine_amplitude : real := 80.0;
     signal sequencer : natural := 1;
 
     constant input_voltage_addr : natural := 89;
@@ -299,8 +301,8 @@ begin
                     end if;
                     usum_ref <= uc1_ref+uc2_ref+uc3_ref;
                 WHEN 1 =>
-                    u1 <= sin((phase+2.0*math_pi/3.0) mod (2.0*math_pi));
-                    u2 <= sin(phase);
+                    u1 <= sine_amplitude*sin((phase+2.0*math_pi/3.0) mod (2.0*math_pi));
+                    u2 <= sine_amplitude*sin(phase);
                     u3 <= -u1-u2;
                     simtime <= simtime + timestep;
                     write_to(file_handler,(simtime, uc1, uc2, uc3, uc1_ref, uc2_ref, uc3_ref));

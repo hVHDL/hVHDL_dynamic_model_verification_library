@@ -12,5 +12,7 @@ vunit_out
 *.log
 __pycache__
 *.plt
-
+*.raw
+*.qopraw
+*.qraw
 *.o
