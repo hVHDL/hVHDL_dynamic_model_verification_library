@@ -60,14 +60,13 @@ architecture vunit_simulation of lcr_3ph_tb is
 
     signal simtime : real := 0.0;
     constant timestep : real := 0.50e-6;
-    constant stoptime : real := 25.0e-3;
-    constant korjauskerroin : real := 0.985;
+    constant stoptime : real := 10.0e-3;
 
-    signal r : real := 0.08;
-    signal l : real := timestep/39.23908520e-6;
+    signal r : real := 0.1;
+    signal l : real := timestep/50.0e-6;
     signal c : real := timestep/100.0e-6;
 
-    signal sine_amplitude : real := 80.0;
+    signal sine_amplitude : real := 1.0;
     signal sequencer : natural := 1;
 
     constant input_voltage_addr : natural := 89;
@@ -210,7 +209,7 @@ begin
             simulation_counter <= simulation_counter + 1;
 
             if simulation_counter = 0 then
-                init_simfile(file_handler, ("time", "vol1", "vol2", "vol3", "vol4", "vol5", "vol6"));
+                init_simfile(file_handler, ("time", "rkv1", "rkv2", "rkv3", "euv1", "euv2", "euv3", "rki1", "rki2", "rki3", "eui1", "eui2", "eui3"));
             end if;
 
             i1k := (others => 0.0);
@@ -302,7 +301,7 @@ begin
                     u2 <= sine_amplitude*sin(phase);
                     u3 <= -u1-u2;
                     simtime <= simtime + timestep;
-                    write_to(file_handler,(simtime, uc1, uc2, uc3, uc1_ref, uc2_ref, uc3_ref));
+                    write_to(file_handler,(simtime, uc1, uc2, uc3, uc1_ref, uc2_ref, uc3_ref, i1, i2, i3, i1_ref, i2_ref, i3_ref));
 
                     -- u1 <= 4.151;
                     -- u2 <= -8.2352;
