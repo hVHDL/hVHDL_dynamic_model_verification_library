@@ -11,11 +11,10 @@ import matplotlib.pyplot as plt
 import os
 path_to_this_file = os.path.dirname(os.path.realpath(__file__))
 
-#needed to add path to the qsch for pqspice to find the schematic
-import sys
-sys.path.append(path_to_this_file + 'testbenches_mcu_models/lc_filter/')
+#change directory to the lc filter directory
+pqs.chdir(path_to_this_file + './testbenches_mcu_models/lc_filter')
 
-run = pqs('abcdefg.qsch')
+run = pqs('lcr_qspice.qsch')
 
 run.qsch2cir()
 run.cir2qraw()
