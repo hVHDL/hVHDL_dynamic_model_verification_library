@@ -16,3 +16,5 @@ __pycache__
 *.qopraw
 *.qraw
 *.o
+*.cir
+*.utf8

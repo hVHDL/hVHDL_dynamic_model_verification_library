@@ -194,6 +194,7 @@ begin
 
         file file_handler : text open write_mode is "lcr_3ph_tb.dat";
 
+        ------------------------------     
         function di
         (
             uin, uout, i, r, lgain : real
@@ -203,12 +204,12 @@ begin
         begin
             return (uin - uout - i*r)*lgain;
         end di;
+        ------------------------------     
     begin
         if rising_edge(simulator_clock) then
             simulation_counter <= simulation_counter + 1;
 
             if simulation_counter = 0 then
-                -- init_simfile(file_handler, ("time", "vol1", "vol2", "vol3", "cur1", "cur2", "cur3"));
                 init_simfile(file_handler, ("time", "vol1", "vol2", "vol3", "vol4", "vol5", "vol6"));
             end if;
 
@@ -258,22 +259,18 @@ begin
                     i2k(3)  := ( (-u1+u2-u3) - (-i1+i2-i3-i1k(2)+i2k(2)-i3k(2)) * r- (-uc1+uc2-uc3-uc1k(2)+uc2k(2)-uc3k(2)))/2.0 * l;
                     i3k(3)  := ( (-u1-u2+u3) - (-i1-i2+i3-i1k(2)-i2k(2)+i3k(2)) * r- (-uc1-uc2+uc3-uc1k(2)-uc2k(2)+uc3k(2)))/2.0 * l;
 
-                    -- (V(n001)-V(n003)-V(n005)-(I(L1)-I(L2)-I(L3))*0.1-(V(uc1,n)-V(uc2,n)-V(uc3,n)))/2
-                    -- (V(n003)-V(n001)-V(n005)-(I(L2)-I(L1)-I(L3))*0.1-(V(uc2,n)-V(uc1,n)-V(uc3,n)))/2
-                    -- (V(n005)-V(n003)-V(n001)-(I(L3)-I(L2)-I(L1))*0.1-(V(uc3,n)-V(uc2,n)-V(uc1,n)))/2
-
                     uc1k(3) := ((+i1-i2-i3 +i1k(2)-i2k(2)-i3k(2)))/2.0 * c;
                     uc2k(3) := ((-i1+i2-i3 -i1k(2)+i2k(2)-i3k(2)))/2.0 * c;
                     uc3k(3) := ((-i1-i2+i3 -i1k(2)-i2k(2)+i3k(2)))/2.0 * c;
 
             ------------------------------
 
-                    i1 <= i1 + 1.0/6.0*(i1k(0)*2.0 + 4.0*i1k(1) + 2.0*i1k(2) + i1k(3));
-                    i2 <= i2 + 1.0/6.0*(i2k(0)*2.0 + 4.0*i2k(1) + 2.0*i2k(2) + i2k(3));
+                    i1 <= i1     + 1.0/6.0*(i1k(0)*2.0 + 4.0*i1k(1) + 2.0*i1k(2) + i1k(3));
+                    i2 <= i2     + 1.0/6.0*(i2k(0)*2.0 + 4.0*i2k(1) + 2.0*i2k(2) + i2k(3));
                     i3 <= -i1-i2 + 1.0/6.0*(i3k(0)*2.0 + 4.0*i3k(1) + 2.0*i3k(2) + i3k(3));
 
-                    uc1 <= uc1 + 1.0/6.0*(uc1k(0)*2.0 + 4.0*uc1k(1) + 2.0*uc1k(2) + uc1k(3));
-                    uc2 <= uc2 + 1.0/6.0*(uc2k(0)*2.0 + 4.0*uc2k(1) + 2.0*uc2k(2) + uc2k(3));
+                    uc1 <= uc1      + 1.0/6.0*(uc1k(0)*2.0 + 4.0*uc1k(1) + 2.0*uc1k(2) + uc1k(3));
+                    uc2 <= uc2      + 1.0/6.0*(uc2k(0)*2.0 + 4.0*uc2k(1) + 2.0*uc2k(2) + uc2k(3));
                     uc3 <= -uc1-uc2 + 1.0/6.0*(uc3k(0)*2.0 + 4.0*uc3k(1) + 2.0*uc3k(2) + uc3k(3));
 
                     uc1_ref <= ((+i1_ref-i2_ref-i3_ref))/2.0 * c + uc1_ref;
@@ -317,13 +314,6 @@ begin
 
             if sequencer = 1 then
                 sequencer <= 0;
-                -- check_equal(i1,i1_ref, "i1", 1.0e-6);
-                -- check_equal(i2,i2_ref, "i2", 1.0e-6);
-                -- check_equal(i3,i3_ref, "i3", 1.0e-6);
-                --
-                -- check_equal(uc1,uc1_ref, "uc1", 1.0e-6);
-                -- check_equal(uc2,uc2_ref, "uc2", 1.0e-6);
-                -- check_equal(uc3,uc3_ref, "uc3", 1.0e-6);
             end if;
 
             --------------------
