@@ -59,7 +59,7 @@ architecture vunit_simulation of lcr_3ph_tb is
     signal u3 : real := 0.0;
 
     signal simtime : real := 0.0;
-    constant timestep : real := 1.0e-6;
+    constant timestep : real := 0.50e-6;
     constant stoptime : real := 25.0e-3;
     constant korjauskerroin : real := 0.985;
 
@@ -268,28 +268,22 @@ begin
 
                     i1 <= i1 + 1.0/6.0*(i1k(0)*2.0 + 4.0*i1k(1) + 2.0*i1k(2) + i1k(3));
                     i2 <= i2 + 1.0/6.0*(i2k(0)*2.0 + 4.0*i2k(1) + 2.0*i2k(2) + i2k(3));
-                    i3 <= i3 + 1.0/6.0*(i3k(0)*2.0 + 4.0*i3k(1) + 2.0*i3k(2) + i3k(3));
+                    i3 <= -i1-i2 + 1.0/6.0*(i3k(0)*2.0 + 4.0*i3k(1) + 2.0*i3k(2) + i3k(3));
 
                     uc1 <= uc1 + 1.0/6.0*(uc1k(0)*2.0 + 4.0*uc1k(1) + 2.0*uc1k(2) + uc1k(3));
                     uc2 <= uc2 + 1.0/6.0*(uc2k(0)*2.0 + 4.0*uc2k(1) + 2.0*uc2k(2) + uc2k(3));
-                    uc3 <= uc3 + 1.0/6.0*(uc3k(0)*2.0 + 4.0*uc3k(1) + 2.0*uc3k(2) + uc3k(3));
+                    uc3 <= -uc1-uc2 + 1.0/6.0*(uc3k(0)*2.0 + 4.0*uc3k(1) + 2.0*uc3k(2) + uc3k(3));
 
-                    -- uc1_ref <= ((+2.0*i1_ref-i2_ref-i3_ref)) * c + uc1_ref;
-                    -- uc2_ref <= ((-i1_ref+2.0*i2_ref-i3_ref)) * c + uc2_ref;
-                    -- uc3_ref <= ((-i1_ref-i2_ref+2.0*i3_ref)) * c + uc3_ref;
-
-                    i1_ref <= ((+2.0*u1-u2-u3) - i1_ref * r - (+2.0*uc1_ref-uc2_ref-uc3_ref) )* l + i1_ref;
-                    i2_ref <= ((-u1+2.0*u2-u3) - i2_ref * r - (-uc1_ref+2.0*uc2_ref-uc3_ref) ) * l + i2_ref;
-                    i3_ref <= ((-u1-u2+2.0*u3) - i3_ref * r - (-uc1_ref-uc2_ref+2.0*uc3_ref) ) * l + i3_ref;
+                    uc1_ref <= ((+i1_ref-i2_ref-i3_ref))/2.0 * c + uc1_ref;
+                    uc2_ref <= ((-i1_ref+i2_ref-i3_ref))/2.0 * c + uc2_ref;
+                    uc3_ref <= ((-i1_ref-i2_ref+i3_ref))/2.0 * c - uc1_ref-uc2_ref;
 
                 WHEN 0 => 
 
-                    uc1_ref <= i1_ref * c + uc1_ref;
-                    uc2_ref <= i2_ref * c + uc2_ref;
-                    uc3_ref <= i3_ref * c + uc3_ref; 
-                    -- i1_ref <= ((+2.0*u1-u2-u3) - (i1_ref) * r - (+2.0*uc1_ref-uc2_ref-uc3_ref)) * l + i1_ref;
-                    -- i2_ref <= ((-u1+2.0*u2-u3) - (i2_ref) * r - (-uc1_ref+2.0*uc2_ref-uc3_ref)) * l + i2_ref;
-                    -- i3_ref <= ((-u1-u2+2.0*u3) - (i3_ref) * r - (-uc1_ref-uc2_ref+2.0*uc3_ref)) * l + i3_ref;
+                    
+                    i1_ref <= ((+u1-u2-u3) - (+i1_ref-i2_ref-i3_ref) * r - (+uc1_ref-uc2_ref-uc3_ref))/2.0 * l + i1_ref;
+                    i2_ref <= ((-u1+u2-u3) - (-i1_ref+i2_ref-i3_ref) * r - (-uc1_ref+uc2_ref-uc3_ref))/2.0 * l + i2_ref;
+                    i3_ref <= ((-u1-u2+u3) - (-i1_ref-i2_ref+i3_ref) * r - (-uc1_ref-uc2_ref+uc3_ref))/2.0 * l - i1_ref-i2_ref;
 
                     sequencer <= sequencer + 1;
                     usum <= uc1+uc2+uc3;
