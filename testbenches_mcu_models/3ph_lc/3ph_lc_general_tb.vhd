@@ -60,9 +60,64 @@ architecture vunit_simulation of lcr_3ph_tb is
     constant timestep : real := 0.50e-6;
     constant stoptime : real := 10.0e-3;
 
-    signal r : real := 0.1;
-    signal l : real := timestep/40.0e-6;
-    signal c : real := timestep/100.0e-6;
+------------------------------------------------------------------------
+    function "*"
+    (
+        number : real; num_array : real_array
+    )
+    return real_array
+    is
+        variable retval : real_array(num_array'range);
+    begin
+        for i in num_array'range loop
+            retval(i) := num_array(i)*number;
+        end loop;
+
+        return retval;
+
+    end "*";
+------------------------------------------------------------------------
+    function "/"
+    (
+        number : real; num_array : real_array
+    )
+    return real_array
+    is
+        variable retval : real_array(num_array'range);
+    begin
+        for i in num_array'range loop
+            retval(i) := number/num_array(i);
+        end loop;
+
+        return retval;
+
+    end "/";
+------------------------------------------------------------------------
+    function "/"
+    (
+        num_array : real_array; number : real
+    )
+    return real_array
+    is
+        variable retval : real_array(num_array'range);
+    begin
+        for i in num_array'range loop
+            retval(i) := num_array(i)/number;
+        end loop;
+
+        return retval;
+
+    end "/";
+------------------------------------------------------------------------
+
+    constant r : real_array := (0.1  , 0.1  , 0.1);
+    constant l : real_array := (40.0 , 40.0 , 30.0);
+    constant c : real_array := (41.6 , 86.3 , 37.7);
+
+    constant neutral_gains : real_array := (l(0)*l(1) , l(0)*l(2), l(1)*l(2)) / (l(0)*l(1) + l(0)*l(2) + l(1)*l(2));
+
+    signal l_gain : real_array(l'range) := 1.0/l;
+    signal c_gain : real_array(c'range) := 1.0/c;
 
     signal sine_amplitude : real := 1.0;
     signal sequencer : natural := 1;
@@ -139,7 +194,6 @@ architecture vunit_simulation of lcr_3ph_tb is
 
     signal float_alu : float_alu_record := init_float_alu;
 
-
     signal testi1 : real := 0.0;
     signal testi2 : real := 0.0;
 
@@ -148,6 +202,10 @@ architecture vunit_simulation of lcr_3ph_tb is
     signal isum_ref : real := 0.0;
 
     signal un : real := 0.0;
+
+    signal di1 : real := 0.0;
+    signal di2 : real := 0.0;
+    signal di3 : real := 0.0;
 
     -- constant l : real_array := (40.0e-6, 40.0e-6, 40.0e-6);
 
@@ -223,78 +281,26 @@ begin
             uc3k := (others => 0.0);
 
             CASE sequencer is
-                WHEN 1 => 
-
-                    i1k(0)  := di( u1 , (uc1), (i1), r , l/2.0);
-                    i2k(0)  := di( u2 , (uc2), (i2), r , l/2.0);
-                    i3k(0)  := di( u3 , (uc3), (i3), r , l/2.0);
-
-                    uc1k(0) := i1 * c/2.0;
-                    uc2k(0) := i2 * c/2.0;
-                    uc3k(0) := i3 * c/2.0;
-
-            ------------------------------
-
-                    i1k(1)  := di( u1 , (+uc1+uc1k(0)) , (i1+i1k(0)) , r , l/2.0);
-                    i2k(1)  := di( u2 , (+uc2+uc2k(0)) , (i2+i2k(0)) , r , l/2.0);
-                    i3k(1)  := di( u3 , (+uc3+uc3k(0)) , (i3+i3k(0)) , r , l/2.0);
-
-                    uc1k(1) := (i1+i1k(0)) * c/2.0;
-                    uc2k(1) := (i2+i2k(0)) * c/2.0;
-                    uc3k(1) := (i3+i3k(0)) * c/2.0;
-
-            ------------------------------
-
-                    i1k(2)  := di( u1 , (+uc1+uc1k(1)) , (i1+i1k(1)) , r , l);
-                    i2k(2)  := di( u2 , (+uc2+uc2k(1)) , (i2+i2k(1)) , r , l);
-                    i3k(2)  := di( u3 , (+uc3+uc3k(1)) , (i3+i3k(1)) , r , l);
-
-                    uc1k(2) := (i1+i1k(1)) * c;
-                    uc2k(2) := (i2+i2k(1)) * c;
-                    uc3k(2) := (i3+i3k(1)) * c;
-
-            ------------------------------
-
-                    i1k(3)  := di( u1 , (+uc1+uc1k(2)) , (i1+i1k(2)) , r , l);
-                    i2k(3)  := di( u2 , (+uc2+uc2k(2)) , (i2+i2k(2)) , r , l);
-                    i3k(3)  := di( u3 , (+uc3+uc3k(2)) , (i3+i3k(2)) , r , l);
-
-                    uc1k(3) := (i1+i1k(2)) * c;
-                    uc2k(3) := (i2+i2k(2)) * c;
-                    uc3k(3) := (i3+i3k(2)) * c;
-
-            ------------------------------
-
-                    i1 <= i1     + 1.0/6.0*(i1k(0)*2.0 + 4.0*i1k(1) + 2.0*i1k(2) + i1k(3));
-                    i2 <= i2     + 1.0/6.0*(i2k(0)*2.0 + 4.0*i2k(1) + 2.0*i2k(2) + i2k(3));
-                    i3 <= -i1-i2 + 1.0/6.0*(i3k(0)*2.0 + 4.0*i3k(1) + 2.0*i3k(2) + i3k(3));
-
-                    uc1 <= uc1      + 1.0/6.0*(uc1k(0)*2.0 + 4.0*uc1k(1) + 2.0*uc1k(2) + uc1k(3));
-                    uc2 <= uc2      + 1.0/6.0*(uc2k(0)*2.0 + 4.0*uc2k(1) + 2.0*uc2k(2) + uc2k(3));
-                    uc3 <= -uc1-uc2 + 1.0/6.0*(uc3k(0)*2.0 + 4.0*uc3k(1) + 2.0*uc3k(2) + uc3k(3));
-
-                    uc1_ref <= i1_ref * c + uc1_ref;
-                    uc2_ref <= i2_ref * c + uc2_ref;
-                    uc3_ref <= i3_ref * c - uc1_ref-uc2_ref;
-
-                    -- un <= ((u1-uc1-i1*r)*ng1 + (u2-uc2-i2*r)*ng2 + (u3-uc3-i3*r)*ng3
-
                 WHEN 0 => 
 
-                    -- un <= ((u1-uc1)*l2*l3 + (u2-uc2)*l1*l3 + (u3-uc3)*l1*l2)/(l1*l2+l1*l3+l2*l3)
-                    -- ng1 <= l2*l3/(l1*l2+l1*l3+l2*l3)
-                    -- ng2 <= l1*l3/(l1*l2+l1*l3+l2*l3)
-                    -- ng3 <= l1*l2/(l1*l2+l1*l3+l2*l3)
+                    uc1_ref <= i1_ref * c(0) + uc1_ref ;
+                    uc2_ref <= i2_ref * c(1) + uc2_ref ;
+                    uc3_ref <= i3_ref * c(2) + uc3_ref ;
 
-                    -- un <= ((u1-uc1-i1*r)*l2*l3 + (u2-uc2)*l1*l3 + (u3-uc3)*l1*l2)/(l1*l2+l1*l3+l2*l3)
-                    -- un <= ((u1-uc1-i1*r)*ng1 + (u2-uc2-i2*r)*ng2 + (u3-uc3-i3*r)*ng3
-                    
-                    i1_ref <= (u1 - uc1_ref - i1_ref * r - un) * l + i1_ref;
-                    i2_ref <= (u2 - uc2_ref - i2_ref * r - un) * l + i2_ref;
-                    i3_ref <= (u3 - uc3_ref - i3_ref * r - un) * l - i1_ref-i2_ref;
+                    un <= di1*neutral_gains(0) + di2*neutral_gains(1) + di3*neutral_gains(2);
+
+                WHEN 1 => 
+
+                    i1_ref <= (u1 - uc1_ref - i1_ref * r(0) - un) * l(0) + i1_ref ;
+                    i2_ref <= (u2 - uc2_ref - i2_ref * r(1) - un) * l(1) + i2_ref ;
+                    i3_ref <= (u3 - uc3_ref - i3_ref * r(2) - un) * l(2) + i3_ref ;
+
+                    di1 <= (u1 - uc1_ref - i1_ref * r(0)) ;
+                    di2 <= (u2 - uc2_ref - i2_ref * r(1)) ;
+                    di3 <= (u3 - uc3_ref - i3_ref * r(2)) ;
 
                     sequencer <= sequencer + 1;
-                    usum <= uc1+uc2+uc3;
+                    usum      <= uc1+uc2+uc3;
 
                     -- write_to(file_handler,(simtime, uc1, uc2, uc3, i1, i2, i3));
                 WHEN others => -- do nothing

@@ -34,17 +34,23 @@ df.plot(ax=axB, x="Time",  y="I(L3)", label="I(L3)")
 
 vhdl_data = pd.read_csv(path_to_this_file + '/../vunit_out/lcr_3ph_tb.dat', delim_whitespace=True)
 
-vhdl_data.plot(ax=axT, x="time", y="rkv1", label="rk4 uc1")
-vhdl_data.plot(ax=axT, x="time", y="rkv2", label="rk4 uc2")
-vhdl_data.plot(ax=axT, x="time", y="rkv3", label="rk4 uc3")
+# vhdl_data.plot(ax=axT, x="time", y="rkv1", label="rk4 uc1")
+# vhdl_data.plot(ax=axT, x="time", y="rkv2", label="rk4 uc2")
+# vhdl_data.plot(ax=axT, x="time", y="rkv3", label="rk4 uc3")
 
 vhdl_data.plot(ax=axT, x="time", y="euv1", label="euler uc1")
 vhdl_data.plot(ax=axT, x="time", y="euv2", label="euler uc2")
 vhdl_data.plot(ax=axT, x="time", y="euv3", label="euler uc3")
 
-vhdl_data.plot(ax=axB, x="time", y="rki1", label="rk4 i1")
-vhdl_data.plot(ax=axB, x="time", y="rki2", label="rk4 i2")
-vhdl_data.plot(ax=axB, x="time", y="rki3", label="rk4 i3")
+# ((V(u1)-Uc1-i1*r1)*L2*L3 +  (U2-Uc2-i2*r2)*L1*L3 + (U3-Uc3-i3*r3)*L1*L2) / (L1*L2+L1*L3+L2*L3)
+
+# ((V(u1)-V(uc1)-I(L1)*0.1)*40e-6*30e-6+(V(u2)-V(uc2)-I(L2)*0.1)*40e-6*30e-6+(V(u3)-V(uc3)-I(L3)*0.1)*40e-6*40e-6)/(40e-6*40e-6+40e-6*30e-6+40e-6*30e-6)
+
+# ((V(u1)-V(uc1,n)-I(L1)*0.1)*40*30+(V(u2)-V(uc2,n)-I(L2)*0.1)*40*30+(V(u3)-V(uc3,n)-I(L3)*0.1)*40*40)/(40*40+40*30+40*30)
+
+# vhdl_data.plot(ax=axB, x="time", y="rki1", label="rk4 i1")
+# vhdl_data.plot(ax=axB, x="time", y="rki2", label="rk4 i2")
+# vhdl_data.plot(ax=axB, x="time", y="rki3", label="rk4 i3")
 
 vhdl_data.plot(ax=axB, x="time", y="eui1", label="euler i1")
 vhdl_data.plot(ax=axB, x="time", y="eui2", label="euler i2")
