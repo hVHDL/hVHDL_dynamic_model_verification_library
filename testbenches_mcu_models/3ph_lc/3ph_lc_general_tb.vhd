@@ -21,11 +21,11 @@ context vunit_lib.vunit_context;
     use work.microinstruction_pkg.all;
     use work.write_pkg.all;
 
-entity lcr_3ph_tb is
+entity lcr_3ph_general_tb is
   generic (runner_cfg : string);
 end;
 
-architecture vunit_simulation of lcr_3ph_tb is
+architecture vunit_simulation of lcr_3ph_general_tb is
 
     constant clock_period      : time    := 1 ns;
     
@@ -49,15 +49,19 @@ architecture vunit_simulation of lcr_3ph_tb is
     signal uc2_ref : real := 0.0;
     signal uc3_ref : real := 0.0;
 
-    constant init_phase : real := 0.4;
-    signal phase : real := 0.7*2.0*math_pi;
+    constant init_phase : real := 0.0;
+    signal phase : real := init_phase;
 
-    signal u1 : real := 0.0;
-    signal u2 : real := 0.0;
-    signal u3 : real := 0.0;
+    constant init_u1 : real := sin((init_phase+2.0*math_pi/3.0) mod (2.0*math_pi));
+    constant init_u2 : real := sin(init_phase);
+    constant init_u3 : real := -init_u1-init_u2;
+
+    signal u1 : real := init_u1;
+    signal u2 : real := init_u2;
+    signal u3 : real := init_u3;
 
     signal simtime : real := 0.0;
-    constant timestep : real := 0.50e-6;
+    constant timestep : real := 0.7e-6;
     constant stoptime : real := 10.0e-3;
 
 ------------------------------------------------------------------------
@@ -110,17 +114,18 @@ architecture vunit_simulation of lcr_3ph_tb is
     end "/";
 ------------------------------------------------------------------------
 
-    constant r : real_array := (0.1  , 0.1  , 0.1);
-    constant l : real_array := (40.0 , 40.0 , 30.0);
-    constant c : real_array := (41.6 , 86.3 , 37.7);
+    constant r : real_array(0 to 2) := (0.1  , 0.1  , 0.1);
+    constant l : real_array(0 to 2) := (20.0e-6, 40.0e-6, 40.0e-6);
+    constant c : real_array(0 to 2) := (40.0e-6, 40.0e-6, 40.0e-6);
 
-    constant neutral_gains : real_array := (l(0)*l(1) , l(0)*l(2), l(1)*l(2)) / (l(0)*l(1) + l(0)*l(2) + l(1)*l(2));
+    constant neutral_gains : real_array := (l(1)*l(2) , l(0)*l(2), l(0)*l(1)) / (l(0)*l(1) + l(0)*l(2) + l(1)*l(2));
 
     signal l_gain : real_array(l'range) := 1.0/l;
     signal c_gain : real_array(c'range) := 1.0/c;
 
     signal sine_amplitude : real := 1.0;
     signal sequencer : natural := 1;
+
 
     constant input_voltage_addr : natural := 89;
     constant voltage_addr       : natural := 90;
@@ -215,7 +220,7 @@ begin
     process
     begin
         test_runner_setup(runner, runner_cfg);
-        wait until simtime >= stoptime;
+        wait until simtime >= 10.0e-3;
         test_runner_cleanup(runner); -- Simulation ends here
         wait;
     end process;
@@ -250,7 +255,7 @@ begin
         variable i3k : realarray(0 to 3) := (others => 0.0);
         variable uc3k : realarray(0 to 3) := (others => 0.0);
 
-        file file_handler : text open write_mode is "lcr_3ph_tb.dat";
+        file file_handler : text open write_mode is "lcr_3ph_general_tb.dat";
 
         ------------------------------     
         function di
@@ -268,7 +273,7 @@ begin
             simulation_counter <= simulation_counter + 1;
 
             if simulation_counter = 0 then
-                init_simfile(file_handler, ("time", "rkv1", "rkv2", "rkv3", "euv1", "euv2", "euv3", "rki1", "rki2", "rki3", "eui1", "eui2", "eui3"));
+                init_simfile(file_handler, ("time", "euv1", "euv2", "euv3", "eui1", "eui2", "eui3", "uin1", "uin2", "uin3"));
             end if;
 
             i1k := (others => 0.0);
@@ -283,17 +288,19 @@ begin
             CASE sequencer is
                 WHEN 0 => 
 
-                    uc1_ref <= i1_ref * c(0) + uc1_ref ;
-                    uc2_ref <= i2_ref * c(1) + uc2_ref ;
-                    uc3_ref <= i3_ref * c(2) + uc3_ref ;
+                    uc1_ref <= i1_ref / c(0)*timestep + uc1_ref ;
+                    uc2_ref <= i2_ref / c(1)*timestep + uc2_ref ;
+                    uc3_ref <= i3_ref / c(2)*timestep + uc3_ref;
 
                     un <= di1*neutral_gains(0) + di2*neutral_gains(1) + di3*neutral_gains(2);
+                    -- un <= 0.0;
+                    sequencer <= sequencer + 1;
 
                 WHEN 1 => 
 
-                    i1_ref <= (u1 - uc1_ref - i1_ref * r(0) - un) * l(0) + i1_ref ;
-                    i2_ref <= (u2 - uc2_ref - i2_ref * r(1) - un) * l(1) + i2_ref ;
-                    i3_ref <= (u3 - uc3_ref - i3_ref * r(2) - un) * l(2) + i3_ref ;
+                    i1_ref <= (u1 - uc1_ref - i1_ref * r(0) - un) / l(0)*timestep + i1_ref ;
+                    i2_ref <= (u2 - uc2_ref - i2_ref * r(1) - un) / l(1)*timestep + i2_ref ;
+                    i3_ref <= (u3 - uc3_ref - i3_ref * r(2) - un) / l(2)*timestep + i3_ref ;
 
                     di1 <= (u1 - uc1_ref - i1_ref * r(0)) ;
                     di2 <= (u2 - uc2_ref - i2_ref * r(1)) ;
@@ -303,14 +310,20 @@ begin
                     usum      <= uc1+uc2+uc3;
 
                     -- write_to(file_handler,(simtime, uc1, uc2, uc3, i1, i2, i3));
+                WHEN 2 => 
+                    sequencer <= sequencer + 1;
+                    write_to(file_handler,(simtime, uc1_ref, uc2_ref, uc3_ref, i1_ref, i2_ref, i3_ref));
+                    simtime <= simtime + timestep;
+                WHEN 3 => 
+                    sequencer <= sequencer + 1;
                 WHEN others => -- do nothing
             end CASE;
 
             CASE sequencer is
                 WHEN 0 =>
-                    if simulation_counter > 2 then
-                        phase <= (simtime*2.0*math_pi*1000.0) mod (2.0*math_pi);
-                    end if;
+                    -- if simulation_counter > 2 then
+                    phase <= (simtime*2.0*math_pi*1000.0) mod (2.0*math_pi);
+                    -- end if;
                     usum_ref <= uc1_ref+uc2_ref+uc3_ref;
                 WHEN 1 =>
 
@@ -318,8 +331,6 @@ begin
                     u2 <= sine_amplitude*sin(phase);
                     u3 <= -u1-u2;
 
-                    simtime <= simtime + timestep;
-                    write_to(file_handler,(simtime, uc1, uc2, uc3, uc1_ref, uc2_ref, uc3_ref, i1, i2, i3, i1_ref, i2_ref, i3_ref));
 
                     -- u1 <= 4.151;
                     -- u2 <= -8.2352;
@@ -329,7 +340,7 @@ begin
                 WHEN others => -- do nothing
             end CASE;
 
-            if sequencer = 1 then
+            if sequencer = 3 then
                 sequencer <= 0;
             end if;
 

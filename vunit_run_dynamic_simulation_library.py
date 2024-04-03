@@ -117,6 +117,8 @@ mcu.add_source_files(ROOT / "testbenches_mcu_models/lc_filter/lcr_simulation_tb.
 mcu.add_source_files(ROOT / "testbenches_mcu_models/lc_filter/lcr_simulation_rk4_tb.vhd")
 mcu.add_source_files(ROOT / "testbenches_mcu_models/3ph_lc/lcr_3ph_tb.vhd")
 
+mcu.add_source_files(ROOT / "testbenches_mcu_models/3ph_lc/3ph_lc_general_tb.vhd")
+
 mcu.add_source_files(ROOT / "simulator_utilities/write_pkg.vhd")
 
 VU.main()
