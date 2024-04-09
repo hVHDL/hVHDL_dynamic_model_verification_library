@@ -19,18 +19,18 @@ run.cir2qraw()
 run.setNline(4999)
 
 # run qspice simulation and load voltages and currents
-df = run.LoadQRAW(["V(uc1)", "V(uc2)","V(uc3)","I(L1)","I(L2)","I(L3)"])
+df = run.LoadQRAW(["V(n)","V(u1)","V(u2)","V(u3)","V(uc1)", "V(uc2)","V(uc3)","I(L1)","I(L2)","I(L3)"])
 
 # load vhdl simulation data
 
 fig1, (axT, axB) = plt.subplots(2,1,sharex=True,constrained_layout=True)
 
-df.plot(ax=axT, x="Time",  y="V(uc1)", label="V(uc1)")
-df.plot(ax=axT, x="Time",  y="V(uc2)", label="V(uc2)")
-df.plot(ax=axT, x="Time",  y="V(uc3)", label="V(uc3)")
-df.plot(ax=axB, x="Time",  y="I(L1)", label="I(L1)")
-df.plot(ax=axB, x="Time",  y="I(L2)", label="I(L2)")
-df.plot(ax=axB, x="Time",  y="I(L3)", label="I(L3)")
+axT.plot(df.get("Time") , df.get("V(uc1)") - df.get("V(n)"))
+axT.plot(df.get("Time") , df.get("V(uc2)") - df.get("V(n)"))
+axT.plot(df.get("Time") , df.get("V(uc3)") - df.get("V(n)"))
+axB.plot(df.get("Time") , df.get("I(L1)" ))
+axB.plot(df.get("Time") , df.get("I(L2)" ))
+axB.plot(df.get("Time") , df.get("I(L3)" ))
 
 vhdl_data = pd.read_csv(path_to_this_file + '/../vunit_out/lcr_3ph_general_tb.dat', delim_whitespace=True)
 
@@ -38,9 +38,9 @@ vhdl_data = pd.read_csv(path_to_this_file + '/../vunit_out/lcr_3ph_general_tb.da
 # vhdl_data.plot(ax=axT, x="time", y="rkv2", label="rk4 uc2")
 # vhdl_data.plot(ax=axT, x="time", y="rkv3", label="rk4 uc3")
 
-vhdl_data.plot(ax=axT, x="time", y="euv1", label="euler uc1")
-vhdl_data.plot(ax=axT, x="time", y="euv2", label="euler uc2")
-vhdl_data.plot(ax=axT, x="time", y="euv3", label="euler uc3")
+vhdl_data.plot(ax=axT, x="time", y="euv1", label="rk4 uc1")
+vhdl_data.plot(ax=axT, x="time", y="euv2", label="rk4 uc2")
+vhdl_data.plot(ax=axT, x="time", y="euv3", label="rk4 uc3")
 
 # ((V(u1)-Uc1-i1*r1)*L2*L3 +  (U2-Uc2-i2*r2)*L1*L3 + (U3-Uc3-i3*r3)*L1*L2) / (L1*L2+L1*L3+L2*L3)
 
@@ -52,9 +52,9 @@ vhdl_data.plot(ax=axT, x="time", y="euv3", label="euler uc3")
 # vhdl_data.plot(ax=axB, x="time", y="rki2", label="rk4 i2")
 # vhdl_data.plot(ax=axB, x="time", y="rki3", label="rk4 i3")
 
-vhdl_data.plot(ax=axB, x="time", y="eui1", label="euler i1")
-vhdl_data.plot(ax=axB, x="time", y="eui2", label="euler i2")
-vhdl_data.plot(ax=axB, x="time", y="eui3", label="euler i3")
+vhdl_data.plot(ax=axB, x="time", y="eui1", label="rk4 i1")
+vhdl_data.plot(ax=axB, x="time", y="eui2", label="rk4 i2")
+vhdl_data.plot(ax=axB, x="time", y="eui3", label="rk4 i3")
 
 plt.show()
 plt.close('all')

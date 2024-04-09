@@ -50,19 +50,18 @@ architecture vunit_simulation of lcr_3ph_tb is
     signal uc3_ref : real := 0.0;
 
     constant init_phase : real := 0.4;
-    signal phase : real := 0.7*2.0*math_pi;
 
     signal u1 : real := 0.0;
     signal u2 : real := 0.0;
     signal u3 : real := 0.0;
 
     signal simtime : real := 0.0;
-    constant timestep : real := 0.50e-6;
+    constant timestep : real := 20.00e-6;
     constant stoptime : real := 10.0e-3;
 
     signal r : real := 0.1;
-    signal l : real := timestep/40.0e-6;
-    signal c : real := timestep/100.0e-6;
+    signal l : real := timestep/80.0e-6;
+    signal c : real := timestep/60.0e-6;
 
     signal sine_amplitude : real := 1.0;
     signal sequencer : natural := 1;
@@ -174,6 +173,8 @@ begin
         variable mac2 : real := 0.0;
         variable mac3 : real := 0.0;
         variable ul1  : real := 0.0;
+        variable ul2  : real := 0.0;
+        variable ul3  : real := 0.0;
 
         type realarray is array (natural range <>) of real;
 
@@ -215,6 +216,8 @@ begin
             return di(uin , uout , i, r , 0.0,lgain);
         end di;
         ------------------------------     
+        variable phase : real := 0.7*2.0*math_pi;
+        variable vn : real := 0.0;
     begin
         if rising_edge(simulator_clock) then
             simulation_counter <= simulation_counter + 1;
@@ -223,45 +226,39 @@ begin
                 init_simfile(file_handler, ("time", "rkv1", "rkv2", "rkv3", "euv1", "euv2", "euv3", "rki1", "rki2", "rki3", "eui1", "eui2", "eui3"));
             end if;
 
-            i1k  := (others => 0.0);
-            uc1k := (others => 0.0);
-
-            i2k  := (others => 0.0);
-            uc2k := (others => 0.0);
-
-            i3k  := (others => 0.0);
-            uc3k := (others => 0.0);
-
             CASE sequencer is
                 WHEN 1 => 
+                    ul1 := (u1 - uc1 - i1 * r);
+                    ul2 := (u2 - uc2 - i2 * r);
+                    ul3 := (u3 - uc3 - i3 * r);
 
-                    i1k(0)  := di( u1 , (uc1), (i1), r , l/2.0);
-                    i2k(0)  := di( u2 , (uc2), (i2), r , l/2.0);
-                    i3k(0)  := di( u3 , (uc3), (i3), r , l/2.0);
+                    i1k(0)  := di( ul1 , 0.0, 0.0, r , l);
+                    i2k(0)  := di( ul2 , 0.0, 0.0, r , l);
+                    i3k(0)  := di( ul3 , 0.0, 0.0, r , l);
 
-                    uc1k(0) := i1 * c/2.0;
-                    uc2k(0) := i2 * c/2.0;
-                    uc3k(0) := i3 * c/2.0;
-
-            ------------------------------
-
-                    i1k(1)  := di( u1 , (+uc1+uc1k(0)) , (i1+i1k(0)) , r , l/2.0);
-                    i2k(1)  := di( u2 , (+uc2+uc2k(0)) , (i2+i2k(0)) , r , l/2.0);
-                    i3k(1)  := di( u3 , (+uc3+uc3k(0)) , (i3+i3k(0)) , r , l/2.0);
-
-                    uc1k(1) := (i1+i1k(0)) * c/2.0;
-                    uc2k(1) := (i2+i2k(0)) * c/2.0;
-                    uc3k(1) := (i3+i3k(0)) * c/2.0;
+                    uc1k(0) := i1 * c;
+                    uc2k(0) := i2 * c;
+                    uc3k(0) := i3 * c;
 
             ------------------------------
 
-                    i1k(2)  := di( u1 , (+uc1+uc1k(1)) , (i1+i1k(1)) , r , l);
-                    i2k(2)  := di( u2 , (+uc2+uc2k(1)) , (i2+i2k(1)) , r , l);
-                    i3k(2)  := di( u3 , (+uc3+uc3k(1)) , (i3+i3k(1)) , r , l);
+                    i1k(1)  := di( u1 , (+uc1+uc1k(0)/2.0) , (i1+i1k(0)/2.0) , r , l);
+                    i2k(1)  := di( u2 , (+uc2+uc2k(0)/2.0) , (i2+i2k(0)/2.0) , r , l);
+                    i3k(1)  := di( u3 , (+uc3+uc3k(0)/2.0) , (i3+i3k(0)/2.0) , r , l);
 
-                    uc1k(2) := (i1+i1k(1)) * c;
-                    uc2k(2) := (i2+i2k(1)) * c;
-                    uc3k(2) := (i3+i3k(1)) * c;
+                    uc1k(1) := (i1+i1k(0)/2.0) * c;
+                    uc2k(1) := (i2+i2k(0)/2.0) * c;
+                    uc3k(1) := (i3+i3k(0)/2.0) * c;
+
+            ------------------------------
+
+                    i1k(2)  := di( u1 , (+uc1+uc1k(1)/2.0) , (i1+i1k(1)/2.0) , r , l);
+                    i2k(2)  := di( u2 , (+uc2+uc2k(1)/2.0) , (i2+i2k(1)/2.0) , r , l);
+                    i3k(2)  := di( u3 , (+uc3+uc3k(1)/2.0) , (i3+i3k(1)/2.0) , r , l);
+
+                    uc1k(2) := (i1+i1k(1)/2.0) * c;
+                    uc2k(2) := (i2+i2k(1)/2.0) * c;
+                    uc3k(2) := (i3+i3k(1)/2.0) * c;
 
             ------------------------------
 
@@ -275,17 +272,17 @@ begin
 
             ------------------------------
 
-                    i1 <= i1     + 1.0/6.0*(i1k(0)*2.0 + 4.0*i1k(1) + 2.0*i1k(2) + i1k(3));
-                    i2 <= i2     + 1.0/6.0*(i2k(0)*2.0 + 4.0*i2k(1) + 2.0*i2k(2) + i2k(3));
-                    i3 <= -i1-i2 + 1.0/6.0*(i3k(0)*2.0 + 4.0*i3k(1) + 2.0*i3k(2) + i3k(3));
+                    i1 <= i1 + 1.0/6.0*(i1k(0) + 2.0*i1k(1) + 2.0*i1k(2) + i1k(3));
+                    i2 <= i2 + 1.0/6.0*(i2k(0) + 2.0*i2k(1) + 2.0*i2k(2) + i2k(3));
+                    i3 <= i3 + 1.0/6.0*(i3k(0) + 2.0*i3k(1) + 2.0*i3k(2) + i3k(3));
 
-                    uc1 <= uc1      + 1.0/6.0*(uc1k(0)*2.0 + 4.0*uc1k(1) + 2.0*uc1k(2) + uc1k(3));
-                    uc2 <= uc2      + 1.0/6.0*(uc2k(0)*2.0 + 4.0*uc2k(1) + 2.0*uc2k(2) + uc2k(3));
-                    uc3 <= -uc1-uc2 + 1.0/6.0*(uc3k(0)*2.0 + 4.0*uc3k(1) + 2.0*uc3k(2) + uc3k(3));
+                    uc1 <= uc1 + 1.0/6.0*(uc1k(0) + 2.0*uc1k(1) + 2.0*uc1k(2) + uc1k(3));
+                    uc2 <= uc2 + 1.0/6.0*(uc2k(0) + 2.0*uc2k(1) + 2.0*uc2k(2) + uc2k(3));
+                    uc3 <= uc3 + 1.0/6.0*(uc3k(0) + 2.0*uc3k(1) + 2.0*uc3k(2) + uc3k(3));
 
                     uc1_ref <= i1_ref * c + uc1_ref;
                     uc2_ref <= i2_ref * c + uc2_ref;
-                    uc3_ref <= i3_ref * c - uc1_ref-uc2_ref;
+                    uc3_ref <= i3_ref * c + uc3_ref;
 
                     -- un <= ((u1-uc1-i1*r)*ng1 + (u2-uc2-i2*r)*ng2 + (u3-uc3-i3*r)*ng3
 
@@ -301,7 +298,7 @@ begin
                     
                     i1_ref <= (u1 - uc1_ref - i1_ref * r - un) * l + i1_ref;
                     i2_ref <= (u2 - uc2_ref - i2_ref * r - un) * l + i2_ref;
-                    i3_ref <= (u3 - uc3_ref - i3_ref * r - un) * l - i1_ref-i2_ref;
+                    i3_ref <= (u3 - uc3_ref - i3_ref * r - un) * l + i3_ref;
 
                     sequencer <= sequencer + 1;
                     usum <= uc1+uc2+uc3;
@@ -312,15 +309,13 @@ begin
 
             CASE sequencer is
                 WHEN 0 =>
-                    if simulation_counter > 2 then
-                        phase <= (simtime*2.0*math_pi*1000.0) mod (2.0*math_pi);
-                    end if;
                     usum_ref <= uc1_ref+uc2_ref+uc3_ref;
                 WHEN 1 =>
 
+                    phase := ((simtime + timestep)*2.0*math_pi*1000.0) mod (2.0*math_pi);
                     u1 <= sine_amplitude*sin((phase+2.0*math_pi/3.0) mod (2.0*math_pi));
                     u2 <= sine_amplitude*sin(phase);
-                    u3 <= -u1-u2;
+                    u3 <= sine_amplitude*sin((phase-2.0*math_pi/3.0) mod (2.0*math_pi));
 
                     simtime <= simtime + timestep;
                     write_to(file_handler,(simtime, uc1, uc2, uc3, uc1_ref, uc2_ref, uc3_ref, i1, i2, i3, i1_ref, i2_ref, i3_ref));
