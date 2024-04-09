@@ -61,7 +61,7 @@ architecture vunit_simulation of lcr_3ph_general_tb is
     signal u3 : real := init_u3;
 
     signal simtime : real := 0.0;
-    constant timestep : real := 0.7e-6;
+    constant timestep : real := 1.0e-6;
     constant stoptime : real := 10.0e-3;
 
 ------------------------------------------------------------------------
@@ -115,8 +115,8 @@ architecture vunit_simulation of lcr_3ph_general_tb is
 ------------------------------------------------------------------------
 
     constant r : real_array(0 to 2) := (0.1  , 0.1  , 0.1);
-    constant l : real_array(0 to 2) := (20.0e-6, 40.0e-6, 40.0e-6);
-    constant c : real_array(0 to 2) := (40.0e-6, 40.0e-6, 40.0e-6);
+    constant l : real_array(0 to 2) := (80.0e-6, 80.0e-6, 80.0e-6);
+    constant c : real_array(0 to 2) := (60.0e-6, 60.0e-6, 60.0e-6);
 
     constant neutral_gains : real_array := (l(1)*l(2) , l(0)*l(2), l(0)*l(1)) / (l(0)*l(1) + l(0)*l(2) + l(1)*l(2));
 
@@ -287,16 +287,20 @@ begin
 
             CASE sequencer is
                 WHEN 0 => 
+                    u1 <= sine_amplitude*sin((phase+2.0*math_pi/3.0) mod (2.0*math_pi));
+                    u2 <= sine_amplitude*sin(phase);
+                    u3 <= -u1-u2;
 
                     uc1_ref <= i1_ref / c(0)*timestep + uc1_ref ;
                     uc2_ref <= i2_ref / c(1)*timestep + uc2_ref ;
-                    uc3_ref <= i3_ref / c(2)*timestep + uc3_ref;
+                    uc3_ref <= i3_ref / c(2)*timestep + uc3_ref ;
 
                     un <= di1*neutral_gains(0) + di2*neutral_gains(1) + di3*neutral_gains(2);
-                    -- un <= 0.0;
                     sequencer <= sequencer + 1;
 
                 WHEN 1 => 
+
+                    phase <= (simtime*2.0*math_pi*1000.0) mod (2.0*math_pi);
 
                     i1_ref <= (u1 - uc1_ref - i1_ref * r(0) - un) / l(0)*timestep + i1_ref ;
                     i2_ref <= (u2 - uc2_ref - i2_ref * r(1) - un) / l(1)*timestep + i2_ref ;
@@ -307,40 +311,16 @@ begin
                     di3 <= (u3 - uc3_ref - i3_ref * r(2)) ;
 
                     sequencer <= sequencer + 1;
-                    usum      <= uc1+uc2+uc3;
 
-                    -- write_to(file_handler,(simtime, uc1, uc2, uc3, i1, i2, i3));
                 WHEN 2 => 
                     sequencer <= sequencer + 1;
                     write_to(file_handler,(simtime, uc1_ref, uc2_ref, uc3_ref, i1_ref, i2_ref, i3_ref));
                     simtime <= simtime + timestep;
-                WHEN 3 => 
-                    sequencer <= sequencer + 1;
-                WHEN others => -- do nothing
-            end CASE;
-
-            CASE sequencer is
-                WHEN 0 =>
-                    -- if simulation_counter > 2 then
-                    phase <= (simtime*2.0*math_pi*1000.0) mod (2.0*math_pi);
-                    -- end if;
-                    usum_ref <= uc1_ref+uc2_ref+uc3_ref;
-                WHEN 1 =>
-
-                    u1 <= sine_amplitude*sin((phase+2.0*math_pi/3.0) mod (2.0*math_pi));
-                    u2 <= sine_amplitude*sin(phase);
-                    u3 <= -u1-u2;
-
-
-                    -- u1 <= 4.151;
-                    -- u2 <= -8.2352;
-                    -- u3 <= -u1-u2;
-                    isum_ref <= i1_ref+i2_ref+i3_ref;
 
                 WHEN others => -- do nothing
             end CASE;
 
-            if sequencer = 3 then
+            if sequencer = 2 then
                 sequencer <= 0;
             end if;
 

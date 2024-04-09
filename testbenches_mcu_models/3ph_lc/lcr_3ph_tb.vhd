@@ -197,12 +197,22 @@ begin
         ------------------------------     
         function di
         (
+            uin, uout, i, r, un, lgain : real
+        )
+        return real
+        is
+        begin
+            return (uin - uout - i*r - un)*lgain;
+        end di;
+        ------------------------------     
+        function di
+        (
             uin, uout, i, r, lgain : real
         )
         return real
         is
         begin
-            return (uin - uout - i*r)*lgain;
+            return di(uin , uout , i, r , 0.0,lgain);
         end di;
         ------------------------------     
     begin
@@ -213,13 +223,13 @@ begin
                 init_simfile(file_handler, ("time", "rkv1", "rkv2", "rkv3", "euv1", "euv2", "euv3", "rki1", "rki2", "rki3", "eui1", "eui2", "eui3"));
             end if;
 
-            i1k := (others => 0.0);
+            i1k  := (others => 0.0);
             uc1k := (others => 0.0);
 
-            i2k := (others => 0.0);
+            i2k  := (others => 0.0);
             uc2k := (others => 0.0);
 
-            i3k := (others => 0.0);
+            i3k  := (others => 0.0);
             uc3k := (others => 0.0);
 
             CASE sequencer is

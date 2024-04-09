@@ -56,27 +56,6 @@ begin
         variable uk : realarray(1 to 4) := (others => 0.0);
 
         file file_handler : text open write_mode is "lcr_simulation_rk4_tb.dat";
-        -- ------------------------------     
-        -- function di
-        -- (
-        --     uin, uout, i, r, lgain : real
-        -- )
-        -- return real
-        -- is
-        -- begin
-        --     return (uin - uout - i*r)*lgain;
-        -- end di;
-        -- ------------------------------     
-        -- function du
-        -- (
-        --     ic, ugain : real
-        -- )
-        -- return real
-        -- is
-        -- begin
-        --     return ic*ugain;
-        -- end du;
-        -- ------------------------------     
     begin
         if rising_edge(simulator_clock) then
             simulation_counter <= simulation_counter + 1;
@@ -98,14 +77,8 @@ begin
                     ik(4) := (uin - (voltage + uk(3)) - (current + ik(3))*r)*l;
                     uk(4) := (current + ik(3))*c;
 
-                    -- current <= current + ik(1) * 0.5 + ik(2);
-                    -- voltage <= voltage + uk(1) * 0.5 + uk(2);
-
-                    -- current <= current + (uin - voltage - current*r)*l;
-                    -- voltage <= voltage + current*c;
-
-                    current <= current + 1.0/6.0*(ik(1)*2.0 + 4.0*ik(2) + 2.0*ik(3) + ik(4));
-                    voltage <= voltage + 1.0/6.0*(uk(1)*2.0 + 4.0*uk(2) + 2.0*uk(3) + uk(4));
+                    current <= current + 1.0/6.0 * (ik(1) * 2.0 + 4.0 * ik(2) + 2.0 * ik(3) + ik(4));
+                    voltage <= voltage + 1.0/6.0 * (uk(1) * 2.0 + 4.0 * uk(2) + 2.0 * uk(3) + uk(4));
 
                 when 1 => 
                     realtime <= realtime + timestep;
