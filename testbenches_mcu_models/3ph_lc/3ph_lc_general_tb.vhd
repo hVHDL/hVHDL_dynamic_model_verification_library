@@ -60,7 +60,7 @@ architecture vunit_simulation of lcr_3ph_general_tb is
     signal u3 : real := init_u3;
 
     signal simtime : real := 0.0;
-    constant timestep : real := 1.0e-6;
+    constant timestep : real := 0.25e-6 * 10.0 * 10.0;
     constant stoptime : real := 25.0e-3;
 
 ------------------------------------------------------------------------
@@ -270,13 +270,24 @@ begin
             end if;
             CASE sequencer is
                 WHEN 0 => 
-                    uc1_ref <= i1_ref / c(0)*timestep + uc1_ref ;
-                    uc2_ref <= i2_ref / c(1)*timestep + uc2_ref ;
-                    uc3_ref <= i3_ref / c(2)*timestep + uc3_ref ;
+                    di1 <= (u1 - uc1_ref - i1_ref * r(0)) ;
+                    di2 <= (u2 - uc2_ref - i2_ref * r(1)) ;
+                    di3 <= (u3 - uc3_ref - i3_ref * r(2)) ;
+                    i1_ref <= (u1 - uc1_ref - i1_ref * r(0) - un) / l(0)*timestep + i1_ref ;
+                    i2_ref <= (u2 - uc2_ref - i2_ref * r(1) - un) / l(1)*timestep + i2_ref ;
+                    i3_ref <= (u3 - uc3_ref - i3_ref * r(2) - un) / l(2)*timestep + i3_ref ;
 
                     sequencer <= sequencer + 1;
 
                 WHEN 1 => 
+                    uc1_ref <= i1_ref / c(0)*timestep + uc1_ref ;
+                    uc2_ref <= i2_ref / c(1)*timestep + uc2_ref ;
+                    uc3_ref <= i3_ref / c(2)*timestep + uc3_ref ;
+                    un  <= di1*neutral_gains(0) + di2*neutral_gains(1) + di3*neutral_gains(2);
+
+
+
+                ------------------------------------------------------------------------
                     ul1 := (u1 - uc1 - i1 * r(0));
                     ul2 := (u2 - uc2 - i2 * r(1));
                     ul3 := (u3 - uc3 - i3 * r(2));
@@ -332,32 +343,24 @@ begin
                     uc2k(3) := (i2+i2k(2)) / c(1)*timestep;
                     uc3k(3) := (i3+i3k(2)) / c(2)*timestep;
                 ------------------------------------------------------------------------
-                    -- i1 <= i1 + 1.0/6.0 * (i1k(0)*1.0 + i1k(1)*2.0 + i1k(2)* 2.0 + i1k(3));
-                    -- i2 <= i2 + 1.0/6.0 * (i2k(0)*1.0 + i2k(1)*2.0 + i2k(2)* 2.0 + i2k(3));
-                    -- i3 <= i3 + 1.0/6.0 * (i3k(0)*1.0 + i3k(1)*2.0 + i3k(2)* 2.0 + i3k(3));
+                    i1 <= i1 + 1.0/6.0 * (i1k(0)*1.0 + i1k(1)*2.0 + i1k(2)* 2.0 + i1k(3));
+                    i2 <= i2 + 1.0/6.0 * (i2k(0)*1.0 + i2k(1)*2.0 + i2k(2)* 2.0 + i2k(3));
+                    i3 <= i3 + 1.0/6.0 * (i3k(0)*1.0 + i3k(1)*2.0 + i3k(2)* 2.0 + i3k(3));
+
+                    uc1 <= uc1 + 1.0/6.0 * (uc1k(0)*1.0 + uc1k(1)*2.0 + uc1k(2)*2.0 + uc1k(3));
+                    uc2 <= uc2 + 1.0/6.0 * (uc2k(0)*1.0 + uc2k(1)*2.0 + uc2k(2)*2.0 + uc2k(3));
+                    uc3 <= uc3 + 1.0/6.0 * (uc3k(0)*1.0 + uc3k(1)*2.0 + uc3k(2)*2.0 + uc3k(3));
+
+                    -- i1 <= i1 + i1k(1);
+                    -- i2 <= i2 + i2k(1);
+                    -- i3 <= i3 + i3k(1);
                     --
-                    -- uc1 <= uc1 + 1.0/6.0 * (uc1k(0)*1.0 + uc1k(1)*2.0 + uc1k(2)*2.0 + uc1k(3));
-                    -- uc2 <= uc2 + 1.0/6.0 * (uc2k(0)*1.0 + uc2k(1)*2.0 + uc2k(2)*2.0 + uc2k(3));
-                    -- uc3 <= uc3 + 1.0/6.0 * (uc3k(0)*1.0 + uc3k(1)*2.0 + uc3k(2)*2.0 + uc3k(3));
-
-                    i1 <= i1 + i1k(1);
-                    i2 <= i2 + i2k(1);
-                    i3 <= i3 + i3k(1);
-
-                    uc1 <= uc1 + uc1k(1);
-                    uc2 <= uc2 + uc2k(1);
-                    uc3 <= uc3 + uc3k(1);
+                    -- uc1 <= uc1 + uc1k(1);
+                    -- uc2 <= uc2 + uc2k(1);
+                    -- uc3 <= uc3 + uc3k(1);
 
                 ------------------------------------------------------------------------
 
-                    i1_ref <= (u1 - uc1_ref - i1_ref * r(0) - un) / l(0)*timestep + i1_ref ;
-                    i2_ref <= (u2 - uc2_ref - i2_ref * r(1) - un) / l(1)*timestep + i2_ref ;
-                    i3_ref <= (u3 - uc3_ref - i3_ref * r(2) - un) / l(2)*timestep + i3_ref ;
-
-                    di1 <= (u1 - uc1_ref - i1_ref * r(0)) ;
-                    di2 <= (u2 - uc2_ref - i2_ref * r(1)) ;
-                    di3 <= (u3 - uc3_ref - i3_ref * r(2)) ;
-                    un <= di1*neutral_gains(0) + di2*neutral_gains(1) + di3*neutral_gains(2);
 
                     -- un <= vn;
                     

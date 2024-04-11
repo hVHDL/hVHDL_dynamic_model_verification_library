@@ -42,9 +42,9 @@ architecture vunit_simulation of rk2_3ph_lc_tb is
     signal uc2 : real := 0.0;
     signal uc3 : real := 0.0;
 
-    signal i1_ref : real := 0.0;
-    signal i2_ref : real := 0.0;
-    signal i3_ref : real := 0.0;
+    signal i1_ref  : real := 0.0;
+    signal i2_ref  : real := 0.0;
+    signal i3_ref  : real := 0.0;
     signal uc1_ref : real := 0.0;
     signal uc2_ref : real := 0.0;
     signal uc3_ref : real := 0.0;
@@ -266,6 +266,7 @@ begin
             end if;
             CASE sequencer is
                 WHEN 0 => 
+                ------------------------------------------------------------------------
                 -- runge kutta 1st iteration
                     ul1 := (u1 - uc1 - i1 * r(0));
                     ul2 := (u2 - uc2 - i2 * r(1));
@@ -298,13 +299,13 @@ begin
                 ------------------------------------------------------------------------
                 -- runge kutta output
 
-                    i1 <= i1 + i1k(1);
-                    i2 <= i2 + i2k(1);
-                    i3 <= i3 + i3k(1);
+                    i1_ref <= i1_ref + i1k(1);
+                    i2_ref <= i2_ref + i2k(1);
+                    i3_ref <= i3_ref + i3k(1);
 
-                    uc1 <= uc1 + uc1k(1);
-                    uc2 <= uc2 + uc2k(1);
-                    uc3 <= uc3 + uc3k(1);
+                    uc1_ref <= uc1_ref + uc1k(1);
+                    uc2_ref <= uc2_ref + uc2k(1);
+                    uc3_ref <= uc3_ref + uc3k(1);
 
                 ------------------------------------------------------------------------
 
