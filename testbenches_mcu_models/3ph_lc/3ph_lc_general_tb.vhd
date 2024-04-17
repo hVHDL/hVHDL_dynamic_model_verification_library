@@ -60,8 +60,8 @@ architecture vunit_simulation of lcr_3ph_general_tb is
     signal u3 : real := init_u3;
 
     signal simtime : real := 0.0;
-    constant timestep : real := 0.25e-6 * 10.0 * 10.0;
-    constant stoptime : real := 25.0e-3;
+    constant timestep : real := 0.25e-6 * 10.0 * 5.0;
+    constant stoptime : real := 20.0e-3;
 
 ------------------------------------------------------------------------
     function "*"
@@ -119,12 +119,8 @@ architecture vunit_simulation of lcr_3ph_general_tb is
 
     constant neutral_gains : real_array := (l(1)*l(2) , l(0)*l(2), l(0)*l(1)) / (l(0)*l(1) + l(0)*l(2) + l(1)*l(2));
 
-    signal l_gain : real_array(l'range) := 1.0/l;
-    signal c_gain : real_array(c'range) := 1.0/c;
-
     signal sine_amplitude : real := 1.0;
     signal sequencer : natural := 1;
-
 
     constant input_voltage_addr : natural := 89;
     constant voltage_addr       : natural := 90;
@@ -284,8 +280,6 @@ begin
                     uc2_ref <= i2_ref / c(1)*timestep + uc2_ref ;
                     uc3_ref <= i3_ref / c(2)*timestep + uc3_ref ;
                     un  <= di1*neutral_gains(0) + di2*neutral_gains(1) + di3*neutral_gains(2);
-
-
 
                 ------------------------------------------------------------------------
                     ul1 := (u1 - uc1 - i1 * r(0));

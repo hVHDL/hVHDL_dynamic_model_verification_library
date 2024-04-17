@@ -60,8 +60,8 @@ architecture vunit_simulation of rk2_3ph_lc_tb is
     signal u3 : real := init_u3;
 
     signal simtime : real := 0.0;
-    constant timestep : real := 1.0e-6;
-    constant stoptime : real := 25.0e-3;
+    constant timestep : real := 2.5e-6;
+    constant stoptime : real := 20.0e-3;
 
 ------------------------------------------------------------------------
     function "*"
@@ -225,10 +225,6 @@ begin
 
         variable used_instruction : t_instruction;
 
-        variable mac1 : real := 0.0;
-        variable sub1 : real := 0.0;
-        variable mac2 : real := 0.0;
-        variable mac3 : real := 0.0;
         variable ul1  : real := 0.0;
         variable ul2  : real := 0.0;
         variable ul3  : real := 0.0;
@@ -252,7 +248,6 @@ begin
 
         variable phase : real := init_phase;
 
-
         file file_handler : text open write_mode is "lcr_3ph_general_tb.dat";
 
         variable vn : real := 0.0;
@@ -268,34 +263,67 @@ begin
                 WHEN 0 => 
                 ------------------------------------------------------------------------
                 -- runge kutta 1st iteration
-                    ul1 := (u1 - uc1 - i1 * r(0));
-                    ul2 := (u2 - uc2 - i2 * r(1));
-                    ul3 := (u3 - uc3 - i3 * r(2));
+                    -- ul1 := (u1 - uc1_ref - i1_ref * r(0));
+                    -- ul2 := (u2 - uc2_ref - i2_ref * r(1));
+                    -- ul3 := (u3 - uc3_ref - i3_ref * r(2));
 
-                    vn := ul1*neutral_gains(0) + ul2 * neutral_gains(1) + ul3*neutral_gains(2);
+                    mult_add(0) := uc1_ref + i1_ref * r(0);
+                    mult_add(1) := uc2_ref + i2_ref * r(1);
+                    mult_add(2) := uc3_ref + i3_ref * r(2);
+                    sub(0) := u1 - mult_add(0);
+                    sub(1) := u2 - mult_add(1);
+                    sub(2) := u3 - mult_add(2);
 
-                    i1k(0)  := (ul1 - vn) / l(0) * timestep;
-                    i2k(0)  := (ul2 - vn) / l(1) * timestep;
-                    i3k(0)  := (ul3 - vn) / l(2) * timestep;
-                    uc1k(0) := i1 / c(0) * timestep;
-                    uc2k(0) := i2 / c(1) * timestep;
-                    uc3k(0) := i3 / c(2) * timestep;
+                    ul1 := sub(0);
+                    ul2 := sub(1);
+                    ul3 := sub(2);
+
+                    mult(0) := sub(0) * neutral_gains(0);
+                    mult(1) := sub(1) * neutral_gains(1);
+                    mult(2) := sub(2) * neutral_gains(2);
+
+                    add(0) := mult(0) + mult(1);
+                    add(1) := add(0) + mult(2);
+
+                    -- vn := ul1*neutral_gains(0) + ul2 * neutral_gains(1) + ul3*neutral_gains(2);
+                    vn := add(1);
+
+                    -- ul1 := (u1 - uc1_ref - i1_ref * r(0));
+                    -- ul2 := (u2 - uc2_ref - i2_ref * r(1));
+                    -- ul3 := (u3 - uc3_ref - i3_ref * r(2));
+
+                    -- vn := ul1*neutral_gains(0) + ul2 * neutral_gains(1) + ul3*neutral_gains(2);
+
+                    sub(3) := sub(0) - add(1);
+                    sub(4) := sub(1) - add(1);
+                    sub(5) := sub(2) - add(1);
+
+                    -- i1k(0)  := (ul1 - vn) / l(0) * timestep;
+                    -- i2k(0)  := (ul2 - vn) / l(1) * timestep;
+                    -- i3k(0)  := (ul3 - vn) / l(2) * timestep;
+
+                    i1k(0)  := (sub(3)) / l(0) * timestep;
+                    i2k(0)  := (sub(4)) / l(1) * timestep;
+                    i3k(0)  := (sub(5)) / l(2) * timestep;
+
+                    uc1k(0) := i1_ref / c(0) * timestep;
+                    uc2k(0) := i2_ref / c(1) * timestep;
+                    uc3k(0) := i3_ref / c(2) * timestep;
                 ------------------------------------------------------------------------
-                -- runge kutta 2nd iteration
 
-                    ul1 := u1 - (uc1 + uc1k(0)/2.0) - (i1 + i1k(0)/2.0) * r(0);
-                    ul2 := u2 - (uc2 + uc2k(0)/2.0) - (i2 + i2k(0)/2.0) * r(1);
-                    ul3 := u3 - (uc3 + uc3k(0)/2.0) - (i3 + i3k(0)/2.0) * r(2);
+                    ul1 := (u1 - (uc1_ref+uc1k(0) / 2.0) - (i1_ref+i1k(0) / 2.0) * r(0));
+                    ul2 := (u2 - (uc2_ref+uc2k(0) / 2.0) - (i2_ref+i2k(0) / 2.0) * r(1));
+                    ul3 := (u3 - (uc3_ref+uc3k(0) / 2.0) - (i3_ref+i3k(0) / 2.0) * r(2));
 
                     vn := ul1*neutral_gains(0) + ul2 * neutral_gains(1) + ul3*neutral_gains(2);
 
                     i1k(1)  := (ul1 - vn) / l(0)*timestep;
                     i2k(1)  := (ul2 - vn) / l(1)*timestep;
                     i3k(1)  := (ul3 - vn) / l(2)*timestep;
-
-                    uc1k(1) := (i1 + i1k(0)/2.0 ) / c(0)*timestep;
-                    uc2k(1) := (i2 + i2k(0)/2.0 ) / c(1)*timestep;
-                    uc3k(1) := (i3 + i3k(0)/2.0 ) / c(2)*timestep;
+                    uc1k(1) := (i1_ref+i1k(0) / 2.0)/ c(0)*timestep;
+                    uc2k(1) := (i2_ref+i2k(0) / 2.0)/ c(1)*timestep;
+                    uc3k(1) := (i3_ref+i3k(0) / 2.0)/ c(2)*timestep;
+                ------------------------------------------------------------------------
                 ------------------------------------------------------------------------
                 -- runge kutta output
 

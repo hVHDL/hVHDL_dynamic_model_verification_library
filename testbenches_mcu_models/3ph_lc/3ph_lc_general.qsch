@@ -222,6 +222,6 @@
   «wire (2500,1900) (500,1900) "u1"»
   «wire (400,1200) (900,1200) "u2"»
   «wire (1900,500) (2100,500) "u3"»
-  «text (-1650,-1450) 1 7 0 0x1000000 -1 -1 "ï»¿.option maxstep=1000n\n.tran 30m uic \n.plot V(n)"»
+  «text (-1650,-1450) 1 7 0 0x1000000 -1 -1 "ï»¿.option maxstep=1000n\n.tran 25m uic \n.plot V(n)"»
 »
 
