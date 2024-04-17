@@ -302,13 +302,30 @@ begin
                     -- i2k(0)  := (ul2 - vn) / l(1) * timestep;
                     -- i3k(0)  := (ul3 - vn) / l(2) * timestep;
 
-                    i1k(0)  := (sub(3)) / l(0) * timestep;
-                    i2k(0)  := (sub(4)) / l(1) * timestep;
-                    i3k(0)  := (sub(5)) / l(2) * timestep;
+                    -- i1k(0)  := (sub(3)) / l(0) * timestep;
+                    -- i2k(0)  := (sub(4)) / l(1) * timestep;
+                    -- i3k(0)  := (sub(5)) / l(2) * timestep;
 
-                    uc1k(0) := i1_ref / c(0) * timestep;
-                    uc2k(0) := i2_ref / c(1) * timestep;
-                    uc3k(0) := i3_ref / c(2) * timestep;
+                    mult(3)  := (sub(3)) / l(0) * timestep;
+                    mult(4)  := (sub(4)) / l(1) * timestep;
+                    mult(5)  := (sub(5)) / l(2) * timestep;
+
+                    i1k(0)  := mult(3);
+                    i2k(0)  := mult(4);
+                    i3k(0)  := mult(5);
+
+                    -- uc1k(0) := i1_ref / c(0) * timestep;
+                    -- uc2k(0) := i2_ref / c(1) * timestep;
+                    -- uc3k(0) := i3_ref / c(2) * timestep;
+
+                    mult(6)  := (i1_ref) / l(0) * timestep;
+                    mult(7)  := (i2_ref) / l(1) * timestep;
+                    mult(8)  := (i3_ref) / l(2) * timestep;
+
+                    uc1k(0) := mult(6);
+                    uc2k(0) := mult(7);
+                    uc3k(0) := mult(8);
+
                 ------------------------------------------------------------------------
 
                     ul1 := (u1 - (uc1_ref+uc1k(0) / 2.0) - (i1_ref+i1k(0) / 2.0) * r(0));
