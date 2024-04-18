@@ -171,35 +171,52 @@ architecture vunit_simulation of rk2_3ph_lc_tb is
 
             constant riL : real_vector(0 to 2) := rL+rC;
         begin
+            mult_add(3) := u1 + iload(0)*rC(0); -- uc1k(0)
+            mult_add(4) := u2 + iload(1)*rC(1); -- uc2k(0)
+            mult_add(5) := u3 + iload(2)*rC(2); -- uc3k(0)
+            --pipeline block (
+            mult_add(0) := uc1_ref + i1_ref * riL(0);
+            mult_add(1) := uc2_ref + i2_ref * riL(1);
+            mult_add(2) := uc3_ref + i3_ref * riL(2);
             sub(0) := i1_ref - iload(0);
             sub(1) := i2_ref - iload(1);
             sub(2) := i3_ref - iload(2);
-            mult_add(0) := uc1_ref + i1_ref * rL(0);
-            mult_add(1) := uc2_ref + i2_ref * rL(1);
-            mult_add(2) := uc3_ref + i3_ref * rL(2);
+            --)
 
-            mult(6) := (i1_ref) / c(0) * timestep; -- uc1k(0)
-            mult(7) := (i2_ref) / c(1) * timestep; -- uc2k(0)
-            mult(8) := (i3_ref) / c(2) * timestep; -- uc3k(0)
-            sub(3) := u1 - mult_add(0); --ul1 := sub(0);
-            sub(4) := u2 - mult_add(1); --ul2 := sub(1);
-            sub(5) := u3 - mult_add(2); --ul3 := sub(2);
+            --pipeline block (
+            sub(3)   := mult_add(3) - mult_add(0); --ul1 := sub(0);
+            sub(4)   := mult_add(4) - mult_add(1); --ul2 := sub(1);
+            sub(5)   := mult_add(5) - mult_add(2); --ul3 := sub(2);
+            mult(6)  := (sub(0)) / c(0) * timestep; -- uc1k(0)
+            mult(7)  := (sub(1)) / c(1) * timestep; -- uc2k(0)
+            mult(8)  := (sub(2)) / c(2) * timestep; -- uc3k(0)
+            --)
 
             mult(0) := sub(3) * neutral_gains(0);
+            --pipeline block (
             mult(1) := sub(4) * neutral_gains(1);
             mult(2) := sub(5) * neutral_gains(2);
+            --)
 
+            --pipeline block (
             add(0) := mult(0) + mult(1);
+            --)
 
+            --pipeline block (
             add(1) := add(0) + mult(2); -- vn
+            --)
 
+            --pipeline block (
             sub(6) := sub(3) - add(1);
             sub(7) := sub(4) - add(1);
             sub(8) := sub(5) - add(1);
+            --)
 
+            --pipeline block (
             mult(3) := (sub(6)) / l(0) * timestep; -- i1k(0)
             mult(4) := (sub(7)) / l(1) * timestep; -- i2k(0)
             mult(5) := (sub(8)) / l(2) * timestep; -- i3k(0)
+            --)
 
             return (
                     mult(3), -- i1k(0)
