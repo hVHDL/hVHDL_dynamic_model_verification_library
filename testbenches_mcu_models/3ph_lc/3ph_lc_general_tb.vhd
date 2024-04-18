@@ -66,11 +66,11 @@ architecture vunit_simulation of lcr_3ph_general_tb is
 ------------------------------------------------------------------------
     function "*"
     (
-        number : real; num_array : real_array
+        number : real; num_array : real_vector
     )
-    return real_array
+    return real_vector
     is
-        variable retval : real_array(num_array'range);
+        variable retval : real_vector(num_array'range);
     begin
         for i in num_array'range loop
             retval(i) := num_array(i)*number;
@@ -82,11 +82,11 @@ architecture vunit_simulation of lcr_3ph_general_tb is
 ------------------------------------------------------------------------
     function "/"
     (
-        number : real; num_array : real_array
+        number : real; num_array : real_vector
     )
-    return real_array
+    return real_vector
     is
-        variable retval : real_array(num_array'range);
+        variable retval : real_vector(num_array'range);
     begin
         for i in num_array'range loop
             retval(i) := number/num_array(i);
@@ -98,11 +98,11 @@ architecture vunit_simulation of lcr_3ph_general_tb is
 ------------------------------------------------------------------------
     function "/"
     (
-        num_array : real_array; number : real
+        num_array : real_vector; number : real
     )
-    return real_array
+    return real_vector
     is
-        variable retval : real_array(num_array'range);
+        variable retval : real_vector(num_array'range);
     begin
         for i in num_array'range loop
             retval(i) := num_array(i)/number;
@@ -113,11 +113,11 @@ architecture vunit_simulation of lcr_3ph_general_tb is
     end "/";
 ------------------------------------------------------------------------
 
-    constant r : real_array(0 to 2) := (0.03  , 0.03  , 0.03);
-    constant l : real_array(0 to 2) := (80.0e-6, 80.0e-6, 80.0e-6);
-    constant c : real_array(0 to 2) := (60.0e-6, 60.0e-6, 60.0e-6);
+    constant r : real_vector(0 to 2) := (0.03  , 0.03  , 0.03);
+    constant l : real_vector(0 to 2) := (80.0e-6, 80.0e-6, 80.0e-6);
+    constant c : real_vector(0 to 2) := (60.0e-6, 60.0e-6, 60.0e-6);
 
-    constant neutral_gains : real_array := (l(1)*l(2) , l(0)*l(2), l(0)*l(1)) / (l(0)*l(1) + l(0)*l(2) + l(1)*l(2));
+    constant neutral_gains : real_vector := (l(1)*l(2) , l(0)*l(2), l(0)*l(1)) / (l(0)*l(1) + l(0)*l(2) + l(1)*l(2));
 
     signal sine_amplitude : real := 1.0;
     signal sequencer : natural := 1;

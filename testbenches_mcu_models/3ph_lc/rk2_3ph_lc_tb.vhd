@@ -17,14 +17,17 @@ library ieee;
 
 package arraymath is
 
-    function "*" ( number : real; num_array : real_array)
-        return real_array;
+    function "+" ( left, right : real_vector)
+        return real_vector;
 
-    function "/" ( number : real; num_array : real_array)
-        return real_array;
+    function "*" ( number : real; num_array : real_vector)
+        return real_vector;
 
-    function "/" ( num_array : real_array; number : real)
-        return real_array;
+    function "/" ( number : real; num_array : real_vector)
+        return real_vector;
+
+    function "/" ( num_array : real_vector; number : real)
+        return real_vector;
 
 end package arraymath;
 
@@ -32,11 +35,11 @@ package body arraymath is
 ------------------------------------------------------------------------
     function "*"
     (
-        number : real; num_array : real_array
+        number : real; num_array : real_vector
     )
-    return real_array
+    return real_vector
     is
-        variable retval : real_array(num_array'range);
+        variable retval : real_vector(num_array'range);
     begin
         for i in num_array'range loop
             retval(i) := num_array(i)*number;
@@ -48,11 +51,11 @@ package body arraymath is
 ------------------------------------------------------------------------
     function "/"
     (
-        number : real; num_array : real_array
+        number : real; num_array : real_vector
     )
-    return real_array
+    return real_vector
     is
-        variable retval : real_array(num_array'range);
+        variable retval : real_vector(num_array'range);
     begin
         for i in num_array'range loop
             retval(i) := number/num_array(i);
@@ -62,13 +65,29 @@ package body arraymath is
 
     end "/";
 ------------------------------------------------------------------------
+    function "+"
+    (
+        left, right : real_vector
+    )
+    return real_vector
+    is
+        variable retval : real_vector(left'range);
+    begin
+        for i in left'range loop
+            retval(i) := left(i)+right(i);
+        end loop;
+
+        return retval;
+
+    end "+";
+------------------------------------------------------------------------
     function "/"
     (
-        num_array : real_array; number : real
+        num_array : real_vector; number : real
     )
-    return real_array
+    return real_vector
     is
-        variable retval : real_array(num_array'range);
+        variable retval : real_vector(num_array'range);
     begin
         for i in num_array'range loop
             retval(i) := num_array(i)/number;
@@ -91,7 +110,6 @@ library vunit_lib;
 context vunit_lib.vunit_context;
 
     use work.arraymath.all;
-
     use work.microinstruction_pkg.all;
     use work.multi_port_ram_pkg.all;
     use work.simple_processor_pkg.all;
@@ -116,64 +134,72 @@ architecture vunit_simulation of rk2_3ph_lc_tb is
     signal simulator_clock     : std_logic := '0';
     signal simulation_counter  : natural   := 0;
 
-        subtype t_retval is real_array(0 to 5);
+    subtype t_retval is real_vector(0 to 5);
 
         function calculate_lcr_3ph
         (
-            u1 : real;
-            u2 : real;
-            u3 : real;
-
-            uc1_ref : real;
-            uc2_ref : real;
-            uc3_ref : real;
-
-            i1_ref : real;
-            i2_ref : real;
-            i3_ref : real;
-
-            r : real_array;
-            l : real_array;
-            c : real_array;
+            uin   : real_vector(0 to 2);
+            iload : real_vector(0 to 2);
+            uc    : real_vector(0 to 2);
+            iL    : real_vector(0 to 2);
+            rL    : real_vector(0 to 2);
+            rC    : real_vector(0 to 2);
+            l     : real_vector(0 to 2);
+            c     : real_vector(0 to 2);
             timestep : real
         )
         return t_retval
         is
+            alias u1 is uin(0);
+            alias u2 is uin(1);
+            alias u3 is uin(2);
+            alias uc1_ref is uc(0);
+            alias uc2_ref is uc(1);
+            alias uc3_ref is uc(2);
 
-            variable add      : real_array(0 to 15) := (others => 0.0);
-            variable sub      : real_array(0 to 15) := (others => 0.0);
-            variable mult_add : real_array(0 to 15) := (others => 0.0);
-            variable mult     : real_array(0 to 15) := (others => 0.0);
-            variable result   : real_array(0 to 15) := (others => 0.0);
+            alias i1_ref is iL(0);
+            alias i2_ref is iL(1);
+            alias i3_ref is iL(2);
 
-            constant neutral_gains : real_array := (l(1)*l(2) , l(0)*l(2), l(0)*l(1)) / (l(0)*l(1) + l(0)*l(2) + l(1)*l(2));
+            variable add      : real_vector(0 to 15) := (others => 0.0);
+            variable sub      : real_vector(0 to 15) := (others => 0.0);
+            variable mult_add : real_vector(0 to 15) := (others => 0.0);
+            variable mult     : real_vector(0 to 15) := (others => 0.0);
+            variable result   : real_vector(0 to 15) := (others => 0.0);
+
+            constant neutral_gains : real_vector := (l(1)*l(2) , l(0)*l(2), l(0)*l(1)) / (l(0)*l(1) + l(0)*l(2) + l(1)*l(2));
+
+            constant riL : real_vector(0 to 2) := rL+rC;
         begin
-            mult_add(0) := uc1_ref + i1_ref * r(0);
-            mult_add(1) := uc2_ref + i2_ref * r(1);
-            mult_add(2) := uc3_ref + i3_ref * r(2);
+            sub(0) := i1_ref - iload(0);
+            sub(1) := i2_ref - iload(1);
+            sub(2) := i3_ref - iload(2);
+            mult_add(0) := uc1_ref + i1_ref * rL(0);
+            mult_add(1) := uc2_ref + i2_ref * rL(1);
+            mult_add(2) := uc3_ref + i3_ref * rL(2);
 
             mult(6) := (i1_ref) / c(0) * timestep; -- uc1k(0)
             mult(7) := (i2_ref) / c(1) * timestep; -- uc2k(0)
             mult(8) := (i3_ref) / c(2) * timestep; -- uc3k(0)
-            sub(0) := u1 - mult_add(0); --ul1 := sub(0);
-            sub(1) := u2 - mult_add(1); --ul2 := sub(1);
-            sub(2) := u3 - mult_add(2); --ul3 := sub(2);
+            sub(3) := u1 - mult_add(0); --ul1 := sub(0);
+            sub(4) := u2 - mult_add(1); --ul2 := sub(1);
+            sub(5) := u3 - mult_add(2); --ul3 := sub(2);
 
-            mult(0) := sub(0) * neutral_gains(0);
-            mult(1) := sub(1) * neutral_gains(1);
-            mult(2) := sub(2) * neutral_gains(2);
+            mult(0) := sub(3) * neutral_gains(0);
+            mult(1) := sub(4) * neutral_gains(1);
+            mult(2) := sub(5) * neutral_gains(2);
 
             add(0) := mult(0) + mult(1);
 
             add(1) := add(0) + mult(2); -- vn
 
-            sub(3) := sub(0) - add(1);
-            sub(4) := sub(1) - add(1);
-            sub(5) := sub(2) - add(1);
+            sub(6) := sub(3) - add(1);
+            sub(7) := sub(4) - add(1);
+            sub(8) := sub(5) - add(1);
 
-            mult(3) := (sub(3)) / l(0) * timestep; -- i1k(0)
-            mult(4) := (sub(4)) / l(1) * timestep; -- i2k(0)
-            mult(5) := (sub(5)) / l(2) * timestep; -- i3k(0)
+            mult(3) := (sub(6)) / l(0) * timestep; -- i1k(0)
+            mult(4) := (sub(7)) / l(1) * timestep; -- i2k(0)
+            mult(5) := (sub(8)) / l(2) * timestep; -- i3k(0)
 
             return (
                     mult(3), -- i1k(0)
@@ -222,11 +248,11 @@ architecture vunit_simulation of rk2_3ph_lc_tb is
     constant stoptime : real := 20.0e-3;
 
 
-    constant r : real_array(0 to 2) := (0.03  , 0.03  , 0.03);
-    constant l : real_array(0 to 2) := (80.0e-6, 80.0e-6, 80.0e-6);
-    constant c : real_array(0 to 2) := (60.0e-6, 60.0e-6, 60.0e-6);
+    constant r : real_vector(0 to 2) := (0.03  , 0.03  , 0.03);
+    constant l : real_vector(0 to 2) := (80.0e-6, 80.0e-6, 80.0e-6);
+    constant c : real_vector(0 to 2) := (60.0e-6, 60.0e-6, 60.0e-6);
 
-    constant neutral_gains : real_array := (l(1)*l(2) , l(0)*l(2), l(0)*l(1)) / (l(0)*l(1) + l(0)*l(2) + l(1)*l(2));
+    constant neutral_gains : real_vector := (l(1)*l(2) , l(0)*l(2), l(0)*l(1)) / (l(0)*l(1) + l(0)*l(2) + l(1)*l(2));
 
     signal sine_amplitude : real := 1.0;
     signal sequencer : natural := 0;
@@ -338,27 +364,27 @@ begin
         variable ul2  : real := 0.0;
         variable ul3  : real := 0.0;
 
-        variable add      : real_array(0 to 15) := (others => 0.0);
-        variable sub      : real_array(0 to 15) := (others => 0.0);
-        variable mult_add : real_array(0 to 15) := (others => 0.0);
-        variable mult     : real_array(0 to 15) := (others => 0.0);
-        variable result   : real_array(0 to 15) := (others => 0.0);
+        variable add      : real_vector(0 to 15) := (others => 0.0);
+        variable sub      : real_vector(0 to 15) := (others => 0.0);
+        variable mult_add : real_vector(0 to 15) := (others => 0.0);
+        variable mult     : real_vector(0 to 15) := (others => 0.0);
+        variable result   : real_vector(0 to 15) := (others => 0.0);
 
-        variable i1k : real_array(0 to 3) := (others => 0.0);
-        variable uc1k : real_array(0 to 3) := (others => 0.0);
+        variable i1k : real_vector(0 to 3) := (others => 0.0);
+        variable uc1k : real_vector(0 to 3) := (others => 0.0);
 
-        variable i2k : real_array(0 to 3) := (others => 0.0);
-        variable uc2k : real_array(0 to 3) := (others => 0.0);
+        variable i2k : real_vector(0 to 3) := (others => 0.0);
+        variable uc2k : real_vector(0 to 3) := (others => 0.0);
 
-        variable i3k : real_array(0 to 3) := (others => 0.0);
-        variable uc3k : real_array(0 to 3) := (others => 0.0);
+        variable i3k : real_vector(0 to 3) := (others => 0.0);
+        variable uc3k : real_vector(0 to 3) := (others => 0.0);
 
         variable phase : real := init_phase;
 
         file file_handler : text open write_mode is "lcr_3ph_general_tb.dat";
 
         variable vn : real := 0.0;
-        variable retvals : real_array(0 to 5);
+        variable retvals : real_vector(0 to 5);
 
     begin
         if rising_edge(simulator_clock) then
@@ -378,7 +404,7 @@ begin
                     -- sub(0) := i2_ref - i2_load
                     -- sub(0) := i3_ref - i3_load
 
-                    retvals := calculate_lcr_3ph(u1, u2, u3, uc1_ref, uc2_ref, uc3_ref, i1_ref, i2_ref, i3_ref, r, l, c, timestep);
+                    retvals := calculate_lcr_3ph((u1, u2, u3),(others => 0.0), (uc1_ref, uc2_ref, uc3_ref), (i1_ref, i2_ref, i3_ref), r, (others => 0.0), l, c, timestep);
 
                     i1k(0) := retvals(0);
                     i2k(0) := retvals(1);
@@ -388,18 +414,27 @@ begin
                     uc3k(0) := retvals(5);
 
                 ------------------------------------------------------------------------
-                    retvals := calculate_lcr_3ph(u1, u2, u3, 
-                        (uc1_ref+uc1k(0) / 2.0),
-                        (uc2_ref+uc2k(0) / 2.0),
-                        (uc3_ref+uc3k(0) / 2.0),
-                        (i1_ref+i1k(0) / 2.0),
-                        (i2_ref+i2k(0) / 2.0),
-                        (i3_ref+i3k(0) / 2.0),
-                        r, l, c, timestep);
+                -- runge kutta 2nd iteration
+                    retvals := calculate_lcr_3ph(
+                        (u1, u2, u3),
+                        (others => 0.0),
+                        (
+                            uc1_ref+uc1k(0) / 2.0,
+                            uc2_ref+uc2k(0) / 2.0,
+                            uc3_ref+uc3k(0) / 2.0
+                        ),
+                        (
+                            i1_ref+i1k(0) / 2.0,
+                            i2_ref+i2k(0) / 2.0,
+                            i3_ref+i3k(0) / 2.0
+                        ),
+                        r,
+                        (others => 0.0), 
+                        l, c, timestep);
 
-                    i1k(1) := retvals(0);
-                    i2k(1) := retvals(1);
-                    i3k(1) := retvals(2);
+                    i1k(1)  := retvals(0);
+                    i2k(1)  := retvals(1);
+                    i3k(1)  := retvals(2);
                     uc1k(1) := retvals(3);
                     uc2k(1) := retvals(4);
                     uc3k(1) := retvals(5);

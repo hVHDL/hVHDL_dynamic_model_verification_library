@@ -49,12 +49,12 @@ architecture vunit_simulation of lcr_simulation_rk4_tb is
 --  -----------------------O------------------------O-------------------------O
                         
 
-    subtype real_array is real_number_array;
-    signal il : real_array(0 to 2) := (others => 0.0);
-    signal uc : real_array(0 to 2) := (others => 0.0);
+    subtype real_vector is real_number_array;
+    signal il : real_vector(0 to 2) := (others => 0.0);
+    signal uc : real_vector(0 to 2) := (others => 0.0);
 
-    signal l : real_array(0 to 2) := (2.2e-6, 2.2e-6, 1000.0e-3);
-    signal c : real_array(0 to 2) := (7.0e-6, 3.3e-6, 10.0e-6);
+    signal l : real_vector(0 to 2) := (2.2e-6, 2.2e-6, 1000.0e-3);
+    signal c : real_vector(0 to 2) := (7.0e-6, 3.3e-6, 10.0e-6);
 
 begin
 

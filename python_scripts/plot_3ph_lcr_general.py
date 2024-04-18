@@ -8,7 +8,7 @@ import os
 path_to_this_file = os.path.dirname(os.path.realpath(__file__))
 
 #change directory to the lc filter directory
-pqs.chdir(path_to_this_file + '/../testbenches_mcu_models/3ph_lc')
+pqs.chdir(path_to_this_file + '/../testbenches_mcu_models/3ph_lc/qspice')
 
 run = pqs('3ph_lc_general.qsch')
 

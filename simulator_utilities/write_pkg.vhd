@@ -6,8 +6,7 @@ library ieee;
 
 package write_pkg is
 
-    type real_number_array is array (natural range <>) of real;
-    alias real_array is real_number_array;
+    subtype real_number_array is real_vector;
     type stringarray is array (natural range <>) of string;
 ------------------------------------------------------------------------
     procedure write_to (
