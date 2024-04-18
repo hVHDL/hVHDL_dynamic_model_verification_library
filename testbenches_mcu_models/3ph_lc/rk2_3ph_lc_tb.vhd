@@ -1,12 +1,6 @@
-
-LIBRARY ieee  ; 
-    USE ieee.NUMERIC_STD.all  ; 
-    USE ieee.std_logic_1164.all  ; 
-    use ieee.math_real.all;
-    use std.textio.all;
-
-library vunit_lib;
-context vunit_lib.vunit_context;
+library ieee;
+    use ieee.std_logic_1164.all;
+    use ieee.numeric_std.all;
 
     use work.microinstruction_pkg.all;
     use work.multi_port_ram_pkg.all;
@@ -21,48 +15,20 @@ context vunit_lib.vunit_context;
     use work.microinstruction_pkg.all;
     use work.write_pkg.all;
 
-entity rk2_3ph_lc_tb is
-  generic (runner_cfg : string);
-end;
+package arraymath is
 
-architecture vunit_simulation of rk2_3ph_lc_tb is
+    function "*" ( number : real; num_array : real_array)
+        return real_array;
 
-    constant clock_period      : time    := 1 ns;
-    
-    signal simulator_clock     : std_logic := '0';
-    signal simulation_counter  : natural   := 0;
-    -----------------------------------
-    -- simulation specific signals ----
-    ------------------------------------------------------------------------
+    function "/" ( number : real; num_array : real_array)
+        return real_array;
 
-    signal i1 : real := 0.0;
-    signal i2 : real := 0.0;
-    signal i3 : real := 0.0;
-    signal uc1 : real := 0.0;
-    signal uc2 : real := 0.0;
-    signal uc3 : real := 0.0;
+    function "/" ( num_array : real_array; number : real)
+        return real_array;
 
-    signal i1_ref  : real := 0.0;
-    signal i2_ref  : real := 0.0;
-    signal i3_ref  : real := 0.0;
-    signal uc1_ref : real := 0.0;
-    signal uc2_ref : real := 0.0;
-    signal uc3_ref : real := 0.0;
+end package arraymath;
 
-    constant init_phase : real := 0.0;
-
-    constant init_u1 : real := sin((init_phase+2.0*math_pi/3.0) mod (2.0*math_pi));
-    constant init_u2 : real := sin(init_phase);
-    constant init_u3 : real := -init_u1-init_u2;
-
-    signal u1 : real := init_u1;
-    signal u2 : real := init_u2;
-    signal u3 : real := init_u3;
-
-    signal simtime : real := 0.0;
-    constant timestep : real := 2.5e-6;
-    constant stoptime : real := 20.0e-3;
-
+package body arraymath is
 ------------------------------------------------------------------------
     function "*"
     (
@@ -112,6 +78,149 @@ architecture vunit_simulation of rk2_3ph_lc_tb is
 
     end "/";
 ------------------------------------------------------------------------
+
+end package body arraymath;
+
+LIBRARY ieee  ; 
+    USE ieee.NUMERIC_STD.all  ; 
+    USE ieee.std_logic_1164.all  ; 
+    use ieee.math_real.all;
+    use std.textio.all;
+
+library vunit_lib;
+context vunit_lib.vunit_context;
+
+    use work.arraymath.all;
+
+    use work.microinstruction_pkg.all;
+    use work.multi_port_ram_pkg.all;
+    use work.simple_processor_pkg.all;
+    use work.processor_configuration_pkg.all;
+    use work.float_alu_pkg.all;
+    use work.float_type_definitions_pkg.all;
+    use work.float_to_real_conversions_pkg.all;
+
+    use work.memory_processing_pkg.all;
+    use work.float_assembler_pkg.all;
+    use work.microinstruction_pkg.all;
+    use work.write_pkg.all;
+
+entity rk2_3ph_lc_tb is
+  generic (runner_cfg : string);
+end;
+
+architecture vunit_simulation of rk2_3ph_lc_tb is
+
+    constant clock_period      : time    := 1 ns;
+    
+    signal simulator_clock     : std_logic := '0';
+    signal simulation_counter  : natural   := 0;
+
+        subtype t_retval is real_array(0 to 5);
+
+        function calculate_lcr_3ph
+        (
+            u1 : real;
+            u2 : real;
+            u3 : real;
+
+            uc1_ref : real;
+            uc2_ref : real;
+            uc3_ref : real;
+
+            i1_ref : real;
+            i2_ref : real;
+            i3_ref : real;
+
+            r : real_array;
+            l : real_array;
+            c : real_array;
+            timestep : real
+        )
+        return t_retval
+        is
+
+            variable add      : real_array(0 to 15) := (others => 0.0);
+            variable sub      : real_array(0 to 15) := (others => 0.0);
+            variable mult_add : real_array(0 to 15) := (others => 0.0);
+            variable mult     : real_array(0 to 15) := (others => 0.0);
+            variable result   : real_array(0 to 15) := (others => 0.0);
+
+            constant neutral_gains : real_array := (l(1)*l(2) , l(0)*l(2), l(0)*l(1)) / (l(0)*l(1) + l(0)*l(2) + l(1)*l(2));
+        begin
+            mult_add(0) := uc1_ref + i1_ref * r(0);
+            mult_add(1) := uc2_ref + i2_ref * r(1);
+            mult_add(2) := uc3_ref + i3_ref * r(2);
+
+            mult(6) := (i1_ref) / c(0) * timestep; -- uc1k(0)
+            mult(7) := (i2_ref) / c(1) * timestep; -- uc2k(0)
+            mult(8) := (i3_ref) / c(2) * timestep; -- uc3k(0)
+            sub(0) := u1 - mult_add(0); --ul1 := sub(0);
+            sub(1) := u2 - mult_add(1); --ul2 := sub(1);
+            sub(2) := u3 - mult_add(2); --ul3 := sub(2);
+
+            mult(0) := sub(0) * neutral_gains(0);
+            mult(1) := sub(1) * neutral_gains(1);
+            mult(2) := sub(2) * neutral_gains(2);
+
+            add(0) := mult(0) + mult(1);
+
+            add(1) := add(0) + mult(2); -- vn
+
+            sub(3) := sub(0) - add(1);
+            sub(4) := sub(1) - add(1);
+            sub(5) := sub(2) - add(1);
+
+            mult(3) := (sub(3)) / l(0) * timestep; -- i1k(0)
+            mult(4) := (sub(4)) / l(1) * timestep; -- i2k(0)
+            mult(5) := (sub(5)) / l(2) * timestep; -- i3k(0)
+
+            return (
+                    mult(3), -- i1k(0)
+                    mult(4), -- i2k(0)
+                    mult(5), -- i3k(0)
+                    mult(6), -- uc1k(0)
+                    mult(7), -- uc2k(0)
+                    mult(8)  -- uc3k(0)
+                );   
+            
+        end calculate_lcr_3ph;
+
+    -----------------------------------
+    -----------------------------------
+    -----------------------------------
+    -----------------------------------
+    -- simulation specific signals ----
+    ------------------------------------------------------------------------
+
+    signal i1 : real := 0.0;
+    signal i2 : real := 0.0;
+    signal i3 : real := 0.0;
+    signal uc1 : real := 0.0;
+    signal uc2 : real := 0.0;
+    signal uc3 : real := 0.0;
+
+    signal i1_ref  : real := 0.0;
+    signal i2_ref  : real := 0.0;
+    signal i3_ref  : real := 0.0;
+    signal uc1_ref : real := 0.0;
+    signal uc2_ref : real := 0.0;
+    signal uc3_ref : real := 0.0;
+
+    constant init_phase : real := 0.0;
+
+    constant init_u1 : real := sin((init_phase+2.0*math_pi/3.0) mod (2.0*math_pi));
+    constant init_u2 : real := sin(init_phase);
+    constant init_u3 : real := -init_u1-init_u2;
+
+    signal u1 : real := init_u1;
+    signal u2 : real := init_u2;
+    signal u3 : real := init_u3;
+
+    signal simtime : real := 0.0;
+    constant timestep : real := 1.5e-6;
+    constant stoptime : real := 20.0e-3;
+
 
     constant r : real_array(0 to 2) := (0.03  , 0.03  , 0.03);
     constant l : real_array(0 to 2) := (80.0e-6, 80.0e-6, 80.0e-6);
@@ -229,28 +338,27 @@ begin
         variable ul2  : real := 0.0;
         variable ul3  : real := 0.0;
 
-        type realarray is array (natural range <>) of real;
+        variable add      : real_array(0 to 15) := (others => 0.0);
+        variable sub      : real_array(0 to 15) := (others => 0.0);
+        variable mult_add : real_array(0 to 15) := (others => 0.0);
+        variable mult     : real_array(0 to 15) := (others => 0.0);
+        variable result   : real_array(0 to 15) := (others => 0.0);
 
-        variable add      : realarray(0 to 15) := (others => 0.0);
-        variable sub      : realarray(0 to 15) := (others => 0.0);
-        variable mult_add : realarray(0 to 15) := (others => 0.0);
-        variable mult     : realarray(0 to 15) := (others => 0.0);
-        variable result   : realarray(0 to 15) := (others => 0.0);
+        variable i1k : real_array(0 to 3) := (others => 0.0);
+        variable uc1k : real_array(0 to 3) := (others => 0.0);
 
-        variable i1k : realarray(0 to 3) := (others => 0.0);
-        variable uc1k : realarray(0 to 3) := (others => 0.0);
+        variable i2k : real_array(0 to 3) := (others => 0.0);
+        variable uc2k : real_array(0 to 3) := (others => 0.0);
 
-        variable i2k : realarray(0 to 3) := (others => 0.0);
-        variable uc2k : realarray(0 to 3) := (others => 0.0);
-
-        variable i3k : realarray(0 to 3) := (others => 0.0);
-        variable uc3k : realarray(0 to 3) := (others => 0.0);
+        variable i3k : real_array(0 to 3) := (others => 0.0);
+        variable uc3k : real_array(0 to 3) := (others => 0.0);
 
         variable phase : real := init_phase;
 
         file file_handler : text open write_mode is "lcr_3ph_general_tb.dat";
 
         variable vn : real := 0.0;
+        variable retvals : real_array(0 to 5);
 
     begin
         if rising_edge(simulator_clock) then
@@ -261,85 +369,41 @@ begin
             end if;
             CASE sequencer is
                 WHEN 0 => 
+
                 ------------------------------------------------------------------------
                 -- runge kutta 1st iteration
-                    -- ul1 := (u1 - uc1_ref - i1_ref * r(0));
-                    -- ul2 := (u2 - uc2_ref - i2_ref * r(1));
-                    -- ul3 := (u3 - uc3_ref - i3_ref * r(2));
 
-                    mult_add(0) := uc1_ref + i1_ref * r(0);
-                    mult_add(1) := uc2_ref + i2_ref * r(1);
-                    mult_add(2) := uc3_ref + i3_ref * r(2);
-                    sub(0) := u1 - mult_add(0);
-                    sub(1) := u2 - mult_add(1);
-                    sub(2) := u3 - mult_add(2);
+                    -- load current
+                    -- sub(0) := i1_ref - i1_load
+                    -- sub(0) := i2_ref - i2_load
+                    -- sub(0) := i3_ref - i3_load
 
-                    ul1 := sub(0);
-                    ul2 := sub(1);
-                    ul3 := sub(2);
+                    retvals := calculate_lcr_3ph(u1, u2, u3, uc1_ref, uc2_ref, uc3_ref, i1_ref, i2_ref, i3_ref, r, l, c, timestep);
 
-                    mult(0) := sub(0) * neutral_gains(0);
-                    mult(1) := sub(1) * neutral_gains(1);
-                    mult(2) := sub(2) * neutral_gains(2);
-
-                    add(0) := mult(0) + mult(1);
-                    add(1) := add(0) + mult(2);
-
-                    -- vn := ul1*neutral_gains(0) + ul2 * neutral_gains(1) + ul3*neutral_gains(2);
-                    vn := add(1);
-
-                    -- ul1 := (u1 - uc1_ref - i1_ref * r(0));
-                    -- ul2 := (u2 - uc2_ref - i2_ref * r(1));
-                    -- ul3 := (u3 - uc3_ref - i3_ref * r(2));
-
-                    -- vn := ul1*neutral_gains(0) + ul2 * neutral_gains(1) + ul3*neutral_gains(2);
-
-                    sub(3) := sub(0) - add(1);
-                    sub(4) := sub(1) - add(1);
-                    sub(5) := sub(2) - add(1);
-
-                    -- i1k(0)  := (ul1 - vn) / l(0) * timestep;
-                    -- i2k(0)  := (ul2 - vn) / l(1) * timestep;
-                    -- i3k(0)  := (ul3 - vn) / l(2) * timestep;
-
-                    -- i1k(0)  := (sub(3)) / l(0) * timestep;
-                    -- i2k(0)  := (sub(4)) / l(1) * timestep;
-                    -- i3k(0)  := (sub(5)) / l(2) * timestep;
-
-                    mult(3)  := (sub(3)) / l(0) * timestep;
-                    mult(4)  := (sub(4)) / l(1) * timestep;
-                    mult(5)  := (sub(5)) / l(2) * timestep;
-
-                    i1k(0)  := mult(3);
-                    i2k(0)  := mult(4);
-                    i3k(0)  := mult(5);
-
-                    -- uc1k(0) := i1_ref / c(0) * timestep;
-                    -- uc2k(0) := i2_ref / c(1) * timestep;
-                    -- uc3k(0) := i3_ref / c(2) * timestep;
-
-                    mult(6)  := (i1_ref) / l(0) * timestep;
-                    mult(7)  := (i2_ref) / l(1) * timestep;
-                    mult(8)  := (i3_ref) / l(2) * timestep;
-
-                    uc1k(0) := mult(6);
-                    uc2k(0) := mult(7);
-                    uc3k(0) := mult(8);
+                    i1k(0) := retvals(0);
+                    i2k(0) := retvals(1);
+                    i3k(0) := retvals(2);
+                    uc1k(0) := retvals(3);
+                    uc2k(0) := retvals(4);
+                    uc3k(0) := retvals(5);
 
                 ------------------------------------------------------------------------
+                    retvals := calculate_lcr_3ph(u1, u2, u3, 
+                        (uc1_ref+uc1k(0) / 2.0),
+                        (uc2_ref+uc2k(0) / 2.0),
+                        (uc3_ref+uc3k(0) / 2.0),
+                        (i1_ref+i1k(0) / 2.0),
+                        (i2_ref+i2k(0) / 2.0),
+                        (i3_ref+i3k(0) / 2.0),
+                        r, l, c, timestep);
 
-                    ul1 := (u1 - (uc1_ref+uc1k(0) / 2.0) - (i1_ref+i1k(0) / 2.0) * r(0));
-                    ul2 := (u2 - (uc2_ref+uc2k(0) / 2.0) - (i2_ref+i2k(0) / 2.0) * r(1));
-                    ul3 := (u3 - (uc3_ref+uc3k(0) / 2.0) - (i3_ref+i3k(0) / 2.0) * r(2));
+                    i1k(1) := retvals(0);
+                    i2k(1) := retvals(1);
+                    i3k(1) := retvals(2);
+                    uc1k(1) := retvals(3);
+                    uc2k(1) := retvals(4);
+                    uc3k(1) := retvals(5);
 
-                    vn := ul1*neutral_gains(0) + ul2 * neutral_gains(1) + ul3*neutral_gains(2);
-
-                    i1k(1)  := (ul1 - vn) / l(0)*timestep;
-                    i2k(1)  := (ul2 - vn) / l(1)*timestep;
-                    i3k(1)  := (ul3 - vn) / l(2)*timestep;
-                    uc1k(1) := (i1_ref+i1k(0) / 2.0)/ c(0)*timestep;
-                    uc2k(1) := (i2_ref+i2k(0) / 2.0)/ c(1)*timestep;
-                    uc3k(1) := (i3_ref+i3k(0) / 2.0)/ c(2)*timestep;
                 ------------------------------------------------------------------------
                 ------------------------------------------------------------------------
                 -- runge kutta output
