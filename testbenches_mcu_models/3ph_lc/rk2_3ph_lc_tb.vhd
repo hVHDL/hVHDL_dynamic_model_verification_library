@@ -150,17 +150,6 @@ architecture vunit_simulation of rk2_3ph_lc_tb is
         )
         return t_retval
         is
-            alias u1 is uin(0);
-            alias u2 is uin(1);
-            alias u3 is uin(2);
-            alias uc1_ref is uc(0);
-            alias uc2_ref is uc(1);
-            alias uc3_ref is uc(2);
-
-            alias i1_ref is iL(0);
-            alias i2_ref is iL(1);
-            alias i3_ref is iL(2);
-
             variable add      : real_vector(0 to 15) := (others => 0.0);
             variable sub      : real_vector(0 to 15) := (others => 0.0);
             variable mult_add : real_vector(0 to 15) := (others => 0.0);
@@ -171,22 +160,22 @@ architecture vunit_simulation of rk2_3ph_lc_tb is
 
             constant riL : real_vector(0 to 2) := rL+rC;
         begin
-            mult_add(3) := u1 + iload(0)*rC(0); -- uc1k(0)
-            mult_add(4) := u2 + iload(1)*rC(1); -- uc2k(0)
-            mult_add(5) := u3 + iload(2)*rC(2); -- uc3k(0)
+            mult_add(0) := uin(0) + iload(0)*rC(0); -- uc1k(0)
+            mult_add(1) := uin(1) + iload(1)*rC(1); -- uc2k(0)
+            mult_add(2) := uin(2) + iload(2)*rC(2); -- uc3k(0)
             --pipeline block (
-            mult_add(0) := uc1_ref + i1_ref * riL(0);
-            mult_add(1) := uc2_ref + i2_ref * riL(1);
-            mult_add(2) := uc3_ref + i3_ref * riL(2);
-            sub(0) := i1_ref - iload(0);
-            sub(1) := i2_ref - iload(1);
-            sub(2) := i3_ref - iload(2);
+            mult_add(3) := uc(0) + iL(0) * riL(0);
+            mult_add(4) := uc(1) + iL(1) * riL(1);
+            mult_add(5) := uc(2) + iL(2) * riL(2);
+            sub(0) := iL(0) - iload(0);
+            sub(1) := iL(1) - iload(1);
+            sub(2) := iL(2) - iload(2);
             --)
 
             --pipeline block (
-            sub(3)   := mult_add(3) - mult_add(0); --ul1 := sub(0);
-            sub(4)   := mult_add(4) - mult_add(1); --ul2 := sub(1);
-            sub(5)   := mult_add(5) - mult_add(2); --ul3 := sub(2);
+            sub(3)   := mult_add(0) - mult_add(3); --ul1 := sub(0);
+            sub(4)   := mult_add(1) - mult_add(4); --ul2 := sub(1);
+            sub(5)   := mult_add(2) - mult_add(5); --ul3 := sub(2);
             mult(6)  := (sub(0)) / c(0) * timestep; -- uc1k(0)
             mult(7)  := (sub(1)) / c(1) * timestep; -- uc2k(0)
             mult(8)  := (sub(2)) / c(2) * timestep; -- uc3k(0)
@@ -284,21 +273,24 @@ architecture vunit_simulation of rk2_3ph_lc_tb is
     constant mac2_addr          : natural := voltage_addr;
     constant sub1_addr          : natural := 97;
 
-    function build_lcr_sw (filter_gain : real range 0.0 to 1.0; u_address, y_address, g_address, temp_address : natural) return ram_array
+    function build_lcr_sw (
+            uin_addr   : integer_vector(0 to 2);
+            iload_addr : integer_vector(0 to 2);
+            uc_addr    : integer_vector(0 to 2);
+            iL_addr    : integer_vector(0 to 2);
+            rL_addr    : integer_vector(0 to 2);
+            rC_addr    : integer_vector(0 to 2);
+            L_addr     : integer_vector(0 to 2);
+            C_addr     : integer_vector(0 to 2);
+            l          : real_vector(0 to 2);
+            c          : real_vector(0 to 2);
+            timestep   : real)
+    return ram_array
     is
 
         constant program : program_array :=(
             pipelined_block(
-                program_array'(
-                write_instruction(mpy_add, mac1_addr, current_addr, r_addr, voltage_addr),
-                write_instruction(mpy_add, mac2_addr, current_addr, c_addr, voltage_addr)
-                )
-            ) &
-            pipelined_block(
-                write_instruction(sub, sub1_addr, input_voltage_addr, mac1_addr)
-            ) &
-            pipelined_block(
-                write_instruction(mpy_add, current_addr, sub1_addr, l_addr, current_addr)
+                write_instruction(nop)
             ) &
             write_instruction(program_end));
         ------------------------------
@@ -310,8 +302,8 @@ architecture vunit_simulation of rk2_3ph_lc_tb is
         retval(input_voltage_addr) := to_std_logic_vector(to_float(1.0));
         retval(voltage_addr      ) := to_std_logic_vector(to_float(0.0));
         retval(current_addr      ) := to_std_logic_vector(to_float(0.0));
-        retval(c_addr            ) := to_std_logic_vector(to_float(0.01));
-        retval(l_addr            ) := to_std_logic_vector(to_float(0.01));
+        -- retval(c_addr            ) := to_std_logic_vector(to_float(0.01));
+        -- retval(l_addr            ) := to_std_logic_vector(to_float(0.01));
         retval(r_addr            ) := to_std_logic_vector(to_float(0.5));
         retval(mac1_addr         ) := to_std_logic_vector(to_float(0.0));
         retval(mac2_addr         ) := to_std_logic_vector(to_float(0.0));
@@ -321,7 +313,7 @@ architecture vunit_simulation of rk2_3ph_lc_tb is
     end build_lcr_sw;
 
 ------------------------------------------------------------------------
-    constant ram_contents : ram_array := build_lcr_sw(0.05 , 0 , 0 , 0, 0);
+    constant ram_contents : ram_array := (others => (others => '0'));
 ------------------------------------------------------------------------
 
     signal self                     : simple_processor_record := init_processor;
@@ -346,18 +338,6 @@ architecture vunit_simulation of rk2_3ph_lc_tb is
 
     signal float_alu : float_alu_record := init_float_alu;
 
-    signal testi1 : real := 0.0;
-    signal testi2 : real := 0.0;
-
-    signal usum : real := 0.0;
-    signal usum_ref : real := 0.0;
-    signal isum_ref : real := 0.0;
-
-    signal un : real := 0.0;
-
-    signal di1 : real := 0.0;
-    signal di2 : real := 0.0;
-    signal di3 : real := 0.0;
 
 begin
 
@@ -455,6 +435,7 @@ begin
                     uc1k(1) := retvals(3);
                     uc2k(1) := retvals(4);
                     uc3k(1) := retvals(5);
+
 
                 ------------------------------------------------------------------------
                 ------------------------------------------------------------------------
