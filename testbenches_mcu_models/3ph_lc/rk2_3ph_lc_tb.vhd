@@ -11,7 +11,7 @@ library ieee;
     use work.float_to_real_conversions_pkg.all;
 
     use work.memory_processing_pkg.all;
-    use work.float_assembler_pkg.all;
+    -- use work.float_assembler_pkg.all;
     use work.microinstruction_pkg.all;
     use work.write_pkg.all;
 
@@ -150,23 +150,22 @@ architecture vunit_simulation of rk2_3ph_lc_tb is
         )
         return t_retval
         is
-            variable add      : real_vector(0 to 15) := (others => 0.0);
-            variable sub      : real_vector(0 to 15) := (others => 0.0);
-            variable mult_add : real_vector(0 to 15) := (others => 0.0);
-            variable mult     : real_vector(0 to 15) := (others => 0.0);
-            variable result   : real_vector(0 to 15) := (others => 0.0);
+            variable add      : real_vector(0 to 1) := (others => 0.0);
+            variable sub      : real_vector(0 to 8) := (others => 0.0);
+            variable mult_add : real_vector(0 to 5) := (others => 0.0);
+            variable mult     : real_vector(0 to 8) := (others => 0.0);
 
             constant neutral_gains : real_vector := (l(1)*l(2) , l(0)*l(2), l(0)*l(1)) / (l(0)*l(1) + l(0)*l(2) + l(1)*l(2));
 
             constant riL : real_vector(0 to 2) := rL+rC;
         begin
-            mult_add(0) := uin(0) + iload(0)*rC(0); -- uc1k(0)
-            mult_add(1) := uin(1) + iload(1)*rC(1); -- uc2k(0)
-            mult_add(2) := uin(2) + iload(2)*rC(2); -- uc3k(0)
+            mult_add(0) := iload(0)*rC(0) + uin(0); -- uc1k(0)
+            mult_add(1) := iload(1)*rC(1) + uin(1); -- uc2k(0)
+            mult_add(2) := iload(2)*rC(2) + uin(2); -- uc3k(0)
             --pipeline block (
-            mult_add(3) := uc(0) + iL(0) * riL(0);
-            mult_add(4) := uc(1) + iL(1) * riL(1);
-            mult_add(5) := uc(2) + iL(2) * riL(2);
+            mult_add(3) := iL(0) * riL(0) + uc(0);
+            mult_add(4) := iL(1) * riL(1) + uc(1);
+            mult_add(5) := iL(2) * riL(2) + uc(2);
             sub(0) := iL(0) - iload(0);
             sub(1) := iL(1) - iload(1);
             sub(2) := iL(2) - iload(2);
@@ -176,23 +175,23 @@ architecture vunit_simulation of rk2_3ph_lc_tb is
             sub(3)   := mult_add(0) - mult_add(3); --ul1 := sub(0);
             sub(4)   := mult_add(1) - mult_add(4); --ul2 := sub(1);
             sub(5)   := mult_add(2) - mult_add(5); --ul3 := sub(2);
-            mult(6)  := (sub(0)) / c(0) * timestep; -- uc1k(0)
-            mult(7)  := (sub(1)) / c(1) * timestep; -- uc2k(0)
-            mult(8)  := (sub(2)) / c(2) * timestep; -- uc3k(0)
+            mult(0)  := (sub(0)) / c(0) * timestep; -- uc1k(0)
+            mult(1)  := (sub(1)) / c(1) * timestep; -- uc2k(0)
+            mult(2)  := (sub(2)) / c(2) * timestep; -- uc3k(0)
             --)
 
-            mult(0) := sub(3) * neutral_gains(0);
+            mult(6) := sub(3) * neutral_gains(0);
             --pipeline block (
-            mult(1) := sub(4) * neutral_gains(1);
-            mult(2) := sub(5) * neutral_gains(2);
-            --)
-
-            --pipeline block (
-            add(0) := mult(0) + mult(1);
+            mult(7) := sub(4) * neutral_gains(1);
+            mult(8) := sub(5) * neutral_gains(2);
             --)
 
             --pipeline block (
-            add(1) := add(0) + mult(2); -- vn
+            add(0) := mult(6) + mult(7);
+            --)
+
+            --pipeline block (
+            add(1) := add(0) + mult(8); -- vn
             --)
 
             --pipeline block (
@@ -211,9 +210,9 @@ architecture vunit_simulation of rk2_3ph_lc_tb is
                     mult(3), -- i1k(0)
                     mult(4), -- i2k(0)
                     mult(5), -- i3k(0)
-                    mult(6), -- uc1k(0)
-                    mult(7), -- uc2k(0)
-                    mult(8)  -- uc3k(0)
+                    mult(0), -- uc1k(0)
+                    mult(1), -- uc2k(0)
+                    mult(2)  -- uc3k(0)
                 );   
             
         end calculate_lcr_3ph;
@@ -274,23 +273,89 @@ architecture vunit_simulation of rk2_3ph_lc_tb is
     constant sub1_addr          : natural := 97;
 
     function build_lcr_sw (
+            lc_filter_offset : integer;
             uin_addr   : integer_vector(0 to 2);
             iload_addr : integer_vector(0 to 2);
             uc_addr    : integer_vector(0 to 2);
             iL_addr    : integer_vector(0 to 2);
             rL_addr    : integer_vector(0 to 2);
             rC_addr    : integer_vector(0 to 2);
-            L_addr     : integer_vector(0 to 2);
-            C_addr     : integer_vector(0 to 2);
-            l          : real_vector(0 to 2);
-            c          : real_vector(0 to 2);
-            timestep   : real)
+            rLrC_addr  : integer_vector(0 to 2);
+            Lgain_addr : integer_vector(0 to 2);
+            Cgain_addr : integer_vector(0 to 2);
+            neutral_gains_addr : integer_vector(0 to 2)
+        )
     return ram_array
     is
 
+        function "+"
+        (
+            left : integer_vector; right : integer
+        )
+        return integer_vector
+        is
+            variable retval : integer_vector(left'range) := left;
+        begin
+            for i in left'range loop
+                retval(i) := left(i) + right;
+            end loop;
+
+            return retval;
+        end "+";
+
+        variable add_addr     : integer_vector(0 to 1) := (0,1)                           + lc_filter_offset;
+        variable sub_addr     : integer_vector(0 to 8) := (2,3,4,5,6,7,8,9,10)            + lc_filter_offset;
+        variable mpy_add_addr : integer_vector(0 to 5) := (11,12,13,14,15,16)             + lc_filter_offset;
+        variable mult_addr    : integer_vector(0 to 8) := (17,18,19,20,21,22,23,24,25,26) + lc_filter_offset;
+
         constant program : program_array :=(
+            write_instruction(mpy_add , mpy_add_addr(0) , iload_addr(0) , rC_addr(0) , uin_addr(0))   ,
+            write_instruction(mpy_add , mpy_add_addr(1) , iload_addr(1) , rC_addr(1) , uin_addr(1))   ,
+            write_instruction(mpy_add , mpy_add_addr(2) , iload_addr(2) , rC_addr(2) , uin_addr(2)) &
+
             pipelined_block(
-                write_instruction(nop)
+                program_array'(
+                write_instruction(mpy_add , mpy_add_addr(3) , iL_addr(0) , rLrC_addr(0)    , uc_addr(0)) ,
+                write_instruction(mpy_add , mpy_add_addr(4) , iL_addr(1) , rLrC_addr(1)    , uc_addr(1)) ,
+                write_instruction(mpy_add , mpy_add_addr(5) , iL_addr(2) , rLrC_addr(2)    , uc_addr(2)) ,
+                write_instruction(sub     , sub_addr(0)     , iL_addr(0) , iload_addr(0))  ,
+                write_instruction(sub     , sub_addr(1)     , iL_addr(1) , iload_addr(1))  ,
+                write_instruction(sub     , sub_addr(2)     , iL_addr(2) , iload_addr(2)))
+            ) &
+            pipelined_block(
+                program_array'(
+                write_instruction(sub , sub_addr(3)  , mpy_add_addr(0) , mpy_add_addr(3)) ,
+                write_instruction(sub , sub_addr(4)  , mpy_add_addr(1) , mpy_add_addr(4)) ,
+                write_instruction(sub , sub_addr(5)  , mpy_add_addr(2) , mpy_add_addr(5)) ,
+                write_instruction(mpy , mult_addr(0) , iL_addr(0)      , iload_addr(0))   ,
+                write_instruction(mpy , mult_addr(1) , iL_addr(1)      , iload_addr(1))   ,
+                write_instruction(mpy , mult_addr(2) , iL_addr(2)      , iload_addr(2)))
+            ) &
+
+            write_instruction(mpy , mult_addr(6) , sub_addr(3) , neutral_gains_addr(0))  &
+
+            pipelined_block(
+                program_array'(
+                write_instruction(mpy , mult_addr(7) , sub_addr(4) , neutral_gains_addr(1))  ,
+                write_instruction(mpy , mult_addr(8) , sub_addr(5) , neutral_gains_addr(2)))
+            ) &
+            pipelined_block(
+                write_instruction(add , add_addr(0) , mult_addr(6) , mult_addr(7))
+            )&
+            pipelined_block(
+                write_instruction(add , add_addr(1) , add_addr(0) , mult_addr(8))
+            )&
+            pipelined_block(
+                program_array'(
+                write_instruction(sub , sub_addr(6) , sub_addr(3) , add_addr(1))  ,
+                write_instruction(sub , sub_addr(7) , sub_addr(4) , add_addr(1))  ,
+                write_instruction(sub , sub_addr(8) , sub_addr(5) , add_addr(1)))
+            ) &
+            pipelined_block(
+                program_array'(
+                write_instruction(mpy , sub_addr(6) , Lgain_addr(0))  ,
+                write_instruction(mpy , sub_addr(7) , Lgain_addr(1))  ,
+                write_instruction(mpy , sub_addr(8) , Lgain_addr(2)))
             ) &
             write_instruction(program_end));
         ------------------------------
