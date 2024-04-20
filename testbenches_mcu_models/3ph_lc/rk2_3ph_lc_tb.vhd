@@ -262,32 +262,25 @@ architecture vunit_simulation of rk2_3ph_lc_tb is
     signal sine_amplitude : real := 1.0;
     signal sequencer : natural := 0;
 
-    constant input_voltage_addr : natural := 89;
-    constant voltage_addr       : natural := 90;
-    constant current_addr       : natural := 91;
-    constant c_addr             : natural := 92;
-    constant l_addr             : natural := 93;
-    constant r_addr             : natural := 94;
-    constant mac1_addr          : natural := 95;
-    constant mac2_addr          : natural := voltage_addr;
-    constant sub1_addr          : natural := 97;
-
-    function build_lcr_sw (
-            lc_filter_offset : integer;
+    function lc_filter_3ph (
             uin_addr   : integer_vector(0 to 2);
             iload_addr : integer_vector(0 to 2);
             uc_addr    : integer_vector(0 to 2);
             iL_addr    : integer_vector(0 to 2);
-            rL_addr    : integer_vector(0 to 2);
+            rL_addr    : integer_vector(0 to 2); -- sum of input resistance and 
             rC_addr    : integer_vector(0 to 2);
-            rLrC_addr  : integer_vector(0 to 2);
+            rLrC_addr  : integer_vector(0 to 2); -- sum of inductor and capacitor resistances
             Lgain_addr : integer_vector(0 to 2);
             Cgain_addr : integer_vector(0 to 2);
-            neutral_gains_addr : integer_vector(0 to 2)
+            neutral_gains_addr    : integer_vector(0 to 2);
+            il_out_addr           : integer_vector(0 to 2);
+            uc_out_addr           : integer_vector(0 to 2);
+            lc_filter_data_offset : integer
         )
     return ram_array
     is
 
+        ------------------------------
         function "+"
         (
             left : integer_vector; right : integer
@@ -302,17 +295,17 @@ architecture vunit_simulation of rk2_3ph_lc_tb is
 
             return retval;
         end "+";
-
-        variable add_addr     : integer_vector(0 to 1) := (0,1)                           + lc_filter_offset;
-        variable sub_addr     : integer_vector(0 to 8) := (2,3,4,5,6,7,8,9,10)            + lc_filter_offset;
-        variable mpy_add_addr : integer_vector(0 to 5) := (11,12,13,14,15,16)             + lc_filter_offset;
-        variable mult_addr    : integer_vector(0 to 8) := (17,18,19,20,21,22,23,24,25,26) + lc_filter_offset;
+        ------------------------------
+        variable add_addr     : integer_vector(0 to 1) := (0,1)                        + lc_filter_data_offset;
+        variable sub_addr     : integer_vector(0 to 8) := (2,3,4,5,6,7,8,9,10)         + lc_filter_data_offset;
+        variable mpy_add_addr : integer_vector(0 to 5) := (11,12,13,14,15,16)          + lc_filter_data_offset;
+        variable mult_addr    : integer_vector(0 to 8) := (17,18,19,20,21,22,23,24,25) + lc_filter_data_offset;
 
         constant program : program_array :=(
             write_instruction(mpy_add , mpy_add_addr(0) , iload_addr(0) , rC_addr(0) , uin_addr(0))   ,
             write_instruction(mpy_add , mpy_add_addr(1) , iload_addr(1) , rC_addr(1) , uin_addr(1))   ,
-            write_instruction(mpy_add , mpy_add_addr(2) , iload_addr(2) , rC_addr(2) , uin_addr(2)) &
-
+            write_instruction(mpy_add , mpy_add_addr(2) , iload_addr(2) , rC_addr(2) , uin_addr(2)) 
+            &
             pipelined_block(
                 program_array'(
                 write_instruction(mpy_add , mpy_add_addr(3) , iL_addr(0) , rLrC_addr(0)    , uc_addr(0)) ,
@@ -331,9 +324,8 @@ architecture vunit_simulation of rk2_3ph_lc_tb is
                 write_instruction(mpy , mult_addr(1) , iL_addr(1)      , iload_addr(1))   ,
                 write_instruction(mpy , mult_addr(2) , iL_addr(2)      , iload_addr(2)))
             ) &
-
-            write_instruction(mpy , mult_addr(6) , sub_addr(3) , neutral_gains_addr(0))  &
-
+            write_instruction(mpy , mult_addr(6) , sub_addr(3) , neutral_gains_addr(0))  
+            &
             pipelined_block(
                 program_array'(
                 write_instruction(mpy , mult_addr(7) , sub_addr(4) , neutral_gains_addr(1))  ,
@@ -356,29 +348,73 @@ architecture vunit_simulation of rk2_3ph_lc_tb is
                 write_instruction(mpy , sub_addr(6) , Lgain_addr(0))  ,
                 write_instruction(mpy , sub_addr(7) , Lgain_addr(1))  ,
                 write_instruction(mpy , sub_addr(8) , Lgain_addr(2)))
-            ) &
-            write_instruction(program_end));
+            )&
+            pipelined_block(
+                program_array'(
+                write_instruction(add , sub_addr(6) , Lgain_addr(0))  ,
+                write_instruction(add , sub_addr(7) , Lgain_addr(1))  ,
+                write_instruction(add , sub_addr(8) , Lgain_addr(2)))
+            )&
+            write_instruction(program_end)
+        ); --end program 
         ------------------------------
         variable retval : ram_array := (others => (others => '0'));
     begin
+        -- use addresses 0-127 for variables and data
         for i in program'range loop
-            retval(i) := program(i);
+            retval(i+128) := program(i);
         end loop;
-        retval(input_voltage_addr) := to_std_logic_vector(to_float(1.0));
-        retval(voltage_addr      ) := to_std_logic_vector(to_float(0.0));
-        retval(current_addr      ) := to_std_logic_vector(to_float(0.0));
-        -- retval(c_addr            ) := to_std_logic_vector(to_float(0.01));
-        -- retval(l_addr            ) := to_std_logic_vector(to_float(0.01));
-        retval(r_addr            ) := to_std_logic_vector(to_float(0.5));
-        retval(mac1_addr         ) := to_std_logic_vector(to_float(0.0));
-        retval(mac2_addr         ) := to_std_logic_vector(to_float(0.0));
-        retval(sub1_addr         ) := to_std_logic_vector(to_float(0.0));
+        retval(uin_addr(0))           := to_std_logic_vector(to_float(1.0));
+        retval(uin_addr(1))           := to_std_logic_vector(to_float(-1.0));
+        retval(uin_addr(2))           := to_std_logic_vector(to_float(0.3));
+        --
+        retval(iload_addr(0))         := to_std_logic_vector(to_float(0.0));
+        retval(iload_addr(1))         := to_std_logic_vector(to_float(0.0));
+        retval(iload_addr(2))         := to_std_logic_vector(to_float(0.0));
+        --
+        retval(iL_addr(0))            := to_std_logic_vector(to_float(0.0));
+        retval(iL_addr(1))            := to_std_logic_vector(to_float(0.0));
+        retval(iL_addr(2))            := to_std_logic_vector(to_float(0.0));
+        --
+        retval(rL_addr(0))            := to_std_logic_vector(to_float(1.0));
+        retval(rL_addr(1))            := to_std_logic_vector(to_float(1.0));
+        retval(rL_addr(2))            := to_std_logic_vector(to_float(1.0));
+        --
+        retval(rLrC_addr(0))          := to_std_logic_vector(to_float(r(0)));
+        retval(rLrC_addr(1))          := to_std_logic_vector(to_float(r(1)));
+        retval(rLrC_addr(2))          := to_std_logic_vector(to_float(r(2)));
+        --
+        retval(Lgain_addr(0))         := to_std_logic_vector(to_float(1.0/l(0)*timestep));
+        retval(Lgain_addr(1))         := to_std_logic_vector(to_float(1.0/l(1)*timestep));
+        retval(Lgain_addr(2))         := to_std_logic_vector(to_float(1.0/l(2)*timestep));
+        --
+        retval(Cgain_addr(0))         := to_std_logic_vector(to_float(1.0/c(0)*timestep));
+        retval(Cgain_addr(1))         := to_std_logic_vector(to_float(1.0/c(1)*timestep));
+        retval(Cgain_addr(2))         := to_std_logic_vector(to_float(1.0/c(2)*timestep));
+        --
+        retval(neutral_gains_addr(0)) := to_std_logic_vector(to_float(neutral_gains(0)));
+        retval(neutral_gains_addr(1)) := to_std_logic_vector(to_float(neutral_gains(1)));
+        retval(neutral_gains_addr(2)) := to_std_logic_vector(to_float(neutral_gains(2)));
 
         return retval;
-    end build_lcr_sw;
+    end lc_filter_3ph;
 
 ------------------------------------------------------------------------
-    constant ram_contents : ram_array := (others => (others => '0'));
+    constant ram_contents : ram_array := lc_filter_3ph(
+            uin_addr              => (0  , 1  , 2)  ,
+            iload_addr            => (3  , 4  , 5)  ,
+            uc_addr               => (6  , 7  , 8)  ,
+            iL_addr               => (9  , 10 , 11) ,
+            rL_addr               => (12 , 13 , 14) ,
+            rC_addr               => (15 , 16 , 17) ,
+            rLrC_addr             => (18 , 19 , 20) ,
+            Lgain_addr            => (21 , 22 , 23) ,
+            Cgain_addr            => (24 , 25 , 26) ,
+            neutral_gains_addr    => (27 , 28 , 29) ,
+            il_out_addr           => (30 , 31 , 32) ,
+            uc_out_addr           => (33 , 34 , 35) ,
+            lc_filter_data_offset =>  36
+        );
 ------------------------------------------------------------------------
 
     signal self                     : simple_processor_record := init_processor;
@@ -580,16 +616,16 @@ begin
             end if;
 
             CASE counter is
-                WHEN 0 => request_data_from_ram(ram_read_data_in, voltage_addr);
-                WHEN 1 => request_data_from_ram(ram_read_data_in, current_addr);
+                -- WHEN 0 => request_data_from_ram(ram_read_data_in, voltage_addr);
+                -- WHEN 1 => request_data_from_ram(ram_read_data_in, current_addr);
                 WHEN others => --do nothing
             end CASE;
             if not processor_is_enabled(self) then
                 if ram_read_is_ready(ram_read_data_out) then
                     counter2 <= counter2 + 1;
                     CASE counter2 is
-                        WHEN 0 => result3 <= to_real(to_float(get_ram_data(ram_read_data_out)));
-                        WHEN 1 => result2 <= to_real(to_float(get_ram_data(ram_read_data_out)));
+                        -- WHEN 0 => result3 <= to_real(to_float(get_ram_data(ram_read_data_out)));
+                        -- WHEN 1 => result2 <= to_real(to_float(get_ram_data(ram_read_data_out)));
                         WHEN others => -- do nothing
                     end CASE; --counter2
                 end if;
