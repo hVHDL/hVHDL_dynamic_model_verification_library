@@ -38,14 +38,14 @@ architecture vunit_simulation of lcr_simulation_tb is
 
 ------------------------------------------------------------------------
     signal realtime : real := 0.0;
-    signal timestep : real := 1.0e-6;
+    signal timestep : real := 0.7e-6;
 
     signal current : real := 0.0;
     signal voltage : real := 0.0;
     signal input_voltage : real := 1.0;
-    constant r : real := 0.5;
-    constant l : real := timestep/100.0e-6;
-    constant c : real := timestep/100.0e-6;
+    constant r : real := 0.15;
+    constant l : real := timestep/10.0e-6;
+    constant c : real := timestep/10.0e-6;
     signal sequencer : natural := 0;
 
     constant input_voltage_addr : natural := 89;
@@ -131,7 +131,7 @@ begin
     begin
         test_runner_setup(runner, runner_cfg);
         wait until realtime > 2.0e-3;
-        /* check(abs(result3-voltage) < 0.01); */
+        check(abs(result3-voltage) < 0.01);
         test_runner_cleanup(runner); -- Simulation ends here
         wait;
     end process simtime;	
@@ -226,7 +226,7 @@ begin
                         WHEN 0 => result3 <= to_real(to_float(get_ram_data(ram_read_data_out)));
                         WHEN 1 => result2 <= to_real(to_float(get_ram_data(ram_read_data_out)));
                             realtime <= realtime + timestep;
-                            write_to(file_handler,(realtime, result3, to_real(to_float(get_ram_data(ram_read_data_out))), voltage, current));
+                            write_to(file_handler,(realtime, result3, result2, voltage, current));
                         WHEN others => -- do nothing
                     end CASE; --counter2
                 end if;
