@@ -39,7 +39,7 @@ architecture vunit_simulation of lcr_simulation_tb is
 
 ------------------------------------------------------------------------
     signal realtime : real := 0.0;
-    signal timestep : real := 1.7e-6;
+    constant timestep : real := 1.7e-6;
 
     signal current : real := 0.0;
     signal voltage : real := 0.0;
