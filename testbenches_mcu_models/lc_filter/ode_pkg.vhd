@@ -155,7 +155,6 @@ package body ode_pkg is
         state := state + (k(1)*3.0 - k(2)) * stepsize/2.0;
     end am2_generic;
 ------------------------------------------
-
     procedure am4_generic
     generic(impure function deriv (input : real_vector) return real_vector is <>)
     (
@@ -173,6 +172,4 @@ package body ode_pkg is
         state := state + (k(1)*55.0 - k(2)*59.0 + k(3)*37.0 - k(4)*9.0) * stepsize/24.0;
     end am4_generic;
 ------------------------------------------
-
 end package body;
-

@@ -25,6 +25,7 @@ architecture vunit_simulation of lcr_simulation_rk4_tb is
 
     signal realtime : real := 0.0;
     constant timestep : real := 10.0e-6;
+    constant stoptime : real := 10.0e-3;
 
 begin
 
@@ -32,7 +33,7 @@ begin
     simtime : process
     begin
         test_runner_setup(runner, runner_cfg);
-        wait until realtime >= 10.0e-3;
+        wait until realtime >= stoptime;
         test_runner_cleanup(runner); -- Simulation ends here
         wait;
     end process simtime;	
@@ -63,7 +64,7 @@ begin
         procedure am2 is new am2_generic generic map(deriv_lcr);
         procedure am4 is new am4_generic generic map(deriv_lcr);
 
-        variable lcr : real_vector(0 to 1) := (0.0, 0.0);
+        variable lcr     : real_vector(0 to 1) := (0.0, 0.0);
         variable lcr_rk1 : real_vector(0 to 1) := (0.0, 0.0);
         variable lcr_rk2 : real_vector(0 to 1) := (0.0, 0.0);
 
@@ -79,7 +80,6 @@ begin
 
                 rk1(lcr_rk1, timestep);
                 am2(k,lcr, timestep);
-                -- lcr_rk2 := rk2(lcr_rk2, timestep);
                 rk2(lcr_rk2, timestep);
 
                 if realtime > 5.0e-3 then i_load := 2.0; end if;
