@@ -6,6 +6,13 @@ LIBRARY ieee  ;
 package ode_pkg is 
 
 ------------------------------------------
+    impure function generic_rk1
+    generic(impure function deriv (input : real_vector) return real_vector is <>)
+    (
+        state    : real_vector;
+        stepsize : real
+    ) return real_vector;
+------------------------------------------
     impure function generic_rk2
     generic(impure function deriv (input : real_vector) return real_vector is <>)
     (
@@ -22,6 +29,13 @@ package ode_pkg is
 ------------------------------------------
     type am_array is array(1 to 4) of real_vector(0 to 1);
 
+    procedure am2_generic
+    generic(impure function deriv (input : real_vector) return real_vector is <>)
+    (
+        variable adams_steps : inout am_array;
+        variable state       : inout real_vector;
+        stepsize             : real);
+------------------------------------------
     procedure am4_generic
     generic(impure function deriv (input : real_vector) return real_vector is <>)
     (
@@ -79,6 +93,21 @@ package body ode_pkg is
         return retval;
     end function "*";
 ------------------------------------------
+    impure function generic_rk1
+    generic(impure function deriv (input : real_vector) return real_vector is <>)
+    (
+        state    : real_vector;
+        stepsize : real
+
+    ) return real_vector is
+        variable retval : real_vector(state'range);
+    begin
+        retval := state + deriv(state)*stepsize;
+
+        return retval;
+    end generic_rk1;
+
+------------------------------------------
     impure function generic_rk2
     generic(impure function deriv (input : real_vector) return real_vector is <>)
     (
@@ -119,6 +148,23 @@ package body ode_pkg is
         return retval;
     end generic_rk4;
 ------------------------------------------
+    procedure am2_generic
+    generic(impure function deriv (input : real_vector) return real_vector is <>)
+    (
+        variable adams_steps : inout am_array;
+        variable state       : inout real_vector;
+        stepsize             : real
+    ) is
+        type state_array is array(1 to 4) of real_vector(state'range);
+        alias k is adams_steps;
+    begin
+        k(2) := k(1);
+        k(1) := deriv(state);
+
+        state := state + (k(1)*1.5 - k(2)*0.5) * stepsize;
+    end am2_generic;
+------------------------------------------
+
     procedure am4_generic
     generic(impure function deriv (input : real_vector) return real_vector is <>)
     (
@@ -167,7 +213,7 @@ architecture vunit_simulation of lcr_simulation_rk4_tb is
     -- simulation specific signals ----
 
     signal realtime : real := 0.0;
-    constant timestep : real := 1.0e-6;
+    constant timestep : real := 10.0e-6;
 
 begin
 
@@ -198,31 +244,36 @@ begin
             return retval;
         end function;
 
+        function rk1 is new generic_rk1 generic map(deriv_lcr);
         function rk2 is new generic_rk2 generic map(deriv_lcr);
         function rk4 is new generic_rk4 generic map(deriv_lcr);
 
         variable k : am_array := (others => (others => 0.0));
+        procedure am2 is new am2_generic generic map(deriv_lcr);
         procedure am4 is new am4_generic generic map(deriv_lcr);
 
         variable lcr : real_vector(0 to 1) := (0.0, 0.0);
+        variable lcr_rk1 : real_vector(0 to 1) := (0.0, 0.0);
+        variable lcr_rk2 : real_vector(0 to 1) := (0.0, 0.0);
 
         file file_handler : text open write_mode is "lcr_simulation_rk4_tb.dat";
     begin
         if rising_edge(simulator_clock) then
             simulation_counter <= simulation_counter + 1;
             if simulation_counter = 0 then
-                init_simfile(file_handler, ("time", "T_u1", "B_i1"));
+                init_simfile(file_handler, ("time", "T_u0","T_u1","T_u2", "B_i0","B_i1","B_i2"));
             end if;
 
             if simulation_counter > 0 then
 
-                -- lcr := rk2(lcr, timestep);
-                am4(k,lcr, timestep);
+                lcr_rk1 := rk1(lcr_rk1, timestep);
+                am2(k,lcr, timestep);
+                lcr_rk2 := rk2(lcr_rk2, timestep);
 
                 if realtime > 5.0e-3 then i_load := 2.0; end if;
 
                 realtime <= realtime + timestep;
-                write_to(file_handler,(realtime, lcr(0), lcr(1)));
+                write_to(file_handler,(realtime, lcr_rk1(0),lcr(0), lcr_rk2(0), lcr_rk1(1),lcr(1), lcr_rk2(1)));
 
             end if;
 
