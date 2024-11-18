@@ -127,6 +127,7 @@ package body ode_pkg is
         return retval;
     end generic_rk2;
 
+------------------------------------------
     impure function generic_rk4
     generic(impure function deriv (input : real_vector) return real_vector is <>)
     (
@@ -148,6 +149,7 @@ package body ode_pkg is
         return retval;
     end generic_rk4;
 ------------------------------------------
+------------------------------------------
     procedure am2_generic
     generic(impure function deriv (input : real_vector) return real_vector is <>)
     (
@@ -161,7 +163,7 @@ package body ode_pkg is
         k(2) := k(1);
         k(1) := deriv(state);
 
-        state := state + (k(1)*1.5 - k(2)*0.5) * stepsize;
+        state := state + (k(1)*3.0 - k(2)) * stepsize/2.0;
     end am2_generic;
 ------------------------------------------
 
