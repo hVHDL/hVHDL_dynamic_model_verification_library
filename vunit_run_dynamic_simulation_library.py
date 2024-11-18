@@ -114,6 +114,7 @@ mcu.add_source_files(ROOT / "source/hVHDL_microprogram_processor/memory_processo
 
 mcu.add_source_files(ROOT / "source/hVHDL_microprogram_processor/simple_processor/float_example_program_pkg.vhd")
 
+mcu.add_source_files(ROOT / "testbenches_mcu_models/lc_filter/ode_pkg.vhd")
 mcu.add_source_files(ROOT / "testbenches_mcu_models/lc_filter/lcr_simulation_tb.vhd")
 mcu.add_source_files(ROOT / "testbenches_mcu_models/lc_filter/lcr_simulation_rk4_tb.vhd")
 mcu.add_source_files(ROOT / "testbenches_mcu_models/3ph_lc/lcr_3ph_tb.vhd")

@@ -2,197 +2,6 @@ LIBRARY ieee  ;
     USE ieee.NUMERIC_STD.all  ; 
     USE ieee.std_logic_1164.all  ; 
     use ieee.math_real.all;
-
-package ode_pkg is 
-
-------------------------------------------
-    impure function generic_rk1
-    generic(impure function deriv (input : real_vector) return real_vector is <>)
-    (
-        state    : real_vector;
-        stepsize : real
-    ) return real_vector;
-------------------------------------------
-    impure function generic_rk2
-    generic(impure function deriv (input : real_vector) return real_vector is <>)
-    (
-        state    : real_vector;
-        stepsize : real
-    ) return real_vector;
-------------------------------------------
-    impure function generic_rk4
-    generic(impure function deriv (input : real_vector) return real_vector is <>)
-    (
-        state    : real_vector;
-        stepsize : real
-    ) return real_vector;
-------------------------------------------
-    type am_array is array(1 to 4) of real_vector(0 to 1);
-
-    procedure am2_generic
-    generic(impure function deriv (input : real_vector) return real_vector is <>)
-    (
-        variable adams_steps : inout am_array;
-        variable state       : inout real_vector;
-        stepsize             : real);
-------------------------------------------
-    procedure am4_generic
-    generic(impure function deriv (input : real_vector) return real_vector is <>)
-    (
-        variable adams_steps : inout am_array;
-        variable state       : inout real_vector;
-        stepsize             : real);
-------------------------------------------
-
-end package ode_pkg;
-
-package body ode_pkg is
-
-------------------------------------------
-    function "+" (left : real_vector; right : real_vector) return real_vector is
-        variable retval : left'subtype;
-    begin
-
-        for i in left'range loop
-            retval(i) := left(i) + right(i);
-        end loop;
-
-        return retval;
-    end function "+";
-------------------------------------------
-    function "-" (left : real_vector; right : real_vector) return real_vector is
-        variable retval : left'subtype;
-    begin
-
-        for i in left'range loop
-            retval(i) := left(i) - right(i);
-        end loop;
-
-        return retval;
-    end function "-";
-------------------------------------------
-    function "/" (left : real_vector; right : real) return real_vector is
-        variable retval : left'subtype;
-    begin
-
-        for i in left'range loop
-            retval(i) := left(i) / right;
-        end loop;
-
-        return retval;
-    end function "/";
-------------------------------------------
-    function "*" (left : real_vector; right : real) return real_vector is
-        variable retval : left'subtype;
-    begin
-
-        for i in left'range loop
-            retval(i) := left(i) * right;
-        end loop;
-
-        return retval;
-    end function "*";
-------------------------------------------
-    impure function generic_rk1
-    generic(impure function deriv (input : real_vector) return real_vector is <>)
-    (
-        state    : real_vector;
-        stepsize : real
-
-    ) return real_vector is
-        variable retval : real_vector(state'range);
-    begin
-        retval := state + deriv(state)*stepsize;
-
-        return retval;
-    end generic_rk1;
-
-------------------------------------------
-    impure function generic_rk2
-    generic(impure function deriv (input : real_vector) return real_vector is <>)
-    (
-        state    : real_vector;
-        stepsize : real
-
-    ) return real_vector is
-        type state_array is array(1 to 2) of real_vector(state'range);
-        variable k : state_array;
-        variable retval : real_vector(state'range);
-    begin
-        k(1) := deriv(state);
-        k(2) := deriv(state + k(1) * stepsize/ 2.0);
-
-        retval := state + k(2)*stepsize;
-
-        return retval;
-    end generic_rk2;
-
-------------------------------------------
-    impure function generic_rk4
-    generic(impure function deriv (input : real_vector) return real_vector is <>)
-    (
-        state    : real_vector;
-        stepsize : real
-
-    ) return real_vector is
-        type state_array is array(1 to 4) of real_vector(state'range);
-        variable k : state_array;
-        variable retval : real_vector(state'range);
-    begin
-        k(1) := deriv(state);
-        k(2) := deriv(state + k(1) * stepsize/ 2.0);
-        k(3) := deriv(state + k(2) * stepsize/ 2.0);
-        k(4) := deriv(state + k(3) * stepsize);
-
-        retval := state + (k(1) + k(2) * 2.0 + k(3) * 2.0 + k(4)) * stepsize/6.0;
-
-        return retval;
-    end generic_rk4;
-------------------------------------------
-------------------------------------------
-    procedure am2_generic
-    generic(impure function deriv (input : real_vector) return real_vector is <>)
-    (
-        variable adams_steps : inout am_array;
-        variable state       : inout real_vector;
-        stepsize             : real
-    ) is
-        type state_array is array(1 to 4) of real_vector(state'range);
-        alias k is adams_steps;
-    begin
-        k(2) := k(1);
-        k(1) := deriv(state);
-
-        state := state + (k(1)*3.0 - k(2)) * stepsize/2.0;
-    end am2_generic;
-------------------------------------------
-
-    procedure am4_generic
-    generic(impure function deriv (input : real_vector) return real_vector is <>)
-    (
-        variable adams_steps : inout am_array;
-        variable state       : inout real_vector;
-        stepsize             : real
-    ) is
-        type state_array is array(1 to 4) of real_vector(state'range);
-        alias k is adams_steps;
-    begin
-        k(4) := k(3);
-        k(3) := k(2);
-        k(2) := k(1);
-        k(1) := deriv(state);
-
-        state := state + (k(1)*55.0 - k(2)*59.0 + k(3)*37.0 - k(4)*9.0) * stepsize/24.0;
-    end am4_generic;
-------------------------------------------
-
-end package body;
-
------------------------------------------
-LIBRARY ieee  ; 
-    USE ieee.NUMERIC_STD.all  ; 
-    USE ieee.std_logic_1164.all  ; 
-    use ieee.math_real.all;
     use std.textio.all;
 
 library vunit_lib;
@@ -246,9 +55,9 @@ begin
             return retval;
         end function;
 
-        function rk1 is new generic_rk1 generic map(deriv_lcr);
-        function rk2 is new generic_rk2 generic map(deriv_lcr);
-        function rk4 is new generic_rk4 generic map(deriv_lcr);
+        procedure rk1 is new generic_rk1 generic map(deriv_lcr);
+        procedure rk2 is new generic_rk2 generic map(deriv_lcr);
+        procedure rk4 is new generic_rk4 generic map(deriv_lcr);
 
         variable k : am_array := (others => (others => 0.0));
         procedure am2 is new am2_generic generic map(deriv_lcr);
@@ -268,9 +77,10 @@ begin
 
             if simulation_counter > 0 then
 
-                lcr_rk1 := rk1(lcr_rk1, timestep);
+                rk1(lcr_rk1, timestep);
                 am2(k,lcr, timestep);
-                lcr_rk2 := rk2(lcr_rk2, timestep);
+                -- lcr_rk2 := rk2(lcr_rk2, timestep);
+                rk2(lcr_rk2, timestep);
 
                 if realtime > 5.0e-3 then i_load := 2.0; end if;
 
