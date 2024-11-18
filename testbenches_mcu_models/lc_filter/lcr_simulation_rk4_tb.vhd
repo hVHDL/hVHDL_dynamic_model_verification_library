@@ -20,6 +20,15 @@ package ode_pkg is
         stepsize : real
     ) return real_vector;
 ------------------------------------------
+    type am_array is array(1 to 4) of real_vector(0 to 1);
+
+    procedure am4_generic
+    generic(impure function deriv (input : real_vector) return real_vector is <>)
+    (
+        variable adams_steps : inout am_array;
+        variable state       : inout real_vector;
+        stepsize             : real);
+------------------------------------------
 
 end package ode_pkg;
 
@@ -37,6 +46,17 @@ package body ode_pkg is
         return retval;
     end function "+";
 ------------------------------------------
+    function "-" (left : real_vector; right : real_vector) return real_vector is
+        variable retval : left'subtype;
+    begin
+
+        for i in left'range loop
+            retval(i) := left(i) - right(i);
+        end loop;
+
+        return retval;
+    end function "-";
+------------------------------------------
     function "/" (left : real_vector; right : real) return real_vector is
         variable retval : left'subtype;
     begin
@@ -48,7 +68,6 @@ package body ode_pkg is
         return retval;
     end function "/";
 ------------------------------------------
-
     function "*" (left : real_vector; right : real) return real_vector is
         variable retval : left'subtype;
     begin
@@ -99,6 +118,24 @@ package body ode_pkg is
 
         return retval;
     end generic_rk4;
+------------------------------------------
+    procedure am4_generic
+    generic(impure function deriv (input : real_vector) return real_vector is <>)
+    (
+        variable adams_steps : inout am_array;
+        variable state       : inout real_vector;
+        stepsize             : real
+    ) is
+        type state_array is array(1 to 4) of real_vector(state'range);
+        alias k is adams_steps;
+    begin
+        k(4) := k(3);
+        k(3) := k(2);
+        k(2) := k(1);
+        k(1) := deriv(state);
+
+        state := state + (k(1)*55.0 - k(2)*59.0 + k(3)*37.0 - k(4)*9.0) * stepsize/24.0;
+    end am4_generic;
 ------------------------------------------
 
 end package body;
@@ -164,6 +201,9 @@ begin
         function rk2 is new generic_rk2 generic map(deriv_lcr);
         function rk4 is new generic_rk4 generic map(deriv_lcr);
 
+        variable k : am_array := (others => (others => 0.0));
+        procedure am4 is new am4_generic generic map(deriv_lcr);
+
         variable lcr : real_vector(0 to 1) := (0.0, 0.0);
 
         file file_handler : text open write_mode is "lcr_simulation_rk4_tb.dat";
@@ -176,7 +216,8 @@ begin
 
             if simulation_counter > 0 then
 
-                lcr := rk2(lcr, timestep);
+                -- lcr := rk2(lcr, timestep);
+                am4(k,lcr, timestep);
 
                 if realtime > 5.0e-3 then i_load := 2.0; end if;
 

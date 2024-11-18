@@ -2,19 +2,6 @@ library ieee;
     use ieee.std_logic_1164.all;
     use ieee.numeric_std.all;
 
-    use work.microinstruction_pkg.all;
-    use work.multi_port_ram_pkg.all;
-    use work.simple_processor_pkg.all;
-    use work.processor_configuration_pkg.all;
-    use work.float_alu_pkg.all;
-    use work.float_type_definitions_pkg.all;
-    use work.float_to_real_conversions_pkg.all;
-
-    use work.memory_processing_pkg.all;
-    -- use work.float_assembler_pkg.all;
-    use work.microinstruction_pkg.all;
-    use work.write_pkg.all;
-
 package arraymath is
 
     function "+" ( left, right : real_vector)
@@ -97,7 +84,6 @@ package body arraymath is
 
     end "/";
 ------------------------------------------------------------------------
-
 end package body arraymath;
 
 LIBRARY ieee  ; 
