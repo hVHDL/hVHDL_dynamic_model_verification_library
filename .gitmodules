@@ -4,3 +4,6 @@
 [submodule "source/hVHDL_microprogam_processor"]
 	path = source/hVHDL_microprogram_processor
 	url = https://github.com/hVHDL/hVHDL_microprogam_processor.git
+[submodule "source/hVHDL_ode"]
+	path = source/hVHDL_ode
+	url = https://github.com/hVHDL/hVHDL_ode.git
